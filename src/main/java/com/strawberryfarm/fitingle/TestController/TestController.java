@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TestController {
 	@GetMapping("/test")
 	public ResponseEntity<String> TestMethod(){
+		System.out.println("연결성확인");
 		return ResponseEntity.ok("TEST API");
 	}
 }
