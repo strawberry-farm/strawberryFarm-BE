@@ -28,7 +28,7 @@ jobs:
         distribution: 'corretto'
     - name: make application yml
       run: |
-        cd ./mainApplicationYml
+        cd ./src/main/resources
         touch ./application-main.yml
         echo "${{ secrets.APPLICATION_YML }}" > ./application-main.yml
       shell: bash
