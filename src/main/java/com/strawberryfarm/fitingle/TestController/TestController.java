@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class TestController {
 	@GetMapping("/test")
-	public ResponseEntity<String> TestMethod(){
-		return ResponseEntity.ok("test");
+	public String TestMethod(){
+		return "testest";
 	}
 }
