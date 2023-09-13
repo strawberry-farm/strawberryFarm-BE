@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class FitingleApplication {
 
 	public static void main(String[] args) {
+		System.out.println("Start fitingle");
 		SpringApplication.run(FitingleApplication.class, args);
 	}
 
