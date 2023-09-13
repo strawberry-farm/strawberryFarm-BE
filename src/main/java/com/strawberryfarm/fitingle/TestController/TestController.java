@@ -13,6 +13,6 @@ public class TestController {
 	@GetMapping("")
 	public ResponseEntity<String> TestMethod(){
 		System.out.println("연결성확인");
-		return ResponseEntity.ok("TEST API");
+		return ResponseEntity.ok("TEST API CONVERT");
 	}
 }
