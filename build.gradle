@@ -42,5 +42,17 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // H2
+    runtimeOnly 'com.h2database:h2'
+
+    //JUnit4
+    testImplementation("org.junit.vintage:junit-vintage-engine") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
+
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
 }
 
