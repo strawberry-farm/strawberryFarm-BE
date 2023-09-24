@@ -2,10 +2,13 @@ package com.strawberryfarm.fitingle.domain;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 
@@ -17,8 +20,14 @@ public class Qna extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Long userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userId")
+    private Users user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardId", insertable = false, updatable = false)
+    private Board board;
+
 
     @Column(nullable = false)
     private Long boardId;
@@ -32,4 +41,7 @@ public class Qna extends BaseEntity {
 
     private String password;
 
+    public void setUser(Users users) {
+        this.user =  users;
+    }
 }

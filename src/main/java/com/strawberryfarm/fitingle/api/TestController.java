@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.TestController;
+package com.strawberryfarm.fitingle.api;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
