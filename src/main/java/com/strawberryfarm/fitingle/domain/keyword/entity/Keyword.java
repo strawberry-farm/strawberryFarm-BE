@@ -1,5 +1,6 @@
-package com.strawberryfarm.fitingle.domain;
+package com.strawberryfarm.fitingle.domain.keyword.entity;
 
+import com.strawberryfarm.fitingle.domain.BaseEntity;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -10,14 +11,15 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "search_log")
-public class SearchLog extends BaseEntity{
-
+@Table(name = "keyword")
+public class Keyword extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String word;
+    private Long userId;
 
+    @Column(nullable = false)
+    private String name;
 }

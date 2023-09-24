@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain;
 
+import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;

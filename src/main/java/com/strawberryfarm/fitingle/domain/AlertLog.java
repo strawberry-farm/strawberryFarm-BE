@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain;
 
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;

@@ -1,9 +1,9 @@
-package com.strawberryfarm.fitingle.domain;
+package com.strawberryfarm.fitingle.domain.interestfield.entity;
 
-import javax.persistence.Column;
+import com.strawberryfarm.fitingle.domain.BaseEntity;
+import com.strawberryfarm.fitingle.domain.Field;
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,20 +15,19 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "wish")
-public class Wish extends BaseEntity{
-
+@Table(name = "interest_field")
+public class InterestField extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
-    private Users user;
+    @JoinColumn(name = "fieldId")
+    private Field field;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boardId")
-    private Board board;
+    @JoinColumn(name = "userId")
+    private Users user;
 
     public void setUser(Users users) {
         this.user = users;

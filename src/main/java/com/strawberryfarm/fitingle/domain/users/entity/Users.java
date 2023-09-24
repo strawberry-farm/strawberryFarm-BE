@@ -1,5 +1,14 @@
-package com.strawberryfarm.fitingle.domain;
+package com.strawberryfarm.fitingle.domain.users.entity;
 
+import com.strawberryfarm.fitingle.domain.AlertLog;
+import com.strawberryfarm.fitingle.domain.Apply;
+import com.strawberryfarm.fitingle.domain.BaseEntity;
+import com.strawberryfarm.fitingle.domain.Board;
+import com.strawberryfarm.fitingle.domain.Comment;
+import com.strawberryfarm.fitingle.domain.Groups;
+import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
+import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
+import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +25,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Getter

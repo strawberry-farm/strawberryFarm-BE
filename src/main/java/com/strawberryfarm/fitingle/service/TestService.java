@@ -1,7 +1,7 @@
 package com.strawberryfarm.fitingle.service;
 
-import com.strawberryfarm.fitingle.domain.Users;
-import com.strawberryfarm.fitingle.repository.UserRepository;
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
+import com.strawberryfarm.fitingle.domain.users.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
