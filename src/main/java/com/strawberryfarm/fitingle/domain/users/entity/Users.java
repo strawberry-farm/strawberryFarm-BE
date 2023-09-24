@@ -1,11 +1,11 @@
 package com.strawberryfarm.fitingle.domain.users.entity;
 
-import com.strawberryfarm.fitingle.domain.AlertLog;
-import com.strawberryfarm.fitingle.domain.Apply;
 import com.strawberryfarm.fitingle.domain.BaseEntity;
-import com.strawberryfarm.fitingle.domain.Board;
-import com.strawberryfarm.fitingle.domain.Comment;
-import com.strawberryfarm.fitingle.domain.Groups;
+import com.strawberryfarm.fitingle.domain.alertlog.entity.AlertLog;
+import com.strawberryfarm.fitingle.domain.apply.entity.Apply;
+import com.strawberryfarm.fitingle.domain.board.entity.Board;
+import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
+import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
 import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
@@ -32,7 +32,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class  Users extends BaseEntity {
+public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -102,26 +102,32 @@ public class  Users extends BaseEntity {
         applies.add(apply);
         apply.setUser(this);
     }
+
     public void addBoard(Board board) {
         this.boards.add(board);
         board.setUser(this);  // Board에서 User로의 연관관계도 설정
     }
+
     public void addComment(Comment comment) {
         comments.add(comment);
         comment.setUser(this);
     }
+
     public void addGroup(Groups group) {
         this.groups.add(group);
         group.setUser(this);
     }
+
     public void addInterestField(InterestField interestField) {
         interestFields.add(interestField);
         interestField.setUser(this);
     }
+
     public void addQna(Qna qna) {
         qnas.add(qna);
         qna.setUser(this);
     }
+
     public void addWish(Wish wish) {
         wishes.add(wish);
         wish.setUser(this);

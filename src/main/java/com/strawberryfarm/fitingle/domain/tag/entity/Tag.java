@@ -1,7 +1,7 @@
 package com.strawberryfarm.fitingle.domain.tag.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
-import com.strawberryfarm.fitingle.domain.Board;
+import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

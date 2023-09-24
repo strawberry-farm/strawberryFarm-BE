@@ -1,7 +1,7 @@
 package com.strawberryfarm.fitingle.domain.interestfield.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
-import com.strawberryfarm.fitingle.domain.Field;
+import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;

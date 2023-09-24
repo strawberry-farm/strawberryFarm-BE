@@ -1,9 +1,11 @@
-package com.strawberryfarm.fitingle.domain.wish.entity;
+package com.strawberryfarm.fitingle.domain.groups.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,9 +17,8 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "wish")
-public class Wish extends BaseEntity {
-
+@Table(name = "groups")
+public class Groups extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,7 +31,18 @@ public class Wish extends BaseEntity {
     @JoinColumn(name = "boardId")
     private Board board;
 
-    public void setUser(Users users) {
-        this.user = users;
+    @Enumerated(EnumType.STRING)
+    private GroupsStatus status;
+
+    // 연관관계 메서드
+    public void setUser(Users user) {
+        this.user = user;
+        user.getGroups().add(this);
     }
+    public void setBoard(Board board) {
+        this.board = board;
+        board.getGroups().add(this);
+    }
+
+
 }

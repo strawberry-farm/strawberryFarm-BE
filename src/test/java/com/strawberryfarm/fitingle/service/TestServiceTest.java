@@ -2,10 +2,10 @@ package com.strawberryfarm.fitingle.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.strawberryfarm.fitingle.domain.Board;
-import com.strawberryfarm.fitingle.domain.Days;
-import com.strawberryfarm.fitingle.domain.PostStatus;
-import com.strawberryfarm.fitingle.domain.Times;
+import com.strawberryfarm.fitingle.domain.board.entity.Board;
+import com.strawberryfarm.fitingle.domain.board.entity.Days;
+import com.strawberryfarm.fitingle.domain.board.entity.PostStatus;
+import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UserRepository;
 import org.junit.jupiter.api.Test;
