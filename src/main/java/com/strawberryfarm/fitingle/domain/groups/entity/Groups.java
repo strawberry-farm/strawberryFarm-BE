@@ -17,7 +17,7 @@ import lombok.Getter;
 
 @Entity
 @Getter
-@Table(name = "groups")
+@Table(name = "my_groups")
 public class Groups extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
