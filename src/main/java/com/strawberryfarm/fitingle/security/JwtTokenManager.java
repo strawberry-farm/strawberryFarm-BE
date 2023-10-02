@@ -73,7 +73,7 @@ public class JwtTokenManager {
 		return new UsernamePasswordAuthenticationToken(userDetails,"",authorities);
  	}
 
-	public String genAccessToken(String userName, Authentication authentication) {
+	public String genAccessToken(Authentication authentication) {
 		long now = (new Date()).getTime();
 		Date expireDate = new Date(now+ACCESS_TOKEN_EXPIRE_TIME);
 
@@ -87,7 +87,7 @@ public class JwtTokenManager {
 
 		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
 				.setHeaderParam("typ", "jwt")
-				.setSubject(userName)
+				.setSubject(authentication.getName())
 				.setClaims(authoritiesMap)
 				.setIssuer("fitingle")
 				.setIssuedAt(Date.from(Instant.now()))
