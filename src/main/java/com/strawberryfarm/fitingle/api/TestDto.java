@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.TestController;
+package com.strawberryfarm.fitingle.api;
 
 import lombok.Builder;
 import lombok.Getter;

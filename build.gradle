@@ -42,5 +42,35 @@ dependencies {
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
+    // H2
+    runtimeOnly 'com.h2database:h2'
+
+    //JUnit4
+    testImplementation("org.junit.vintage:junit-vintage-engine") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
+
+
+    // security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.boot:spring-security-test'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-gson:0.11.5'
+
+    // gson Json 변환을 위한 dependency
+    implementation 'com.google.code.gson:gson:2.10.1'
+
+    // Json 테스트 코드를 위한 dependency
+    implementation 'com.jayway.jsonpath:json-path:2.8.0'
+
+    //smtp 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
+tasks.named('test') {
+    useJUnitPlatform()
+}
