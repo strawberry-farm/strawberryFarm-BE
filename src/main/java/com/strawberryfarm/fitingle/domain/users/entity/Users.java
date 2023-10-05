@@ -8,30 +8,32 @@ import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
+import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
+import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
 import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import java.util.stream.Collectors;
+import javax.persistence.*;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Getter
-@Builder
 @AllArgsConstructor
-@Table(name = "users")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@SuperBuilder
+@Table(name = "users")
 public class Users extends BaseEntity {
 
     @Id
@@ -78,6 +80,9 @@ public class Users extends BaseEntity {
     private String password;
 
     @Column(nullable = false)
+    private String roles;
+
+    @Column(nullable = false)
     private String nickname;
 
     private String interestArea;
@@ -93,7 +98,12 @@ public class Users extends BaseEntity {
     private String aboutMe;
 
     @Column(nullable = false)
-    private String loginType;
+    @Enumerated(EnumType.STRING)
+    private SignUpType signUpType;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private UsersStatus status;
 
     private LocalDateTime deleteDate;
 
