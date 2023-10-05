@@ -66,6 +66,9 @@ dependencies {
     // Json 테스트 코드를 위한 dependency
     implementation 'com.jayway.jsonpath:json-path:2.8.0'
 
+    //smtp 의존성 추가
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 tasks.named('test') {
