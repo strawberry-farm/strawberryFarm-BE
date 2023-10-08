@@ -45,7 +45,7 @@ public class UsersController {
             return ResponseEntity.ok(ResultDto.builder()
                     .message(resultDto.getMessage())
                     .data(null)
-                    .message(resultDto.getErrorCode())
+                    .errorCode(resultDto.getErrorCode())
                 .build());
         }
         Cookie cookie = new Cookie("refreshToken",((UsersLoginResponseVo)resultDto.getData()).getRefreshToken());

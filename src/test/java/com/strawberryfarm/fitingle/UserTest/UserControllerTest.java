@@ -13,9 +13,12 @@ import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestD
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,14 +27,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class UserControllerTest {
     @Autowired
     MockMvc mockMvc;
 
     @Autowired
-    UsersService usersService;
+    private UsersService usersService;
 
-    @BeforeEach
+    @BeforeAll
     private void SetUp() {
         UsersSignUpRequestDto testData1 = UsersSignUpRequestDto.builder()
                 .email("test1@naver.com")
@@ -49,6 +53,7 @@ public class UserControllerTest {
         usersService.SignUp(testData2);
     }
 
+    //회원 가입 테스트
     @Test
     @DisplayName("UserController SignUp Test")
     public void SignUpTest() throws Exception {
@@ -66,14 +71,17 @@ public class UserControllerTest {
         mockMvc.perform(post("/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .content(json))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("email").value("test@naver.com"))
-                .andExpect(jsonPath("nickName").value("PowerMan"))
-                .andExpect(jsonPath("createdDate").exists())
-                .andExpect(jsonPath("updateDate").exists())
-                .andDo(print());
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("message").value("success"))
+            .andExpect(jsonPath("$.data.email").value("test@naver.com"))
+            .andExpect(jsonPath("$.data.nickName").value("PowerMan"))
+            .andExpect(jsonPath("$.data.createdDate").exists())
+            .andExpect(jsonPath("$.data.updateDate").exists())
+            .andExpect(jsonPath("errorCode").value("1111"))
+            .andDo(print());
     }
 
+    //이메일 인증 관련 테스트 모음
     @Test
     @DisplayName("UserController Email Auth CompleteTest")
     public void emailAuthCompleteTest() throws Exception {
@@ -118,7 +126,7 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("UserController Email Auth IncorrectCode")
+    @DisplayName("UserController Email Auth Incorrect Code")
     public void emailAuthIncorrectCodeTest() throws Exception {
         //given
         EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto =
@@ -142,15 +150,7 @@ public class UserControllerTest {
             .andDo(print());
     }
 
-    @Test
-    @DisplayName("Users List TEST")
-    public void getUsersList() throws Exception {
-        mockMvc.perform(get("/auth/list")
-                .contentType(MediaType.APPLICATION_JSON_VALUE))
-                .andExpect(status().isOk())
-                .andDo(print());
-    }
-
+    // 로그인 관련 테스트 모음
     @Test
     @DisplayName("UsersController Login Test")
     public void LoginTest() throws Exception {
@@ -169,6 +169,7 @@ public class UserControllerTest {
                         .content(json))
             .andExpect(status().isOk())
             .andExpect(jsonPath("message").value("success"))
+            .andExpect(jsonPath("$.data.userId").exists())
             .andExpect(jsonPath("$.data.email").value("test1@naver.com"))
             .andExpect(jsonPath("$.data.nickName").value("PowerMan1"))
             .andExpect(jsonPath("$.data.accessToken").exists())
@@ -177,4 +178,13 @@ public class UserControllerTest {
             .andDo(print());
     }
 
+    //부가적인 API 테스트
+    @Test
+    @DisplayName("Users List TEST")
+    public void getUsersList() throws Exception {
+        mockMvc.perform(get("/auth/list")
+                .contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(status().isOk())
+            .andDo(print());
+    }
 }
