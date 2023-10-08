@@ -20,6 +20,7 @@ import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -31,6 +32,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -79,7 +81,7 @@ public class UsersService {
         sendEmail(email,subject,htmlContents);
 
         String key = CERTIFICATION_KEY_PREFIX + email;
-        redisTemplate.opsForValue().set(key,Integer.toString(certificationNumber),30,TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key,Integer.toString(certificationNumber),300,TimeUnit.SECONDS);
 
         return EmailCertificationResponseDto.builder()
             .email(email)
@@ -121,7 +123,7 @@ public class UsersService {
         String value = redisTemplate.opsForValue().get(key).toString();
         if (value == null || !code.equals(value)) {
             return ResultDto.builder()
-                .message("Fail Certificate")
+                .message("Fail certificate")
                 .data(null)
                 .errorCode("0004")
                 .build();
@@ -177,10 +179,10 @@ public class UsersService {
             String accessToken = jwtTokenManager.genAccessToken(authentication);
             String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
             Users findUsers = usersRepository.findUsersByEmail(authentication.getName()).get();
-;
 
             return UsersLoginResponseVo.builder()
                 .usersLoginResponseDto(UsersLoginResponseDto.builder()
+                    .userId(findUsers.getId())
                     .email(findUsers.getEmail())
                     .nickName(findUsers.getNickname())
                     .accessToken(accessToken)
@@ -190,7 +192,7 @@ public class UsersService {
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return ResultDto.builder()
-                .message("Invalid User")
+                .message("Invalid user cause: incorrect password or not signup users")
                 .data(null)
                 .errorCode("0003")
                 .build();
@@ -204,6 +206,7 @@ public class UsersService {
     private boolean checkEmailValid(String email) {
         return email.matches("^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$");
     }
+
 
 
     // 여기서 부터는 무조건 테스트를 위한 메서드들 실제 서비스에서는 사용 X

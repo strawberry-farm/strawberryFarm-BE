@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UsersLoginResponseDto {
+    private Long userId;
     private String email;
     private String nickName;
     private String accessToken;
