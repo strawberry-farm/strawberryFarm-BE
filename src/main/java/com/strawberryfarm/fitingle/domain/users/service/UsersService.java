@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.users.service;
 
+import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersAllUsersResponse;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseDto;
@@ -20,7 +21,6 @@ import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -32,7 +32,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -112,9 +111,9 @@ public class UsersService {
 
         if (!checkEmailValid(email)) {
             return ResultDto.builder()
-                .message("Wrong email")
+                .message(ErrorCode.INVALID_EMAIL.getMessage())
                 .data(null)
-                .errorCode("0000")
+                .errorCode(ErrorCode.INVALID_EMAIL.getCode())
                 .build();
         }
 
