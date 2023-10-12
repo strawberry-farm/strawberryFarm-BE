@@ -142,4 +142,8 @@ public class Users extends BaseEntity {
         wishes.add(wish);
         wish.setUser(this);
     }
+
+    public void modifyNickname(String nickName) {
+        this.nickname = nickName;
+    }
 }

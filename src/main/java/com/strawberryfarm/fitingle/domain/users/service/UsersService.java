@@ -43,7 +43,7 @@ public class UsersService {
     private final UsersRepository usersRepository;
     private final JwtTokenManager jwtTokenManager;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-//    private final UsersCertificationRepository usersCertificationRepository;
+    //    private final UsersCertificationRepository usersCertificationRepository;
     private final JavaMailSender mailSender;
     private final RedisTemplate redisTemplate;
     private final String CERTIFICATION_KEY_PREFIX = "certification:";
@@ -123,7 +123,7 @@ public class UsersService {
         String value = redisTemplate.opsForValue().get(key).toString();
         if (value == null || !code.equals(value)) {
             return ResultDto.builder()
-                .message("Fail certificate")
+                .message("Fail Certificate")
                 .data(null)
                 .errorCode("0004")
                 .build();
@@ -135,27 +135,34 @@ public class UsersService {
             .build().doResultDto("success","1111");
     }
 
-    public ResultDto SignUp(UsersSignUpRequestDto usersSignUpRequestDto) {
-        Users newUsers = Users.builder()
-                .email(usersSignUpRequestDto.getEmail())
-                .password(passwordEncoder.encode(usersSignUpRequestDto.getPassword()))
-                .nickname(usersSignUpRequestDto.getNickName())
-                .roles("ROLE_USERS")
-                .profileImageUrl("default")
-                .signUpType(SignUpType.FITINGLE)
-                .status(UsersStatus.AUTHORIZED)
-                .createdDate(LocalDateTime.now())
-                .updateDate(LocalDateTime.now())
+    public ResultDto signUp(UsersSignUpRequestDto usersSignUpRequestDto) {
+        if (!checkPasswordValid(usersSignUpRequestDto.getPassword())) {
+            return ResultDto.builder()
+                .message("Invalid password format")
+                .data(null)
+                .errorCode("0000")
                 .build();
+        }
+        Users newUsers = Users.builder()
+            .email(usersSignUpRequestDto.getEmail())
+            .password(passwordEncoder.encode(usersSignUpRequestDto.getPassword()))
+            .nickname(usersSignUpRequestDto.getNickName())
+            .roles("ROLE_USERS")
+            .profileImageUrl("default")
+            .signUpType(SignUpType.FITINGLE)
+            .status(UsersStatus.AUTHORIZED)
+            .createdDate(LocalDateTime.now())
+            .updateDate(LocalDateTime.now())
+            .build();
 
         usersRepository.save(newUsers);
 
         return UsersSignUpResponseDto.builder()
-                .email(newUsers.getEmail())
-                .nickName(newUsers.getNickname())
-                .createdDate(newUsers.getCreatedDate())
-                .updateDate(newUsers.getUpdateDate())
-                .build()
+            .email(newUsers.getEmail())
+            .nickName(newUsers.getNickname())
+            .createdDate(newUsers.getCreatedDate())
+            .updateDate(newUsers.getUpdateDate())
+            .build()
             .doResultDto("success","1111");
     }
 
@@ -165,20 +172,25 @@ public class UsersService {
             return ResultDto.builder()
                 .message("Wrong email")
                 .data(null)
-                .errorCode("0000")
+                .errorCode("0005")
                 .build();
         }
 
         try {
             UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(usersLoginRequestDto.getEmail()
-                            ,usersLoginRequestDto.getPassword());
+                new UsernamePasswordAuthenticationToken(usersLoginRequestDto.getEmail()
+                    ,usersLoginRequestDto.getPassword());
 
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
             String accessToken = jwtTokenManager.genAccessToken(authentication);
             String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
             Users findUsers = usersRepository.findUsersByEmail(authentication.getName()).get();
+
+            redisTemplate.opsForValue().set(findUsers.getEmail()
+                ,refreshToken
+                ,jwtTokenManager.getRefreshTokenExpiredTime(),TimeUnit.MILLISECONDS);
+
 
             return UsersLoginResponseVo.builder()
                 .usersLoginResponseDto(UsersLoginResponseDto.builder()
@@ -207,6 +219,9 @@ public class UsersService {
         return email.matches("^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$");
     }
 
+    private boolean checkPasswordValid(String password) {
+        return password.matches("^[a-z0-9A-Z~!@#$%^&*()_=+,.?]{6,24}$");
+    }
 
 
     // 여기서 부터는 무조건 테스트를 위한 메서드들 실제 서비스에서는 사용 X
