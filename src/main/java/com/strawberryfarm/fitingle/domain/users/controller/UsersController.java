@@ -34,7 +34,7 @@ public class UsersController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody UsersSignUpRequestDto usersSignUpRequestDto) {
-        return ResponseEntity.ok(usersService.SignUp(usersSignUpRequestDto));
+        return ResponseEntity.ok(usersService.signUp(usersSignUpRequestDto));
     }
 
     @PostMapping("/login")

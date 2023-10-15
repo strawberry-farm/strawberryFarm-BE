@@ -1,9 +1,14 @@
 package com.strawberryfarm.fitingle.security;
 
+import com.strawberryfarm.fitingle.dto.ResultDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import javax.persistence.Access;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,30 +39,60 @@ public class JwtTokenManager {
 		this.key = Keys.hmacShaKeyFor(byteKey);
 	}
 
-	public boolean accessTokenValidate(String jwt) {
-		if (!StringUtils.hasText(jwt)) {
+
+	public boolean accessTokenValidate(String accessToken, ResultDto result) {
+		if (!StringUtils.hasText(accessToken)) {
 			// 토큰이 없다, 로그 남기기
+			result.setResultData("accessToken Exception : Invalid JWT Token" ,null, "0100");
 			return false;
 		}
 
 		try {
-			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
 			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
 			System.out.println("Invalid JWT Token");
+			result.setResultData("accessToken Exception : Invalid JWT Token" ,null, "0100");
 		} catch (ExpiredJwtException e) {
 			System.out.println("Expired JWT Token");
+			result.setResultData("accessToken Exception : Expired JWT Token" ,null, "0101");
 		} catch (UnsupportedJwtException e) {
 			System.out.println("Unsupported JWT Token");
+			result.setResultData("accessToken Exception : Unsupported JWT Token" ,null, "0102");
 		} catch (IllegalArgumentException e) {
 			System.out.println("JWT claims string is empty");
+			result.setResultData("accessToken Exception : JWT claims string is empty" ,null, "0103");
 		}
 
 		return false;
 	}
 
-	public Authentication getAuthentication(String jwt) {
-		Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
+	public boolean refreshTokenValidate(String refreshToken,ResultDto result) {
+		if (!StringUtils.hasText(refreshToken)) {
+			// 토큰이 없다, 로그 남기기
+			result.setResultData("refreshToken Exception : Invalid JWT Token" ,null, "0100");
+			return false;
+		}
+
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+			return true;
+		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+			System.out.println("Invalid JWT Token");
+			result.setResultData("refreshToken Exception : Invalid JWT Token" ,null, "0104");
+		} catch (ExpiredJwtException e) {
+			System.out.println("Expired JWT Token");
+			result.setResultData("refreshToken Exception : Expired JWT Token" ,null, "0105");
+		} catch (UnsupportedJwtException e) {
+			System.out.println("Unsupported JWT Token");
+			result.setResultData("refreshToken Exception : Unsupported JWT Token" ,null, "0106");
+		}
+
+		return false;
+	}
+
+	public Authentication getAuthentication(String accessToken) {
+		Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
 
 		if (claims.get("auth") == null) {
 			return null;
@@ -72,6 +107,16 @@ public class JwtTokenManager {
 		UserDetails userDetails = new User(claims.getSubject(),"",authorities);
 		return new UsernamePasswordAuthenticationToken(userDetails,"",authorities);
  	}
+
+	 public String getAuthName(String refreshToken) {
+		 Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+
+		 if (claims.get("auth") == null) {
+			 return null;
+		 }
+
+		 return claims.getSubject();
+	}
 
 	public String genAccessToken(Authentication authentication) {
 		long now = (new Date()).getTime();
@@ -123,6 +168,20 @@ public class JwtTokenManager {
 				.compact();
 	}
 
+	private ResultDto setResultDto(String message, String errorCode) {
+		return ResultDto.builder()
+			.message(message)
+			.data(null)
+			.errorCode(errorCode)
+			.build();
+	}
 
+	public Long getAccessTokenExpiredTime() {
+		return ACCESS_TOKEN_EXPIRE_TIME;
+	}
+
+	public Long getRefreshTokenExpiredTime() {
+		return REFRESH_TOKEN_EXPIRE_TIME;
+	}
 
 }

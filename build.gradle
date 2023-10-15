@@ -43,9 +43,11 @@ dependencies {
     // H2
     runtimeOnly 'com.h2database:h2'
     //JUnit4
-    testImplementation("org.junit.vintage:junit-vintage-engine") {
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-    }
+//    testImplementation("org.junit.vintage:junit-vintage-engine") {
+//        exclude group: "org.hamcrest", module: "hamcrest-core"
+//    }
+
+
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
     // jwt
