@@ -26,7 +26,7 @@ public class AdminAreaService {
     private final RestTemplate restTemplate;
     private final AdminAreaRepository areaRepository;
 
-    public final String BASE_URL = "https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern=";
+    private static final String BASE_URL = "https://grpc-proxy-server-mkvo6j4wsq-du.a.run.app/v1/regcodes?regcode_pattern=";
 
 
     // '시도' 이름을 간략화하기 위한 상수 매핑
