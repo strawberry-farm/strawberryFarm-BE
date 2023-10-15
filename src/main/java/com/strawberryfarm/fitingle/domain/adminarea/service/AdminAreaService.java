@@ -215,37 +215,41 @@ public class AdminAreaService {
     /**
      * 모든 행정구역 정보를 가져와 '시도' 별로 그룹화하여 반환한다. 예: {31: [울산 전체, 중구, 남구, 동구, 북구, 울주군]}
      */
-    public ResultDto<List<AdminAreaResponseDTO>> getAllAdminAreas() {
+    public ResultDto<AdminAreaResponseDTO> getAllAdminAreas() {
         try {
             List<AdminArea> adminAreas = areaRepository.findAllByOrderBySidoCodeAscNameAsc();
             Map<String, List<AdminArea>> groupedBySido = groupBySido(adminAreas);
 
-            List<AdminAreaResponseDTO> result = new ArrayList<>();
+            List<AdminAreaResponseDTO.Sido> result = new ArrayList<>();
             for (Map.Entry<String, List<AdminArea>> entry : groupedBySido.entrySet()) {
                 result.add(convertToAdminAreaDTO(entry));
             }
+
+            AdminAreaResponseDTO response = AdminAreaResponseDTO.builder().sido(result).build();
+
             if (result.isEmpty()) {
-                return ResultDto.<List<AdminAreaResponseDTO>>builder()
+                return ResultDto.<AdminAreaResponseDTO>builder()
                         .message("관리 지역 정보를 찾을 수 없습니다.")
                         .data(null)
                         .errorCode("2000")
                         .build();
             }
 
-            return ResultDto.<List<AdminAreaResponseDTO>>builder()
+            return ResultDto.<AdminAreaResponseDTO>builder()
                     .message("관리 지역 정보를 성공적으로 가져왔습니다.")
-                    .data(result)
-                    .errorCode(null)
+                    .data(response)
+                    .errorCode("1111")
                     .build();
 
         } catch(Exception e) {
-            return ResultDto.<List<AdminAreaResponseDTO>>builder()
+            return ResultDto.<AdminAreaResponseDTO>builder()
                     .message("관리 지역 정보를 가져오는 중 오류가 발생하였습니다.")
                     .data(null)
                     .errorCode("2001")
                     .build();
         }
     }
+
 
     /**
      * 행정구역 리스트를 '시도' 코드별로 그룹화한다.
@@ -268,32 +272,30 @@ public class AdminAreaService {
      * 예: {31: [중구, 남구, 동구, ...]} -> AdminAreaResponseDTO(울산, [울산 전체, 중구, 남구, 동구, ...])
      * sigungus 항목이 1개만 있고, 전체 항목도 존재하면 전체 항목 제거 ->  세종의 경우 '세종 전체'는 삭제한다.
      */
-    private AdminAreaResponseDTO convertToAdminAreaDTO(Map.Entry<String, List<AdminArea>> entry) {
+    private AdminAreaResponseDTO.Sido convertToAdminAreaDTO(Map.Entry<String, List<AdminArea>> entry) {
         List<AdminArea> areas = entry.getValue();
 
         String sidoName = "";
         List<AdminAreaResponseDTO.Sigungu> sigungus = new ArrayList<>();
         AdminAreaResponseDTO.Sigungu entireArea = null;
-
         for (AdminArea area : areas) {
             if (area.getName().endsWith(" 전체")) {
                 sidoName = area.getName().replace(" 전체", "");
                 entireArea = new AdminAreaResponseDTO.Sigungu(sidoName + "전체", area.getGunguCode());
             } else {
-                String sigunguName = area.getName().replace(sidoName + " ", " ");
+                String sigunguName = area.getName();
                 sigungus.add(new AdminAreaResponseDTO.Sigungu(sigunguName, area.getGunguCode()));
             }
         }
-
         // 만약 sigungus 항목이 1개만 있고, 전체 항목도 존재하면 전체 항목 제거
         if (sigungus.size() == 1 && entireArea != null) {
             entireArea = null;
         } else if (entireArea != null) {
             sigungus.add(0, entireArea);
         }
-        return new AdminAreaResponseDTO(sidoName, sigungus);
-
+        return new AdminAreaResponseDTO.Sido(sidoName, sigungus);
     }
+
 
     @Transactional
     public void updateRegionCodes() {

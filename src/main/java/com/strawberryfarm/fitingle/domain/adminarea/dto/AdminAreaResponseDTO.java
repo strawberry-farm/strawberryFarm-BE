@@ -15,8 +15,17 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminAreaResponseDTO implements BaseDto {
-    private String sidoName;
-    private List<Sigungu> sigungu;
+
+    private List<Sido> sido;
+
+    @Getter
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Sido {
+        private String sidoName;
+        private List<Sigungu> sigungu;
+    }
 
     @Getter
     @Builder
