@@ -12,6 +12,7 @@ public enum ErrorCode {
 
     // USERS
     INVALID_EMAIL(400, "US001", "Invalid Email"),
+    AUTHENTICATION_DENIED(403,"US000","Not Authenticated User Please, Login"),
 
     // REDIS
     FAIL_CERTIFICATE(401, "RE001", "Fail Certificate");
