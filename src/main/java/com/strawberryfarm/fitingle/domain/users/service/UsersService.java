@@ -9,6 +9,8 @@ import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDt
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLogoutResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
@@ -19,6 +21,7 @@ import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
 import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
+import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
 import com.strawberryfarm.fitingle.utils.RandCodeMaker;
@@ -51,6 +54,7 @@ public class UsersService {
     private final JavaMailSender mailSender;
     private final RedisTemplate redisTemplate;
     private final String CERTIFICATION_KEY_PREFIX = "certification:";
+    private final String PASSWORD_RESET_KEY_PREFIX = "password:";
 
     @Value("${spring.mail.username}")
     private String mailSenderEmail;
@@ -58,24 +62,16 @@ public class UsersService {
     @Transactional
     public ResultDto<?> emailCertification(
         EmailCertificationRequestDto emailCertificationRequestDto) {
-        if (!checkEmailValid(emailCertificationRequestDto.getEmail())) {
-            return ResultDto.builder()
-                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
-                .data(null)
-                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
-                .build();
-        }
 
         String email = emailCertificationRequestDto.getEmail();
-        if (usersRepository.findUsersByEmail(email).isPresent()) {
-            return ResultDto.builder()
-                .message(ErrorCode.ALREADY_EXIST_USERS.getMessage())
-                .data(null)
-                .errorCode(ErrorCode.ALREADY_EXIST_USERS.getCode())
-                .build();
+        CertificationType type = emailCertificationRequestDto.getType();
+        ResultDto<?> resultDto = emailAndUsersInfoValidation(email);
+
+        if (resultDto != null) {
+            return resultDto;
         }
 
-        String subject = "[fitingle] 이메일 인증 번호 이메일 입니다.";
+        String subject = "[fitingle] 이메일 인증 코드 발송";
 
         Integer certificationNumber = RandCodeMaker.genCertificationNumber();
 
@@ -85,6 +81,9 @@ public class UsersService {
         sendEmail(email,subject,htmlContents);
 
         String key = CERTIFICATION_KEY_PREFIX + email;
+        if (type == CertificationType.PASSWORD_RESET) {
+            key = PASSWORD_RESET_KEY_PREFIX + email;
+        }
         redisTemplate.opsForValue().set(key,Integer.toString(certificationNumber),300,TimeUnit.SECONDS);
 
         return EmailCertificationResponseDto.builder()
@@ -103,9 +102,7 @@ public class UsersService {
             messageHelper.setFrom(mailSenderEmail,"fitingle");
             messageHelper.setText(htmlContents,true);
             mailSender.send(message);
-        } catch (MessagingException e) {
-            throw new RuntimeException(e);
-        } catch (UnsupportedEncodingException e) {
+        } catch (MessagingException | UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
@@ -113,6 +110,7 @@ public class UsersService {
     public ResultDto<?> emailCertificationConfirm(EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto) {
         String email = emailCertificationConfirmRequestDto.getEmail();
         String code = emailCertificationConfirmRequestDto.getCode();
+        CertificationType type = emailCertificationConfirmRequestDto.getType();
 
         if (!checkEmailValid(email)) {
             return ResultDto.builder()
@@ -123,9 +121,12 @@ public class UsersService {
         }
 
         String key = CERTIFICATION_KEY_PREFIX+email;
+        if (type == CertificationType.PASSWORD_RESET) {
+            key = PASSWORD_RESET_KEY_PREFIX+email;
+        }
 
         String value = redisTemplate.opsForValue().get(key).toString();
-        if (value == null || !code.equals(value)) {
+        if (!code.equals(value)) {
             return ResultDto.builder()
                 .message(ErrorCode.FAIL_CERTIFICATION.getMessage())
                 .data(null)
@@ -145,9 +146,9 @@ public class UsersService {
     public ResultDto<?> signUp(UsersSignUpRequestDto usersSignUpRequestDto) {
         if (!checkPasswordValid(usersSignUpRequestDto.getPassword())) {
             return ResultDto.builder()
-                .message("Invalid password format")
+                .message(ErrorCode.WRONG_PASSWORD_FORMAT.getMessage())
                 .data(null)
-                .errorCode("0000")
+                .errorCode(ErrorCode.WRONG_PASSWORD_FORMAT.getCode())
                 .build();
         }
         Users newUsers = Users.builder()
@@ -170,7 +171,7 @@ public class UsersService {
             .createdDate(newUsers.getCreatedDate())
             .updateDate(newUsers.getUpdateDate())
             .build()
-            .doResultDto("success","1111");
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
     @Transactional
@@ -178,9 +179,9 @@ public class UsersService {
 
         if (!checkEmailValid(usersLoginRequestDto.getEmail())) {
             return ResultDto.builder()
-                .message("Wrong email")
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
                 .data(null)
-                .errorCode("0005")
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
                 .build();
         }
 
@@ -208,13 +209,13 @@ public class UsersService {
                     .accessToken(accessToken)
                     .build())
                 .refreshToken(refreshToken)
-                .build().doResultDto("success","1111");
+                .build()
+                .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
         } catch (Exception e) {
-            System.out.println(e.getMessage());
             return ResultDto.builder()
-                .message("Invalid user cause: incorrect password or not signup users")
+                .message(ErrorCode.INCORRECT_AUTH_INFO.getMessage())
                 .data(null)
-                .errorCode("0003")
+                .errorCode(ErrorCode.INCORRECT_AUTH_INFO.getCode())
                 .build();
         }
     }
@@ -274,6 +275,59 @@ public class UsersService {
             .aboutMe(updateUser.getAboutMe())
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    public ResultDto<?> passwordEdit(UsersPasswordResetRequestDto usersPasswordResetRequestDto) {
+        String email = usersPasswordResetRequestDto.getEmail();
+        String password = usersPasswordResetRequestDto.getPassword();
+
+        if (!checkEmailValid(email)) {
+            return ResultDto.builder()
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
+                .build();
+        }
+
+        Optional<Users> findUsers = usersRepository.findUsersByEmail(email);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        findUser.modifyPassword(passwordEncoder.encode(password));
+
+        Users updatedUser = usersRepository.save(findUser);
+
+        return UsersPasswordResetResponseDto.builder()
+            .email(updatedUser.getEmail())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    private ResultDto<?> emailAndUsersInfoValidation(String email) {
+        if (!checkEmailValid(email)) {
+            return ResultDto.builder()
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
+                .build();
+        }
+
+        if (usersRepository.findUsersByEmail(email).isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.ALREADY_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.ALREADY_EXIST_USERS.getCode())
+                .build();
+        }
+
+        return null;
     }
 
     private boolean checkEmailValid(String email) {

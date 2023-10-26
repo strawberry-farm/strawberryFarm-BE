@@ -9,6 +9,7 @@ import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRe
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLogoutResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
@@ -16,6 +17,7 @@ import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationC
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
+import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,7 +66,7 @@ public class UsersServiceTest {
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.signUp(usersSignUpRequestDto);
+		ResultDto<?> resultDto = usersService.signUp(usersSignUpRequestDto);
 
 		//then
 		assertThat(((UsersSignUpResponseDto)resultDto.getData()).getEmail()).isEqualTo(usersSignUpRequestDto.getEmail());
@@ -74,15 +76,16 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth service wrong email test")
-	public void usersEmailAuthServiceWrongEmailTest() {
+	@DisplayName("Users email-certification service wrong email test")
+	public void usersEmailCertificationServiceWrongEmailTest() {
 		//given
 		EmailCertificationRequestDto requestDto = EmailCertificationRequestDto.builder()
 			.email("test@na#@!#er.com")
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertification(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertification(requestDto);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.WRONG_EMAIL_FORMAT.getMessage());
@@ -91,15 +94,16 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth service already exist test")
-	public void usersEmailAuthServiceAlreadyExistTest() {
+	@DisplayName("Users email-certification service already exist test")
+	public void usersEmailCertificationServiceAlreadyExistTest() {
 		//given
 		EmailCertificationRequestDto requestDto = EmailCertificationRequestDto.builder()
 			.email("testUsers1@test.com")
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertification(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertification(requestDto);
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.ALREADY_EXIST_USERS.getMessage());
 		assertThat(resultDto.getData()).isNull();
@@ -107,15 +111,16 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth service success test")
-	public void usersEmailAuthServiceSuccessTest() {
+	@DisplayName("Users email-certification service success test")
+	public void usersEmailCertificationServiceSuccessTest() {
 		//given
 		EmailCertificationRequestDto requestDto = EmailCertificationRequestDto.builder()
 			.email("testUsers@test.com")
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertification(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertification(requestDto);
 		String val = usersService.getData(requestDto.getEmail());
 
 		//then
@@ -126,17 +131,18 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth confirm wrong email test")
-	public void usersEmailAuthConfirmWrongEmailTest() {
+	@DisplayName("Users email-certification confirm wrong email test")
+	public void usersEmailCertificationConfirmWrongEmailTest() {
 		//given
 
 		EmailCertificationConfirmRequestDto requestDto = EmailCertificationConfirmRequestDto.builder()
 			.email("test@na#@!#er.com")
 			.code("1111111")
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertificationConfirm(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertificationConfirm(requestDto);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.WRONG_EMAIL_FORMAT.getMessage());
@@ -145,7 +151,7 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth confirm fail certification test")
+	@DisplayName("Users email-certification confirm fail certification test")
 	public void usersEmailAuthConfirmWrongCertificationTest() {
 		//given
 		usersService.DummyInputRedisCertification(testUsers,123123,30);
@@ -154,10 +160,11 @@ public class UsersServiceTest {
 		EmailCertificationConfirmRequestDto requestDto = EmailCertificationConfirmRequestDto.builder()
 			.email(testUsers)
 			.code(certificationCode)
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertificationConfirm(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertificationConfirm(requestDto);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.FAIL_CERTIFICATION.getMessage());
@@ -166,8 +173,8 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users email-auth confirm certification success test")
-	public void usersEmailAuthConfirmCertificationSuccessTest() {
+	@DisplayName("Users email-certification confirm success test")
+	public void usersEmailCertificationConfirmCertificationSuccessTest() {
 		//given
 		usersService.DummyInputRedisCertification("Dummy@Dummy.com",123123,30);
 
@@ -176,10 +183,11 @@ public class UsersServiceTest {
 		EmailCertificationConfirmRequestDto requestDto = EmailCertificationConfirmRequestDto.builder()
 			.email("Dummy@Dummy.com")
 			.code(certificationCode)
+			.type(CertificationType.SIGNUP)
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.emailCertificationConfirm(requestDto);
+		ResultDto<?> resultDto = usersService.emailCertificationConfirm(requestDto);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
@@ -193,15 +201,15 @@ public class UsersServiceTest {
 	public void usersLogoutSuccessTest(){
 		//given
 		UsersLoginRequestDto loginRequestDto = UsersLoginRequestDto.builder()
-			.email(testUsers)
+			.email("testUsers1@test.com")
 			.password("123456")
 			.build();
 
-		ResultDto loginResult = usersService.login(loginRequestDto);
+		ResultDto<?> loginResult = usersService.login(loginRequestDto);
 		String refreshToken = ((UsersLoginResponseVo)loginResult.getData()).getRefreshToken();
 
 		//when
-		ResultDto resultDto = usersService.logout(refreshToken);
+		ResultDto<?> resultDto = usersService.logout(refreshToken);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
@@ -216,7 +224,7 @@ public class UsersServiceTest {
 		Long userId = 123123L;
 
 		//when
-		ResultDto resultDto = usersService.getUsersDetail(userId);
+		ResultDto<?> resultDto = usersService.getUsersDetail(userId);
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.NOT_EXIST_USERS.getMessage());
@@ -237,7 +245,7 @@ public class UsersServiceTest {
 		String profileUrl = users.get(0).getProfileImageUrl();
 
 		//when
-		ResultDto resultDto = usersService.getUsersDetail(userId);
+		ResultDto<?> resultDto = usersService.getUsersDetail(userId);
 
 		//then
 		UsersDetailResponseDto usersDetailResponseDto = (UsersDetailResponseDto) resultDto.getData();
@@ -268,7 +276,7 @@ public class UsersServiceTest {
 			.build();
 
 		//when
-		ResultDto resultDto = usersService.updateUsersDetail(userId, requestDto);
+		ResultDto<?> resultDto = usersService.updateUsersDetail(userId, requestDto);
 
 		//then
 		UsersDetailUpdateResponseDto responseDto = (UsersDetailUpdateResponseDto)resultDto.getData();
@@ -282,20 +290,44 @@ public class UsersServiceTest {
 	}
 
 	@Test
-	@DisplayName("Users password-request success test")
-	public void usersPasswordRequestSuccessTest() {
+	@DisplayName("Users password Reset success test")
+	public void usersPasswordResetSuccessTest() {
+		//given
+		List<Users> users = usersService.getUsersList().getUsers();
 
+		String beforePassword = "";
+		for (Users u : users) {
+			if (u.getEmail().equals("mansa0805@naver.com")) {
+				beforePassword = u.getPassword();
+				break;
+			}
+		}
+		UsersPasswordResetRequestDto usersPasswordResetRequestDto = UsersPasswordResetRequestDto.builder()
+			.email("mansa0805@naver.com")
+			.password("7891011")
+			.build();
+
+
+		//when
+		ResultDto<?> resultDto = usersService.passwordEdit(usersPasswordResetRequestDto);
+
+
+		//then
+
+		List<Users> users2 = usersService.getUsersList().getUsers();
+
+		String afterPassword = "";
+
+		for (Users u : users2) {
+			if (u.getEmail().equals("mansa0805@naver.com")) {
+				afterPassword = u.getPassword();
+				break;
+			}
+		}
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(resultDto.getData()).isNotNull();
+		assertThat(beforePassword).isNotEqualTo(afterPassword);
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
 	}
 
-	@Test
-	@DisplayName("Users password-confirm success test")
-	public void usersPasswordConfirmSuccessTest() {
-
-	}
-
-	@Test
-	@DisplayName("Users password-edit success test")
-	public void usersPasswordEditSuccessTest() {
-
-	}
 }

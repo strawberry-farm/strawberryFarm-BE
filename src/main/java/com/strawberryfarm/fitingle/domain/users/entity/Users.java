@@ -149,4 +149,8 @@ public class Users extends BaseEntity {
         this.nickname = usersDetailUpdateRequestDto.getNickname();
         this.aboutMe = usersDetailUpdateRequestDto.getAboutMe();
     }
+
+    public void modifyPassword(String password) {
+        this.password = password;
+    }
 }

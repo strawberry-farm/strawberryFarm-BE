@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.security;
 
+import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -42,8 +43,7 @@ public class JwtTokenManager {
 
 	public boolean accessTokenValidate(String accessToken, ResultDto result) {
 		if (!StringUtils.hasText(accessToken)) {
-			// 토큰이 없다, 로그 남기기
-			result.setResultData("accessToken Exception : Invalid JWT Token" ,null, "0100");
+			result.setResultData(ErrorCode.EMPTY_ACCESS_TOKEN.getMessage(), null,ErrorCode.EMPTY_ACCESS_TOKEN.getCode());
 			return false;
 		}
 
@@ -51,17 +51,13 @@ public class JwtTokenManager {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
 			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			System.out.println("Invalid JWT Token");
-			result.setResultData("accessToken Exception : Invalid JWT Token" ,null, "0100");
+			result.setResultData(ErrorCode.INVALID_ACCESS_TOKEN.getMessage() ,null,ErrorCode.INVALID_ACCESS_TOKEN.getCode());
 		} catch (ExpiredJwtException e) {
-			System.out.println("Expired JWT Token");
-			result.setResultData("accessToken Exception : Expired JWT Token" ,null, "0101");
+			result.setResultData(ErrorCode.EXPIRED_ACCESS_TOKEN.getMessage() ,null, ErrorCode.EXPIRED_ACCESS_TOKEN.getCode());
 		} catch (UnsupportedJwtException e) {
-			System.out.println("Unsupported JWT Token");
-			result.setResultData("accessToken Exception : Unsupported JWT Token" ,null, "0102");
+			result.setResultData(ErrorCode.UNSUPPORTED_ACCESS_TOKEN.getMessage(),null, ErrorCode.UNSUPPORTED_ACCESS_TOKEN.getCode());
 		} catch (IllegalArgumentException e) {
-			System.out.println("JWT claims string is empty");
-			result.setResultData("accessToken Exception : JWT claims string is empty" ,null, "0103");
+			result.setResultData(ErrorCode.EMPTY_CLAIM_ACCESS_TOKEN.getMessage(), null, ErrorCode.EMPTY_CLAIM_ACCESS_TOKEN.getCode());
 		}
 
 		return false;
@@ -69,8 +65,7 @@ public class JwtTokenManager {
 
 	public boolean refreshTokenValidate(String refreshToken,ResultDto result) {
 		if (!StringUtils.hasText(refreshToken)) {
-			// 토큰이 없다, 로그 남기기
-			result.setResultData("refreshToken Exception : Invalid JWT Token" ,null, "0100");
+			result.setResultData(ErrorCode.EMPTY_REFRESH_TOKEN.getMessage(),null, ErrorCode.EMPTY_REFRESH_TOKEN.getCode());
 			return false;
 		}
 
@@ -78,14 +73,11 @@ public class JwtTokenManager {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
 			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
-			System.out.println("Invalid JWT Token");
-			result.setResultData("refreshToken Exception : Invalid JWT Token" ,null, "0104");
+			result.setResultData(ErrorCode.INVALID_REFRESH_TOKEN.getMessage() ,null, ErrorCode.INVALID_REFRESH_TOKEN.getCode());
 		} catch (ExpiredJwtException e) {
-			System.out.println("Expired JWT Token");
-			result.setResultData("refreshToken Exception : Expired JWT Token" ,null, "0105");
+			result.setResultData(ErrorCode.EXPIRED_REFRESH_TOKEN.getMessage() ,null, ErrorCode.EXPIRED_REFRESH_TOKEN.getCode());
 		} catch (UnsupportedJwtException e) {
-			System.out.println("Unsupported JWT Token");
-			result.setResultData("refreshToken Exception : Unsupported JWT Token" ,null, "0106");
+			result.setResultData(ErrorCode.UNSUPPORTED_REFRESH_TOKEN.getMessage() ,null, ErrorCode.UNSUPPORTED_REFRESH_TOKEN.getCode());
 		}
 
 		return false;
