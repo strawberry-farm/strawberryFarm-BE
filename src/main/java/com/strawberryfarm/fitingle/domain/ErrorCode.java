@@ -11,12 +11,14 @@ import lombok.RequiredArgsConstructor;
 public enum ErrorCode {
 
     // USERS
-    INVALID_EMAIL(400, "US001", "Invalid Email"),
     AUTHENTICATION_DENIED(403,"US000","Not Authenticated User Please, Login"),
+    WRONG_EMAIL_FORMAT(200,"US002","Wrong Email Format"),
+    ALREADY_EXIST_USERS(200,"US003","Already Sign Up users"),
+    FAIL_CERTIFICATION(200,"US004","Fail Certification"),
+    NOT_EXIST_USERS(200,"US005","Not Exist Users"),
 
-    // REDIS
-    FAIL_CERTIFICATE(401, "RE001", "Fail Certificate");
-
+    //SUCCESS
+    SUCCESS(200,"1111","Success");
     private int status;
     private String code;
     private String message;

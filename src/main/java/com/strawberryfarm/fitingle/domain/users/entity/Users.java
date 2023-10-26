@@ -8,25 +8,20 @@ import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
 import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
 import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.persistence.*;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @AllArgsConstructor
@@ -107,6 +102,7 @@ public class Users extends BaseEntity {
 
     private LocalDateTime deleteDate;
 
+
     //연관관계 메서드
     public void addApply(Apply apply) {
         applies.add(apply);
@@ -145,5 +141,12 @@ public class Users extends BaseEntity {
 
     public void modifyNickname(String nickName) {
         this.nickname = nickName;
+
+    }
+
+    public void modifyUsersInfo(UsersDetailUpdateRequestDto usersDetailUpdateRequestDto) {
+        this.profileImageUrl = usersDetailUpdateRequestDto.getProfileUrl();
+        this.nickname = usersDetailUpdateRequestDto.getNickname();
+        this.aboutMe = usersDetailUpdateRequestDto.getAboutMe();
     }
 }

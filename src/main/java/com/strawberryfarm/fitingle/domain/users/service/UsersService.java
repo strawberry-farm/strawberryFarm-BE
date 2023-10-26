@@ -2,9 +2,13 @@ package com.strawberryfarm.fitingle.domain.users.service;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersAllUsersResponse;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLogoutResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
@@ -21,6 +25,7 @@ import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -34,6 +39,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,7 +48,6 @@ public class UsersService {
     private final UsersRepository usersRepository;
     private final JwtTokenManager jwtTokenManager;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
-    //    private final UsersCertificationRepository usersCertificationRepository;
     private final JavaMailSender mailSender;
     private final RedisTemplate redisTemplate;
     private final String CERTIFICATION_KEY_PREFIX = "certification:";
@@ -50,23 +55,23 @@ public class UsersService {
     @Value("${spring.mail.username}")
     private String mailSenderEmail;
 
-    public ResultDto emailCertification(
+    @Transactional
+    public ResultDto<?> emailCertification(
         EmailCertificationRequestDto emailCertificationRequestDto) {
         if (!checkEmailValid(emailCertificationRequestDto.getEmail())) {
             return ResultDto.builder()
-                .message("Wrong email")
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
                 .data(null)
-                .errorCode("0000")
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
                 .build();
         }
 
         String email = emailCertificationRequestDto.getEmail();
-
         if (usersRepository.findUsersByEmail(email).isPresent()) {
             return ResultDto.builder()
-                .message("already exist email")
+                .message(ErrorCode.ALREADY_EXIST_USERS.getMessage())
                 .data(null)
-                .errorCode("0001")
+                .errorCode(ErrorCode.ALREADY_EXIST_USERS.getCode())
                 .build();
         }
 
@@ -84,7 +89,7 @@ public class UsersService {
 
         return EmailCertificationResponseDto.builder()
             .email(email)
-            .build().doResultDto("success","1111");
+            .build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
     private void sendEmail(String email, String subject, String htmlContents) {
@@ -105,15 +110,15 @@ public class UsersService {
         }
     }
 
-    public ResultDto emailCertificationConfirm(EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto) {
+    public ResultDto<?> emailCertificationConfirm(EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto) {
         String email = emailCertificationConfirmRequestDto.getEmail();
         String code = emailCertificationConfirmRequestDto.getCode();
 
         if (!checkEmailValid(email)) {
             return ResultDto.builder()
-                .message(ErrorCode.INVALID_EMAIL.getMessage())
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
                 .data(null)
-                .errorCode(ErrorCode.INVALID_EMAIL.getCode())
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
                 .build();
         }
 
@@ -122,19 +127,22 @@ public class UsersService {
         String value = redisTemplate.opsForValue().get(key).toString();
         if (value == null || !code.equals(value)) {
             return ResultDto.builder()
-                .message("Fail Certificate")
+                .message(ErrorCode.FAIL_CERTIFICATION.getMessage())
                 .data(null)
-                .errorCode("0004")
+                .errorCode(ErrorCode.FAIL_CERTIFICATION.getCode())
                 .build();
         }
+
+        redisTemplate.opsForValue().set(key,value,1,TimeUnit.SECONDS);
 
 
         return EmailCertificationConfirmResponseDto.builder()
             .email(email)
-            .build().doResultDto("success","1111");
+            .build().doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
     }
 
-    public ResultDto signUp(UsersSignUpRequestDto usersSignUpRequestDto) {
+    @Transactional
+    public ResultDto<?> signUp(UsersSignUpRequestDto usersSignUpRequestDto) {
         if (!checkPasswordValid(usersSignUpRequestDto.getPassword())) {
             return ResultDto.builder()
                 .message("Invalid password format")
@@ -165,7 +173,8 @@ public class UsersService {
             .doResultDto("success","1111");
     }
 
-    public ResultDto login(UsersLoginRequestDto usersLoginRequestDto) {
+    @Transactional
+    public ResultDto<?> login(UsersLoginRequestDto usersLoginRequestDto) {
 
         if (!checkEmailValid(usersLoginRequestDto.getEmail())) {
             return ResultDto.builder()
@@ -210,12 +219,65 @@ public class UsersService {
         }
     }
 
-    public void signOut() {
+    @Transactional
+    public ResultDto<?> logout(String refreshToken) {
+        String email = jwtTokenManager.getSubject(refreshToken);
+        redisTemplate.opsForValue().set(email,"logout",jwtTokenManager.getRefreshTokenExpiredTime(),TimeUnit.SECONDS);
+        return UsersLogoutResponseDto.builder()
+            .email(email)
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
+    }
 
+    public ResultDto<?> getUsersDetail(Long userId) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        return UsersDetailResponseDto.builder()
+            .email(findUser.getEmail())
+            .nickname(findUser.getNickname())
+            .profileUrl(findUser.getProfileImageUrl())
+            .aboutMe(findUser.getAboutMe())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
+    }
+
+    public ResultDto<?> updateUsersDetail(Long userId, UsersDetailUpdateRequestDto usersDetailUpdateRequestDto) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        findUser.modifyUsersInfo(usersDetailUpdateRequestDto);
+
+        Users updateUser = usersRepository.save(findUser);
+
+        return UsersDetailUpdateResponseDto.builder()
+            .userId(updateUser.getId())
+            .email(updateUser.getEmail())
+            .profileUrl(updateUser.getProfileImageUrl())
+            .nickname(updateUser.getNickname())
+            .aboutMe(updateUser.getAboutMe())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
     private boolean checkEmailValid(String email) {
-        return email.matches("^([a-z0-9_\\.-]+)@([\\da-z\\.-]+)\\.([a-z\\.]{2,6})$");
+        return email.matches("^[a-zA-Z0-9]([-_.]?[0-9A-Za-z])*@[a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}$");
     }
 
     private boolean checkPasswordValid(String password) {
@@ -237,7 +299,8 @@ public class UsersService {
         redisTemplate.opsForValue().set(CERTIFICATION_KEY_PREFIX+email,Integer.toString(code),ttl,
             TimeUnit.SECONDS);
     }
-    public Integer getData(String email) {
-        return (Integer) redisTemplate.opsForValue().get(CERTIFICATION_KEY_PREFIX+email);
+    public String getData(String email) {
+        return redisTemplate.opsForValue().get(CERTIFICATION_KEY_PREFIX+email).toString();
     }
+
 }

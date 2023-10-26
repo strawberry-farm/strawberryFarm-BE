@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.users.controller;
 
+import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
 import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
@@ -48,10 +49,12 @@ public class UsersController {
                     .errorCode(resultDto.getErrorCode())
                 .build());
         }
+
         Cookie cookie = new Cookie("refreshToken",((UsersLoginResponseVo)resultDto.getData()).getRefreshToken());
         cookie.setHttpOnly(true);
         cookie.setDomain("/");
         httpServletResponse.addCookie(cookie);
+
         return ResponseEntity.ok(ResultDto.builder()
             .message(resultDto.getMessage())
             .data(((UsersLoginResponseVo)resultDto.getData()).getUsersLoginResponseDto())
@@ -60,9 +63,22 @@ public class UsersController {
     }
 
     @PostMapping("/logout")
-    public void logout() {
-        usersService.signOut();
+    public ResponseEntity<?> logout(@CookieValue("refreshToken") String refreshToken) {
+        return ResponseEntity.ok(usersService.logout(refreshToken));
     }
+
+    @GetMapping("users")
+    public ResponseEntity<?> getUsersDetail(@PathVariable Long userId) {
+        return ResponseEntity.ok(usersService.getUsersDetail(userId));
+    }
+
+    @PatchMapping
+    public ResponseEntity<?> updateUsersDetail(@PathVariable Long userId, @RequestBody
+    UsersDetailUpdateRequestDto usersDetailUpdateRequestDto) {
+
+        return ResponseEntity.ok("123");
+    }
+
 
     @GetMapping("/list")
     public ResponseEntity<?> getUsersList() {

@@ -108,10 +108,10 @@ public class JwtTokenManager {
 		return new UsernamePasswordAuthenticationToken(userDetails,"",authorities);
  	}
 
-	 public String getAuthName(String refreshToken) {
+	 public String getSubject(String refreshToken) {
 		 Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
 
-		 if (claims.get("auth") == null) {
+		 if (claims.getSubject() == null) {
 			 return null;
 		 }
 

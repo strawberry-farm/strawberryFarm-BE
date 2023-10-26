@@ -133,7 +133,16 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 				return;
 			} else {
 				if (jwtTokenManager.refreshTokenValidate(refreshToken,errorResultDto)) {
-					if (!redisTemplate.opsForValue().get(jwtTokenManager.getAuthName(refreshToken)).equals(refreshToken)) {
+					if (redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals("logout")) {
+						response.setStatus(HttpServletResponse.SC_OK);
+						response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+						response.getWriter().write(objectMapper.writeValueAsString(ResultDto.builder()
+							.message("authentication error : logout user")
+							.data(null)
+							.errorCode("0109")
+							.build()));
+						return;
+					} else if (!redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals(refreshToken)) {
 						response.setStatus(HttpServletResponse.SC_OK);
 						response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 						response.getWriter().write(objectMapper.writeValueAsString(ResultDto.builder()
