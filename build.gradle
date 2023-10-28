@@ -38,23 +38,18 @@ dependencies {
 
     //mysql
     implementation 'mysql:mysql-connector-java:8.0.31'
-
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-
     // H2
     runtimeOnly 'com.h2database:h2'
-
     //JUnit4
-    testImplementation("org.junit.vintage:junit-vintage-engine") {
-        exclude group: "org.hamcrest", module: "hamcrest-core"
-    }
+//    testImplementation("org.junit.vintage:junit-vintage-engine") {
+//        exclude group: "org.hamcrest", module: "hamcrest-core"
+//    }
 
 
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    testImplementation 'org.springframework.boot:spring-security-test'
-
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
@@ -68,6 +63,14 @@ dependencies {
 
     //smtp 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-mail'
+
+    //aws s3
+    implementation 'software.amazon.awssdk:s3:2.17.43'
+
+    // Mockito의 인라인 모킹 -> Final 클래스 및 메서드 모킹 위해
+    testImplementation 'org.mockito:mockito-inline:3.12.4'
+
+
 
 }
 
