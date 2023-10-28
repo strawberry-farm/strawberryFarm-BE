@@ -17,7 +17,7 @@ public class AdminAreaController {
 
     private final AdminAreaService adminAreaService;
 
-    @GetMapping("/adminarea")
+    @GetMapping("/adminArea")
     public ResponseEntity<?> getContentsList() {
         return ResponseEntity.ok(adminAreaService.getAllAdminAreas());
     }
