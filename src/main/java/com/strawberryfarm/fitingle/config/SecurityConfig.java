@@ -26,6 +26,7 @@ public class SecurityConfig {
 				.formLogin().disable()
 				.addFilterBefore(new JwtAuthorizationFilter(jwtTokenManager), UsernamePasswordAuthenticationFilter.class);
 
+		// 나중에 swagger 접근 허용 추가해야함
 		return http.build();
 	}
 

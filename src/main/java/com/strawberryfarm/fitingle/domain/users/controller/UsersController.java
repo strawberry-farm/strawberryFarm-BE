@@ -7,6 +7,8 @@ import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationC
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +18,9 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
 @RestController
-@RequestMapping(value = "/auth",produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@RequestMapping(value = "/auth",produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Users", description = "Users API")
 public class UsersController {
     private final UsersService usersService;
 
@@ -38,6 +41,7 @@ public class UsersController {
     }
 
     @PostMapping("/login")
+    @Operation(summary = "로그인", description = "로그인 api")
     public ResponseEntity<?> login(@RequestBody UsersLoginRequestDto usersLoginRequestDto, HttpServletResponse httpServletResponse) {
         ResultDto resultDto = usersService.login(usersLoginRequestDto);
 
