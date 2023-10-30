@@ -14,11 +14,9 @@ import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationC
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
-import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,19 +36,19 @@ public class UserControllerTest {
     @BeforeAll
     private void SetUp() {
         UsersSignUpRequestDto testData1 = UsersSignUpRequestDto.builder()
-                .email("test1@naver.com")
-                .password("123123")
-                .nickName("PowerMan1")
-                .build();
+            .email("test1@naver.com")
+            .password("123123")
+            .nickName("PowerMan1")
+            .build();
 
         UsersSignUpRequestDto testData2 = UsersSignUpRequestDto.builder()
-                .email("test2@naver.com")
-                .password("123123")
-                .nickName("PowerMan2")
-                .build();
+            .email("test2@naver.com")
+            .password("123123")
+            .nickName("PowerMan2")
+            .build();
 
-        usersService.SignUp(testData1);
-        usersService.SignUp(testData2);
+        usersService.signUp(testData1);
+        usersService.signUp(testData2);
     }
 
     //회원 가입 테스트
@@ -59,10 +57,10 @@ public class UserControllerTest {
     public void SignUpTest() throws Exception {
         //given
         UsersSignUpRequestDto usersSignUpRequestDto = UsersSignUpRequestDto.builder()
-                .email("test@naver.com")
-                .password("123123")
-                .nickName("PowerMan")
-                .build();
+            .email("test@naver.com")
+            .password("123123")
+            .nickName("PowerMan")
+            .build();
 
         //when
         String json = new Gson().toJson(usersSignUpRequestDto);
@@ -95,8 +93,8 @@ public class UserControllerTest {
 
         //then
         mockMvc.perform(post("/auth/email-request")
-            .contentType(MediaType.APPLICATION_JSON_VALUE)
-            .content(json))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json))
             .andExpect(jsonPath("message").value("success"))
             .andExpect(jsonPath("$.data.email").value("mansa0805@naver.com"))
             .andExpect(jsonPath("errorCode").value("1111"))
@@ -156,17 +154,17 @@ public class UserControllerTest {
     public void LoginTest() throws Exception {
         //given
         UsersLoginRequestDto usersLoginRequestDto = UsersLoginRequestDto.builder()
-                .email("test1@naver.com")
-                .password("123123")
-                .build();
+            .email("test1@naver.com")
+            .password("123123")
+            .build();
 
         //when
         String json = new Gson().toJson(usersLoginRequestDto);
 
         //then
         mockMvc.perform(post("/auth/login")
-                        .contentType(MediaType.APPLICATION_JSON_VALUE)
-                        .content(json))
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .content(json))
             .andExpect(status().isOk())
             .andExpect(jsonPath("message").value("success"))
             .andExpect(jsonPath("$.data.userId").exists())
@@ -176,6 +174,73 @@ public class UserControllerTest {
             .andExpect(jsonPath("errorCode").value("1111"))
             .andExpect(cookie().exists("refreshToken"))
             .andDo(print());
+    }
+
+    //비밀 번호 재설정 테스트
+    @Test
+    @DisplayName("Auth Error Test")
+    public void AuthErrorTest() throws Exception {
+        //given
+
+
+        //when
+
+        //then
+//        mockMvc.perform(post("/auth/login")
+//                .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                .content(json))
+//            .andExpect(status().isOk())
+//            .andExpect(jsonPath("message").value("success"))
+//            .andDo(print());
+    }
+
+    //비밀 번호 재설정 테스트
+    @Test
+    @DisplayName("UsersController PasswordReset Complete Test")
+    public void PasswordResetCompleteTest() throws Exception {
+        //given
+
+
+        //when
+
+        //then
+//        mockMvc.perform(post("/auth/login")
+//                .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                .content(json))
+//            .andExpect(status().isOk())
+//            .andExpect(jsonPath("message").value("success"))
+//            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("UsersController PasswordReset Invalid Format Test")
+    public void PasswordResetInvalidFormatTest() throws Exception {
+        //given
+
+        //when
+
+        //then
+//        mockMvc.perform(post("/auth/login")
+//                .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                .content(json))
+//            .andExpect(status().isOk())
+//            .andExpect(jsonPath("message").value("success"))
+//            .andDo(print());
+    }
+
+    @Test
+    @DisplayName("UsersController PasswordReset Email Auth Incorrect Code Test")
+    public void PasswordReset() throws Exception {
+        //given
+
+        //when
+
+        //then
+//        mockMvc.perform(post("/auth/login")
+//                .contentType(MediaType.APPLICATION_JSON_VALUE)
+//                .content(json))
+//            .andExpect(status().isOk())
+//            .andDo(print());
     }
 
     //부가적인 API 테스트
