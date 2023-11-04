@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.UsersDto;
+package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

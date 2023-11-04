@@ -1,18 +1,28 @@
 package com.strawberryfarm.fitingle.domain.users.service;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersAllUsersResponse;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLogoutResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpResponseDto;
+import com.strawberryfarm.fitingle.domain.adminarea.entity.AdminArea;
+import com.strawberryfarm.fitingle.domain.adminarea.repository.AdminAreaRepository;
+import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
+import com.strawberryfarm.fitingle.domain.keyword.repository.KeywordRepository;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAllUsersResponse;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseVo;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLogoutResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
@@ -27,14 +37,17 @@ import com.strawberryfarm.fitingle.security.JwtTokenManager;
 import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,6 +62,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class UsersService {
     private final PasswordEncoder passwordEncoder;
     private final UsersRepository usersRepository;
+    private final AdminAreaRepository adminAreaRepository;
+    private final KeywordRepository keywordRepository;
     private final JwtTokenManager jwtTokenManager;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JavaMailSender mailSender;
@@ -308,6 +323,109 @@ public class UsersService {
             .email(updatedUser.getEmail())
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    public ResultDto<?> getInterestArea(Long userId) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        String b_code = findUser.getB_code();
+        if (b_code == null) {
+            return ResultDto.builder()
+                .message(ErrorCode.INTEREST_AREA_NOT_REGISTER.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.INTEREST_AREA_NOT_REGISTER.getCode())
+                .build();
+        }
+
+        AdminArea adminAreaByGunguCode = adminAreaRepository.findAdminAreaByGunguCode(b_code);
+
+        return InterestAreaResponseDto.builder()
+            .sido(adminAreaByGunguCode.getName())
+            .gungu(adminAreaByGunguCode.getName())
+            .b_code(b_code)
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    public ResultDto<?> registerInterestArea(Long userId, InterestAreaRegisterRequestDto interestAreaRegisterRequestDto) {
+        String b_code = interestAreaRegisterRequestDto.getB_code();
+
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        findUser.modifyB_code(b_code);
+
+        Users updateUser = usersRepository.save(findUser);
+
+        return InterestAreaRegisterResponseDto.builder()
+            .email(updateUser.getEmail())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
+    }
+
+    public ResultDto<?> getKeyword(Long userId) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+
+        return KeywordGetResponseDto.builder()
+            .keywords(findUser.getKeywords().stream().map(x -> x.getName()).collect(Collectors.toList()))
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    @Transactional
+    public ResultDto<?> registerKeyword(Long userId, KeywordRegisterRequestDto keywordRegisterRequestDto) {
+        String keyword = keywordRegisterRequestDto.getKeyword();
+
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Keyword newKeyword = Keyword.builder()
+            .name(keyword)
+            .updateDate(LocalDateTime.now())
+            .createdDate(LocalDateTime.now())
+            .build();
+        Users findUser = findUsers.get();
+        findUser.addKeyword(newKeyword);
+
+        usersRepository.save(findUser);
+
+        return KeywordRegisterResponseDto.builder()
+            .keywords(findUser.getKeywords().stream().map(x -> x.getName()).collect(Collectors.toList()))
+            .build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
     private ResultDto<?> emailAndUsersInfoValidation(String email) {

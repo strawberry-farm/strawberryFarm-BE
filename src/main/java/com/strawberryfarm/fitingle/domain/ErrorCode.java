@@ -20,6 +20,7 @@ public enum ErrorCode {
     WRONG_PASSWORD_FORMAT(200,"US007","Wrong Password Format"),
     LOGOUT_USERS(200,"US008","Already Logout User"),
     DUPLICATE_LOGIN(200,"US009","Already Login Other Device"),
+    INTEREST_AREA_NOT_REGISTER(200,"US010","Interest Area Is Not Register"),
 
     // AUTH
     INVALID_TOKEN_TYPE(200,"AU000","Invalid Access Token Type"),

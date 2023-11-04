@@ -1,20 +1,19 @@
 package com.strawberryfarm.fitingle.domain.adminarea.dto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
-import com.strawberryfarm.fitingle.dto.ResultDto;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.experimental.SuperBuilder;
 
 
 @Getter
-@Builder
+@SuperBuilder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminAreaResponseDTO implements BaseDto {
+public class AdminAreaResponseDTO extends BaseDto {
 
     private List<Sido> sido;
 
@@ -35,14 +34,4 @@ public class AdminAreaResponseDTO implements BaseDto {
         private String sigunguName;
         private String bCode;
     }
-
-    @Override
-    public ResultDto doResultDto(String message, String errorCode) {
-        return ResultDto.builder()
-                .message(message)
-                .data(this)
-                .errorCode(errorCode)
-                .build();
-    }
-
 }

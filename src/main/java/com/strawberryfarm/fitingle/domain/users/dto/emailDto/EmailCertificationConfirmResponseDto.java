@@ -6,21 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class EmailCertificationConfirmResponseDto implements BaseDto {
+@SuperBuilder
+public class EmailCertificationConfirmResponseDto extends BaseDto {
 	private String email;
-
-
-	@Override
-	public ResultDto doResultDto(String message, String errorCode) {
-		return ResultDto.builder()
-			.message(message)
-			.data(this)
-			.errorCode(errorCode)
-			.build();
-	}
 }

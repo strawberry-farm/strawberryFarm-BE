@@ -7,8 +7,9 @@ import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
+import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
 import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
 import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
@@ -33,6 +34,7 @@ public class Users extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "USER_ID")
     private Long id;
 
     //apply 연관관계 매핑
@@ -67,6 +69,9 @@ public class Users extends BaseEntity {
     @OneToMany(mappedBy = "user")
     private List<Wish> wishes = new ArrayList<>();
 
+    //keyword 매핑
+    @OneToMany(mappedBy = "users")
+    private List<Keyword> keywords = new ArrayList<>();
 
     @Column(nullable = false)
     private String email;
@@ -80,7 +85,7 @@ public class Users extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
-    private String interestArea;
+    private String b_code;
 
     @Column(nullable = false)
     private String profileImageUrl;
@@ -139,6 +144,11 @@ public class Users extends BaseEntity {
         wish.setUser(this);
     }
 
+    public void addKeyword(Keyword keyword) {
+        this.keywords.add(keyword);
+        keyword.modifyUsers(this);
+    }
+
     public void modifyNickname(String nickName) {
         this.nickname = nickName;
 
@@ -152,5 +162,9 @@ public class Users extends BaseEntity {
 
     public void modifyPassword(String password) {
         this.password = password;
+    }
+
+    public void modifyB_code(String interestArea) {
+        this.b_code = interestArea;
     }
 }

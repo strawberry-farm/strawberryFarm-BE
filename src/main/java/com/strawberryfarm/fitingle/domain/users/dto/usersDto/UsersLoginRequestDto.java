@@ -1,6 +1,5 @@
-package com.strawberryfarm.fitingle.domain.users.dto.UsersDto;
+package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
 
-import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
