@@ -28,7 +28,7 @@ public class Keyword extends BaseEntity {
     @Column(name = "KEYWORD_ID")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "USER_ID")
     private Users users;
 
@@ -37,5 +37,6 @@ public class Keyword extends BaseEntity {
 
     public void modifyUsers(Users users) {
         this.users = users;
+        users.getKeywords().add(this);
     }
 }

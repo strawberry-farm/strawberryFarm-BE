@@ -5,9 +5,11 @@ import com.strawberryfarm.fitingle.domain.adminarea.entity.AdminArea;
 import com.strawberryfarm.fitingle.domain.adminarea.repository.AdminAreaRepository;
 import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
 import com.strawberryfarm.fitingle.domain.keyword.repository.KeywordRepository;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaDeleteResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordDeleteResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
@@ -337,7 +339,7 @@ public class UsersService {
         }
 
         Users findUser = findUsers.get();
-        String b_code = findUser.getB_code();
+        String b_code = findUser.getBCode();
         if (b_code == null) {
             return ResultDto.builder()
                 .message(ErrorCode.INTEREST_AREA_NOT_REGISTER.getMessage())
@@ -346,11 +348,11 @@ public class UsersService {
                 .build();
         }
 
-        AdminArea adminAreaByGunguCode = adminAreaRepository.findAdminAreaByGunguCode(b_code);
+        AdminArea adminArea = adminAreaRepository.findAdminAreaByGunguCode(b_code);
 
         return InterestAreaResponseDto.builder()
-            .sido(adminAreaByGunguCode.getName())
-            .gungu(adminAreaByGunguCode.getName())
+            .sido(adminArea.getName())
+            .gungu(adminArea.getName())
             .b_code(b_code)
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
@@ -370,16 +372,35 @@ public class UsersService {
         }
 
         Users findUser = findUsers.get();
-        findUser.modifyB_code(b_code);
-
-        Users updateUser = usersRepository.save(findUser);
+        findUser.modifyBCode(b_code);
 
         return InterestAreaRegisterResponseDto.builder()
-            .email(updateUser.getEmail())
+            .email(findUser.getEmail())
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
     }
 
+    public ResultDto<?> deleteInterestArea(Long userId) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        Users findUser = findUsers.get();
+        findUser.modifyBCode(null);
+
+        return InterestAreaDeleteResponseDto.builder()
+            .email(findUser.getEmail())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    @Transactional
     public ResultDto<?> getKeyword(Long userId) {
         Optional<Users> findUsers = usersRepository.findById(userId);
 
@@ -419,13 +440,35 @@ public class UsersService {
             .createdDate(LocalDateTime.now())
             .build();
         Users findUser = findUsers.get();
-        findUser.addKeyword(newKeyword);
+        newKeyword.modifyUsers(findUser);
 
-        usersRepository.save(findUser);
+        keywordRepository.save(newKeyword);
 
         return KeywordRegisterResponseDto.builder()
             .keywords(findUser.getKeywords().stream().map(x -> x.getName()).collect(Collectors.toList()))
             .build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    @Transactional
+    public ResultDto<?> deleteKeyword(Long userId, Long keywordId) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                .build();
+        }
+
+        keywordRepository.deleteById(keywordId);
+        Users findUser = findUsers.get();
+
+
+        return KeywordDeleteResponseDto.builder()
+            .email(findUser.getEmail())
+            .build()
+            .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
     private ResultDto<?> emailAndUsersInfoValidation(String email) {

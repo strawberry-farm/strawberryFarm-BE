@@ -70,7 +70,7 @@ public class Users extends BaseEntity {
     private List<Wish> wishes = new ArrayList<>();
 
     //keyword 매핑
-    @OneToMany(mappedBy = "users")
+    @OneToMany(mappedBy = "users",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<Keyword> keywords = new ArrayList<>();
 
     @Column(nullable = false)
@@ -85,7 +85,7 @@ public class Users extends BaseEntity {
     @Column(nullable = false)
     private String nickname;
 
-    private String b_code;
+    private String BCode;
 
     @Column(nullable = false)
     private String profileImageUrl;
@@ -164,7 +164,7 @@ public class Users extends BaseEntity {
         this.password = password;
     }
 
-    public void modifyB_code(String interestArea) {
-        this.b_code = interestArea;
+    public void modifyBCode(String interestArea) {
+        this.BCode = interestArea;
     }
 }

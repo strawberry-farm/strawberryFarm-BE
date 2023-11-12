@@ -6,6 +6,7 @@ import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailResponseDto;
@@ -336,7 +337,25 @@ public class UsersServiceTest {
 		assertThat(beforePassword).isNotEqualTo(afterPassword);
 		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
 	}
+	@Test
+	@DisplayName("Users get InterestArea Success Test")
+	public void usersRegisterInterestAreaSuccessTest() {
+		//given
+		List<Users> users = usersService.getUsersList().getUsers();
 
+		Long userId = users.get(0).getId();
+
+		InterestAreaRegisterRequestDto requestDto = InterestAreaRegisterRequestDto.builder()
+			.b_code("11305")
+			.build();
+
+		usersService.registerInterestArea(userId,requestDto);
+		//when
+		ResultDto<?> resultDto = usersService.getInterestArea(userId);
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((InterestAreaResponseDto)resultDto.getData()).getB_code()).isEqualTo("11305");
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
+	}
 	@Test
 	@DisplayName("Users get InterestArea Success Test")
 	public void usersGetInterestAreaSuccessTest() {
@@ -377,14 +396,33 @@ public class UsersServiceTest {
 
 	@Test
 	@DisplayName("Keyword register SuccessTest")
-	@Transactional
 	public void keywordGetSuccessTest() {
 		//given
-		List<Users> users = usersService.getUsersList().getUsers();
+		Long userId = 1L;
 
-		Long userId = users.get(0).getId();
+		KeywordRegisterRequestDto requestDto1 = KeywordRegisterRequestDto.builder()
+			.keyword("세번째 키워드")
+			.build();
 
+		ResultDto<?> resultDto1 = usersService.registerKeyword(userId, requestDto1);
+
+		KeywordRegisterRequestDto requestDto2 = KeywordRegisterRequestDto.builder()
+			.keyword("세번째 키워드")
+			.build();
+
+		ResultDto<?> resultDto2 = usersService.registerKeyword(userId, requestDto2);
 		//when
+
+		ResultDto<?> resultDto = usersService.getKeyword(1L);
+
+		usersService.deleteKeyword(1L,1L);
+
+		usersService.getKeyword(1L);
+
+		//then
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((KeywordGetResponseDto)resultDto.getData()).getKeywords().size()).isEqualTo(2);
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
 	}
 
 }
