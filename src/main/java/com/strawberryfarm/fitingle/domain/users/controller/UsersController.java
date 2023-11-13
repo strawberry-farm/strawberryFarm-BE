@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(value = "/auth",produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @Tag(name = "Users", description = "Users API")
 public class UsersController {
     private final UsersService usersService;
