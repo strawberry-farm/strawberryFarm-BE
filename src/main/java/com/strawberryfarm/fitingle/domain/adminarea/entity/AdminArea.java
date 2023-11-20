@@ -25,6 +25,9 @@ public class AdminArea extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    private String sidoName;
+
+    @Column(nullable = false)
     private String sidoCode;
 
     @Column(nullable = false)
