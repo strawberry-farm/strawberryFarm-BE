@@ -70,6 +70,9 @@ dependencies {
     // Mockito의 인라인 모킹 -> Final 클래스 및 메서드 모킹 위해
     testImplementation 'org.mockito:mockito-inline:3.12.4'
 
+    // Springdoc
+    implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+
 
 
 }

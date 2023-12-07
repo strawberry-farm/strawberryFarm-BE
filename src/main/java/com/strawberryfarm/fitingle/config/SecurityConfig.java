@@ -52,6 +52,7 @@ public class SecurityConfig {
 //			.authorizeHttpRequests().anyRequest().permitAll();
 
 
+		// 나중에 swagger 접근 허용 추가해야함
 		return http.build();
 	}
 
