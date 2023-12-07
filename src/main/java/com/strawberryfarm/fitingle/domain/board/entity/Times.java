@@ -1,5 +1,5 @@
 package com.strawberryfarm.fitingle.domain.board.entity;
 
 public enum Times {
-    Y
+    DAWN, MORNING, AFTERNOON, EVENING, LATE_NIGHT, ANYTIME
 }

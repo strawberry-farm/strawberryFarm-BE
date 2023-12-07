@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.UsersDto;
+package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
@@ -8,24 +8,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import lombok.experimental.SuperBuilder;
 
 @Getter
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersSignUpResponseDto implements BaseDto {
+@SuperBuilder
+public class UsersSignUpResponseDto extends BaseDto {
     private String email;
     private String nickName;
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
 
-
-    @Override
-    public ResultDto doResultDto(String message, String errorCode) {
-        return ResultDto.builder()
-            .message(message)
-            .data(this)
-            .errorCode(errorCode)
-            .build();
-    }
 }

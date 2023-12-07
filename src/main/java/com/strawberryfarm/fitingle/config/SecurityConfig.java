@@ -1,8 +1,8 @@
 package com.strawberryfarm.fitingle.config;
 
+import com.strawberryfarm.fitingle.security.EntryPoint.JwtAuthenticationEntryPoint;
 import com.strawberryfarm.fitingle.security.JwtAuthorizationFilter;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
-import com.strawberryfarm.fitingle.security.EntryPoint.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @EnableWebSecurity
@@ -53,6 +52,7 @@ public class SecurityConfig {
 //			.authorizeHttpRequests().anyRequest().permitAll();
 
 
+		// 나중에 swagger 접근 허용 추가해야함
 		return http.build();
 	}
 

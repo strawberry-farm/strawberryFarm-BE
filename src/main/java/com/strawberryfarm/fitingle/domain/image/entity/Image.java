@@ -11,11 +11,17 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "image")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Image extends BaseEntity {
 
     @Id

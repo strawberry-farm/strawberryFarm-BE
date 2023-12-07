@@ -8,8 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.google.gson.Gson;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;

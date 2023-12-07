@@ -62,7 +62,7 @@ public class AdminAreaService {
 
 
             for (RegionCode gunguDong : getGunguDongCodes(sido)) {
-                AdminArea gunguArea = buildGunguArea(gunguDong, sido);
+                AdminArea gunguArea = buildGunguArea(gunguDong, sidoArea);
                 String gunguKey = gunguArea.getSidoCode() + gunguArea.getGunguCode();
                 areasToSaveMap.put(gunguKey, gunguArea);
 
@@ -72,26 +72,30 @@ public class AdminAreaService {
         areaRepository.saveAll(new ArrayList<>(areasToSaveMap.values()));
     }
 
-    //세종시 임의로 추가
+    // 세종시를 맵에 추가하는 메소드 수정
     private void addSejongAreasToMap(Map<String, AdminArea> areasToSaveMap) {
-        String sejongCode = "32";
+        String sejongSidoName = "세종";
+        String sejongCode = "36"; // 세종시의 실제 코드로 변경해야 할 수 있습니다.
 
         // "세종 전체" 항목 추가
         AdminArea sejongGeneralArea = AdminArea.builder()
                 .sidoCode(sejongCode)
                 .gunguCode(sejongCode + "000")
-                .name("세종 전체")
+                .name(sejongSidoName + " 전체")
+                .sidoName(sejongSidoName) // 새로운 필드 추가
                 .build();
         areasToSaveMap.put(sejongCode + "000", sejongGeneralArea);
 
         // "세종특별자치시" 항목 추가
         AdminArea sejongCityArea = AdminArea.builder()
                 .sidoCode(sejongCode)
-                .gunguCode(sejongCode + "001") // 이 코드는 적절한 구/동 코드로 수정이 필요할 수 있다.
-                .name("세종특별자치시")
+                .gunguCode(sejongCode + "001") // 이 코드는 적절한 구/동 코드로 수정이 필요할 수 있습니다.
+                .name(sejongSidoName)
+                .sidoName(sejongSidoName) // 새로운 필드 추가
                 .build();
         areasToSaveMap.put(sejongCode + "001", sejongCityArea);
     }
+
 
     /**
      * '시도' 행정구역 객체를 구축한다.
@@ -103,7 +107,8 @@ public class AdminAreaService {
         return AdminArea.builder()
                 .sidoCode(sidoCode)
                 .gunguCode(sidoCode + "000")
-                .name(sidoName)
+                .name(sidoName + " 전체")
+                .sidoName(sidoName)
                 .build();
     }
 
@@ -111,13 +116,23 @@ public class AdminAreaService {
      * '구/군/동' 행정구역 객체를 구축한다.
      * 예시: 서울특별시 종로구 -> 종로구
      */
-    private AdminArea buildGunguArea(RegionCode gunguDong, RegionCode sido) {
+//    private AdminArea buildGunguArea(RegionCode gunguDong, RegionCode sido) {
+//        String gunguCode = extractGunguCode(gunguDong);
+//        String gunguName = formatGunguName(gunguDong.getName());
+//        return AdminArea.builder()
+//                .sidoCode(extractSidoCode(sido))
+//                .gunguCode(gunguCode)
+//                .name(gunguName)
+//                .build();
+//    }
+    private AdminArea buildGunguArea(RegionCode gunguDong, AdminArea sidoArea) {
         String gunguCode = extractGunguCode(gunguDong);
         String gunguName = formatGunguName(gunguDong.getName());
         return AdminArea.builder()
-                .sidoCode(extractSidoCode(sido))
+                .sidoCode(sidoArea.getSidoCode())
                 .gunguCode(gunguCode)
                 .name(gunguName)
+                .sidoName(sidoArea.getSidoName()) // 이것이 새로운 필드로, sidoArea의 sidoName을 사용
                 .build();
     }
 
@@ -185,8 +200,7 @@ public class AdminAreaService {
     private String formatSidoName(String name) {
         for (Map.Entry<String, String> entry : SIDO_NAME_MAP.entrySet()) {
             if (name.contains(entry.getKey())) {
-                String newName = (name.replace(entry.getKey(), entry.getValue()) + " 전체").trim();
-                return newName;
+                return name.replace(entry.getKey(), entry.getValue()).trim();
             }
         }
         return name.trim();
