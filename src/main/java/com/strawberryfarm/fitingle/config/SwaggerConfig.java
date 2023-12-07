@@ -19,7 +19,7 @@ public class SwaggerConfig {
 
         // HTTP
         Server httpServer = new Server();
-        httpsServer.setUrl("http://strawberryfarm.shop/");
+        httpServer.setUrl("http://strawberryfarm.shop/");
 
         return new OpenAPI()
             .components(new Components())
