@@ -3,6 +3,8 @@ package com.strawberryfarm.fitingle.config;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
+import java.util.List;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,9 +13,18 @@ public class SwaggerConfig {
 
     @Bean
     public OpenAPI openAPI() {
+        // HTTPS
+        Server httpsServer = new Server();
+        httpsServer.setUrl("https://strawberryfarm.shop/");
+
+        // HTTP
+        Server httpServer = new Server();
+        httpsServer.setUrl("http://strawberryfarm.shop/");
+
         return new OpenAPI()
             .components(new Components())
-            .info(apiInfo());
+            .info(apiInfo())
+            .servers(List.of(httpsServer, httpServer));
     }
 
     private Info apiInfo() {
