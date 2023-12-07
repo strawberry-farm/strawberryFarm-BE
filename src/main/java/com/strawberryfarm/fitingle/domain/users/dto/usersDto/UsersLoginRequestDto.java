@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.UsersDto;
+package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;

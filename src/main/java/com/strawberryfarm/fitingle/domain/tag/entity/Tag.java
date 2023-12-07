@@ -12,11 +12,17 @@ import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
 @Table(name = "tag")
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Tag extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,4 +35,8 @@ public class Tag extends BaseEntity {
     @Lob
     @Column(nullable = false)
     private String contents;
+
+    public void setBoard(Board board) {
+        this.board = board;
+    }
 }

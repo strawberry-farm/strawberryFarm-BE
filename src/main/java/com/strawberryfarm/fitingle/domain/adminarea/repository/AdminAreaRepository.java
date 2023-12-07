@@ -8,4 +8,6 @@ import java.util.List;
 public interface AdminAreaRepository extends JpaRepository<AdminArea, Long> {
     AdminArea save(AdminArea adminArea);
     List<AdminArea> findAllByOrderBySidoCodeAscNameAsc();
+
+    AdminArea findAdminAreaByGunguCode(String gunguCode);
 }
