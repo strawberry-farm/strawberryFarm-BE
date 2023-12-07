@@ -3,15 +3,21 @@ package com.strawberryfarm.fitingle.UserTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLogoutResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpResponseDto;
+import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseVo;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLogoutResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
@@ -19,6 +25,7 @@ import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
 import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +35,7 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
@@ -202,7 +210,7 @@ public class UsersServiceTest {
 		//given
 		UsersLoginRequestDto loginRequestDto = UsersLoginRequestDto.builder()
 			.email("testUsers1@test.com")
-			.password("123456")
+			.password("123123")
 			.build();
 
 		ResultDto<?> loginResult = usersService.login(loginRequestDto);
@@ -213,7 +221,7 @@ public class UsersServiceTest {
 
 		//then
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
-		assertThat(((UsersLogoutResponseDto)resultDto.getData()).getEmail()).isEqualTo(testUsers);
+		assertThat(((UsersLogoutResponseDto)resultDto.getData()).getEmail()).isEqualTo("testUsers1@test.com");
 		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
 	}
 
@@ -327,6 +335,93 @@ public class UsersServiceTest {
 		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
 		assertThat(resultDto.getData()).isNotNull();
 		assertThat(beforePassword).isNotEqualTo(afterPassword);
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
+	}
+	@Test
+	@DisplayName("Users get InterestArea Success Test")
+	public void usersRegisterInterestAreaSuccessTest() {
+		//given
+		List<Users> users = usersService.getUsersList().getUsers();
+
+		Long userId = users.get(0).getId();
+
+		InterestAreaRegisterRequestDto requestDto = InterestAreaRegisterRequestDto.builder()
+			.b_code("11305")
+			.build();
+
+		usersService.registerInterestArea(userId,requestDto);
+		//when
+		ResultDto<?> resultDto = usersService.getInterestArea(userId);
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((InterestAreaResponseDto)resultDto.getData()).getB_code()).isEqualTo("11305");
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
+	}
+	@Test
+	@DisplayName("Users get InterestArea Success Test")
+	public void usersGetInterestAreaSuccessTest() {
+		//given
+		List<Users> users = usersService.getUsersList().getUsers();
+
+		Long userId = users.get(0).getId();
+
+		InterestAreaRegisterRequestDto requestDto = InterestAreaRegisterRequestDto.builder()
+			.b_code("11305")
+			.build();
+
+		usersService.registerInterestArea(userId,requestDto);
+		//when
+		ResultDto<?> resultDto = usersService.getInterestArea(userId);
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((InterestAreaResponseDto)resultDto.getData()).getB_code()).isEqualTo("11305");
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
+	}
+
+	@Test
+	@DisplayName("Keyword register SuccessTest")
+	public void keywordRegisterSuccessTest() {
+		//given
+		Long userId = 1L;
+
+		KeywordRegisterRequestDto requestDto3 = KeywordRegisterRequestDto.builder()
+			.keyword("세번째 키워드")
+			.build();
+
+		//when
+		ResultDto<?> resultDto = usersService.registerKeyword(userId, requestDto3);
+
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((KeywordRegisterResponseDto)resultDto.getData()).getKeywords().size()).isEqualTo(1);
+		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
+	}
+
+	@Test
+	@DisplayName("Keyword register SuccessTest")
+	public void keywordGetSuccessTest() {
+		//given
+		Long userId = 1L;
+
+		KeywordRegisterRequestDto requestDto1 = KeywordRegisterRequestDto.builder()
+			.keyword("세번째 키워드")
+			.build();
+
+		ResultDto<?> resultDto1 = usersService.registerKeyword(userId, requestDto1);
+
+		KeywordRegisterRequestDto requestDto2 = KeywordRegisterRequestDto.builder()
+			.keyword("세번째 키워드")
+			.build();
+
+		ResultDto<?> resultDto2 = usersService.registerKeyword(userId, requestDto2);
+		//when
+
+		ResultDto<?> resultDto = usersService.getKeyword(1L);
+
+		usersService.deleteKeyword(1L,1L);
+
+		usersService.getKeyword(1L);
+
+		//then
+		assertThat(resultDto.getMessage()).isEqualTo(ErrorCode.SUCCESS.getMessage());
+		assertThat(((KeywordGetResponseDto)resultDto.getData()).getKeywords().size()).isEqualTo(2);
 		assertThat(resultDto.getErrorCode()).isEqualTo(ErrorCode.SUCCESS.getCode());
 	}
 

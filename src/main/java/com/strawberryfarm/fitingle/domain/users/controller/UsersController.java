@@ -1,15 +1,17 @@
 package com.strawberryfarm.fitingle.domain.users.controller;
 
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersDetailUpdateRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersLoginResponseVo;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersPasswordResetRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.UsersDto.UsersSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseVo;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
-import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import java.nio.file.Path;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -83,6 +85,31 @@ public class UsersController {
     public ResponseEntity<?> updateUsersDetail(@PathVariable Long userId, @RequestBody
     UsersDetailUpdateRequestDto usersDetailUpdateRequestDto) {
         return ResponseEntity.ok(usersService.updateUsersDetail(userId,usersDetailUpdateRequestDto));
+    }
+
+    @GetMapping("/user/interestArea/{userId}")
+    public ResponseEntity<?> getInterestArea(@PathVariable Long userId) {
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/user/interestArea/{userId}")
+    public ResponseEntity<?> registerInterestArea(@PathVariable Long userId,@RequestBody InterestAreaRegisterRequestDto interestAreaRegisterRequestDto) {
+        return ResponseEntity.ok("");
+    }
+
+    @GetMapping("/user/keyword/{userId}")
+    public ResponseEntity<?> getKeyword(@PathVariable Long userId) {
+        return ResponseEntity.ok("");
+    }
+
+    @PostMapping("/user/keyword/{userId}")
+    public ResponseEntity<?> registerKeyword(@PathVariable Long userId, @RequestBody KeywordRegisterRequestDto keywordRegisterRequestDto) {
+        return ResponseEntity.ok("");
+    }
+
+    @DeleteMapping("/user/keyword/{userId}")
+    public ResponseEntity<?> deleteKeyword(@PathVariable Long userId,@RequestParam String keyword) {
+        return ResponseEntity.ok("");
     }
 
     @GetMapping("/list")

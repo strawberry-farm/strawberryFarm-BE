@@ -1,6 +1,5 @@
-package com.strawberryfarm.fitingle.domain.users.dto.UsersDto;
+package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
 
-import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UsersLoginRequestDto {
+public class UsersSignUpRequestDto {
     private String email;
     private String password;
+    private String nickName;
 }
