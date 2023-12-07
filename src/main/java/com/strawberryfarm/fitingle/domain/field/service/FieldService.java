@@ -1,10 +1,9 @@
 package com.strawberryfarm.fitingle.domain.field.service;
 
-import com.strawberryfarm.fitingle.domain.field.dto.FieldsReponseDTO;
+import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
-import java.net.URL;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +16,6 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -85,9 +83,9 @@ public class FieldService {
 
     public ResultDto getAllFields() {
         List<Field> fields = fieldRepository.findAll();
-        List<FieldsReponseDTO> fieldDtos = new ArrayList<>();
+        List<FieldsResponseDTO> fieldDtos = new ArrayList<>();
         for (Field field : fields) {
-            FieldsReponseDTO dto = FieldsReponseDTO.builder()
+            FieldsResponseDTO dto = FieldsResponseDTO.builder()
                     .fieldId(field.getId())
                     .fieldName(field.getName())
                     .image(field.getImageUrl())

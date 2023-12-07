@@ -1,10 +1,9 @@
 package com.strawberryfarm.fitingle.domain.field.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.strawberryfarm.fitingle.domain.field.dto.FieldsReponseDTO;
+import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
 import com.strawberryfarm.fitingle.domain.field.service.FieldService;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import org.junit.jupiter.api.BeforeEach;
@@ -31,13 +30,13 @@ class FieldControllerTest {
 
     @BeforeEach
     public void setup() {
-        FieldsReponseDTO fieldsReponseDTO = FieldsReponseDTO.builder()
+        FieldsResponseDTO fieldsResponseDTO = FieldsResponseDTO.builder()
                 .fieldId(1L)
                 .fieldName("축구")
                 .image("https://strawberry-bucket.s3.ap-northeast-2.amazonaws.com/fields/soccer-20231021.jpg")
                 .build();
 
-        ResultDto resultDto = fieldsReponseDTO.doResultDto("분야 정보를 성공적으로 가져왔습니다.", "1111");
+        ResultDto resultDto = fieldsResponseDTO.doResultDto("분야 정보를 성공적으로 가져왔습니다.", "1111");
         when(fieldService.getAllFields()).thenReturn(resultDto);
     }
 

@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FieldsReponseDTO extends BaseDto {
+public class FieldsResponseDTO extends BaseDto {
 
     private Long fieldId;
     private String fieldName;
