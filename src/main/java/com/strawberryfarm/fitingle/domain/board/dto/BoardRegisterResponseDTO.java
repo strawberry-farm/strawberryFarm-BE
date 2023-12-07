@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardRegisterResponseDTO implements BaseDto {
+public class BoardRegisterResponseDTO extends BaseDto {
 
     private Long postsId;
     private String title;
