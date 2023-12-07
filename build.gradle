@@ -64,6 +64,16 @@ dependencies {
     //smtp 의존성 추가
     implementation 'org.springframework.boot:spring-boot-starter-mail'
 
+    //rabbitmq
+    implementation 'org.springframework.boot:spring-boot-starter-amqp'
+
+    //외부 브로커를 사용하기 위해
+    implementation 'org.springframework.boot:spring-boot-starter-reactor-netty'
+
+    //websocket
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+
 }
 
 tasks.named('test') {
