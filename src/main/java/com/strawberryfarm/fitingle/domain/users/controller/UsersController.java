@@ -11,6 +11,9 @@ import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetR
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -28,8 +31,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+@Tag(name = "Users", description = "Users API")
 public class UsersController {
     private final UsersService usersService;
 
@@ -55,6 +59,7 @@ public class UsersController {
     }
 
     @PostMapping("/auth/login")
+    @Operation(summary = "로그인", description = "로그인 api")
     public ResponseEntity<?> login(@RequestBody UsersLoginRequestDto usersLoginRequestDto, HttpServletResponse httpServletResponse) {
         ResultDto resultDto = usersService.login(usersLoginRequestDto);
 
