@@ -39,7 +39,4 @@ public class Groups extends BaseEntity {
         this.user = user;
         user.getGroups().add(this);
     }
-
-
-
 }
