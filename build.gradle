@@ -82,6 +82,14 @@ dependencies {
     // Springdoc
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
+    // AOP
+    compileOnly 'org.springframework.boot:spring-boot-starter-aop:2.7.4'
+
+    //thymeleaf
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+    //socket js
+    implementation group: 'org.webjars', name: 'sockjs-client', version: '1.1.2'
 }
 
 tasks.named('test') {

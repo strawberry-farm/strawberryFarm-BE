@@ -4,7 +4,7 @@ import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.alertlog.entity.AlertLog;
 import com.strawberryfarm.fitingle.domain.apply.entity.Apply;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
-import com.strawberryfarm.fitingle.domain.chat.entity.Chat;
+import com.strawberryfarm.fitingle.domain.userchatroom.entity.UsersChatRoom;
 import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.interestfield.entity.InterestField;
@@ -24,8 +24,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
-import net.bytebuddy.matcher.FilterableList;
-import net.bytebuddy.matcher.FilterableList.AbstractBase;
 
 @Entity
 @AllArgsConstructor
@@ -77,7 +75,7 @@ public class Users extends BaseEntity {
     private List<Keyword> keywords = new ArrayList<>();
 
     @OneToMany(mappedBy = "users",fetch = FetchType.LAZY)
-    private List<Chat> chats = new ArrayList<>();
+    private List<UsersChatRoom> usersChatRooms = new ArrayList<>();
 
     @Column(nullable = false)
     private String email;

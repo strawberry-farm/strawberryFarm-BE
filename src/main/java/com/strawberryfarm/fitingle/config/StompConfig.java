@@ -1,6 +1,9 @@
 package com.strawberryfarm.fitingle.config;
 
+import com.strawberryfarm.fitingle.security.ChatPreHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -9,8 +12,9 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 
 @Configuration
 @EnableWebSocketMessageBroker
+@RequiredArgsConstructor
 public class StompConfig implements WebSocketMessageBrokerConfigurer {
-
+	private final ChatPreHandler chatPreHandler;
 	@Override
 	public void registerStompEndpoints(StompEndpointRegistry registry) {
 		registry.addEndpoint("/ws/chat") // 소켓 연결 경로
@@ -24,9 +28,12 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 		// 보통 .으로 구조를 나타낸다고한다
 		registry.setPathMatcher(new AntPathMatcher("."));
 
+		//registry.enableStompBrokerRelay("/topic");
+		registry.enableStompBrokerRelay("/queue", "/topic", "/exchange", "/amq/queue");
+
 		//메시지 송신 경로
 		registry.setApplicationDestinationPrefixes("/pub");
-
-		registry.enableStompBrokerRelay("/topic");
 	}
+
+
 }

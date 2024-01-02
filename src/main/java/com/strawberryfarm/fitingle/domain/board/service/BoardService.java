@@ -7,14 +7,18 @@ import com.strawberryfarm.fitingle.domain.board.entity.Days;
 import com.strawberryfarm.fitingle.domain.board.entity.PostStatus;
 import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
+import com.strawberryfarm.fitingle.domain.chatRoom.service.ChatRoomService;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
 import com.strawberryfarm.fitingle.domain.tag.entity.Tag;
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
+import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import java.net.URL;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,10 +42,13 @@ public class BoardService {
     private final BoardRepository boardRepository;
     private final FieldRepository fieldRepository;
 
+    private final UsersRepository usersRepository;
+    private final ChatRoomService chatRoomService;
+
 
     @Transactional
     public ResultDto<BoardRegisterResponseDTO> boardRegister(BoardRegisterRequestDTO boardRegisterRequestDTO, List<MultipartFile> images) {
-        try {
+//        try {
             Board board = Board.builder()
                     .titleContents(boardRegisterRequestDTO.getTitle())
                     .postStatus(PostStatus.Y)
@@ -58,33 +65,38 @@ public class BoardService {
                     .build();
 
             // 연관관계 세팅 (Tag)
-            boardRegisterRequestDTO.getTags().forEach(tagName -> {
-                Tag tag = Tag.builder()
-                        .contents(tagName)
-                        .build();
-                board.addTag(tag);
-            });
-
-            // 이미지 처리
-            List<String> imageUrls = images.stream()
-                    .map(this::uploadImageToS3)
-                    .collect(Collectors.toList());
-
-            // 이미지 URL을 사용하여 Image 엔티티 생성 및 Board 엔티티에 추가
-            imageUrls.forEach(url -> {
-                Image image = Image.builder()
-                        .imageUrl(url)
-                        .build();
-                board.addImage(image);
-            });
+//            boardRegisterRequestDTO.getTags().forEach(tagName -> {
+//                Tag tag = Tag.builder()
+//                        .contents(tagName)
+//                        .build();
+//                board.addTag(tag);
+//            });
+//
+//            // 이미지 처리
+//            List<String> imageUrls = images.stream()
+//                    .map(this::uploadImageToS3)
+//                    .collect(Collectors.toList());
+//
+//            // 이미지 URL을 사용하여 Image 엔티티 생성 및 Board 엔티티에 추가
+//            imageUrls.forEach(url -> {
+//                Image image = Image.builder()
+//                        .imageUrl(url)
+//                        .build();
+//                board.addImage(image);
+//            });
 
             // 연관관계 세팅 (field)
             // 예) fieldId를 기반으로 Field 객체를 조회한 후, board에 설정
             Field field = fieldRepository.findById(boardRegisterRequestDTO.getFieldId()).orElse(null);
             board.addField(field);
 
-            Board savedBoard = boardRepository.save(board);
+//            Optional<Users> byId = usersRepository.findById(
+//                new Long(boardRegisterRequestDTO.getUserId()));
+//            board.setUser(byId.get());
 
+
+            Board savedBoard = boardRepository.save(board);
+            chatRoomService.createChatRoom(new Long(boardRegisterRequestDTO.getUserId()));
             // BoardRegisterResponseDTO 객체 생성 및 필요한 정보 설정
             BoardRegisterResponseDTO responseDTO = BoardRegisterResponseDTO.builder()
                     .postsId(savedBoard.getId())
@@ -95,9 +107,9 @@ public class BoardService {
 
             // ResultDto 객체 생성 및 반환
             return responseDTO.doResultDto("success", "1111");
-        }catch (Exception e){
-            return new BoardRegisterResponseDTO().doResultDto("fail", "3000");
-        }
+//        }catch (Exception e){
+//            return new BoardRegisterResponseDTO().doResultDto("fail", "3000");
+//        }
     }
     private String uploadImageToS3(MultipartFile file) {
         try {
