@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.keyword.dto;
+package com.strawberryfarm.fitingle.domain.chat.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class KeywordDto {
-	Long id;
-	String name;
+public class ChatErrorMessageDto {
+	private String errorCode;
+	private String message;
 }
