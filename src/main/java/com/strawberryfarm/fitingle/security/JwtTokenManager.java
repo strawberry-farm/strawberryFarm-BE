@@ -51,6 +51,7 @@ public class JwtTokenManager {
 			return false;
 		}
 
+
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
 			return true;
@@ -99,7 +100,7 @@ public class JwtTokenManager {
 						.map(SimpleGrantedAuthority::new)
 						.collect(Collectors.toList());
 
-
+		String test = claims.getSubject();
 		UserDetails userDetails = new User(claims.getSubject(),"",authorities);
 		return new UsernamePasswordAuthenticationToken(userDetails,"",authorities);
  	}
@@ -114,7 +115,7 @@ public class JwtTokenManager {
 		 return claims.getSubject();
 	}
 
-	public String genAccessToken(Authentication authentication) {
+	public String genAccessToken(Authentication authentication,Long userId) {
 		long now = (new Date()).getTime();
 		Date expireDate = new Date(now+ACCESS_TOKEN_EXPIRE_TIME);
 
@@ -128,8 +129,8 @@ public class JwtTokenManager {
 
 		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
 				.setHeaderParam("typ", "jwt")
-				.setSubject(authentication.getName())
 				.setClaims(authoritiesMap)
+				.setSubject(Long.toString(userId))
 				.setIssuer("fitingle")
 				.setIssuedAt(Date.from(Instant.now()))
 				.setExpiration(expireDate)
