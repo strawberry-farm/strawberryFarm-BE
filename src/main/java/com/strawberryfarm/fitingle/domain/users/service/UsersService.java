@@ -3,6 +3,7 @@ package com.strawberryfarm.fitingle.domain.users.service;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.adminarea.entity.AdminArea;
 import com.strawberryfarm.fitingle.domain.adminarea.repository.AdminAreaRepository;
+import com.strawberryfarm.fitingle.domain.keyword.dto.KeywordDto;
 import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
 import com.strawberryfarm.fitingle.domain.keyword.repository.KeywordRepository;
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
@@ -39,6 +40,7 @@ import com.strawberryfarm.fitingle.security.JwtTokenManager;
 import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import java.io.UnsupportedEncodingException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -207,9 +209,9 @@ public class UsersService {
 
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-            String accessToken = jwtTokenManager.genAccessToken(authentication);
-            String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
             Users findUsers = usersRepository.findUsersByEmail(authentication.getName()).get();
+            String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
+            String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
 
             redisTemplate.opsForValue().set(findUsers.getEmail()
                 ,refreshToken
@@ -411,9 +413,17 @@ public class UsersService {
         }
 
         Users findUser = findUsers.get();
+        List<KeywordDto> keywords = new ArrayList<>();
+
+        for (int i = 0; i < findUser.getKeywords().size(); i++) {
+            keywords.add(KeywordDto.builder()
+                    .id(findUser.getKeywords().get(i).getId())
+                    .name(findUser.getKeywords().get(i).getName())
+                .build());
+        }
 
         return KeywordGetResponseDto.builder()
-            .keywords(findUser.getKeywords().stream().map(x -> x.getName()).collect(Collectors.toList()))
+            .keywords(keywords)
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
