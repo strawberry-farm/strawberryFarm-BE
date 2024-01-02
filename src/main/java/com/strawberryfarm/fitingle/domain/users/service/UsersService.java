@@ -417,8 +417,8 @@ public class UsersService {
 
         for (int i = 0; i < findUser.getKeywords().size(); i++) {
             keywords.add(KeywordDto.builder()
-                    .id(findUser.getKeywords().get(i).getId())
-                    .name(findUser.getKeywords().get(i).getName())
+                .id(findUser.getKeywords().get(i).getId())
+                .name(findUser.getKeywords().get(i).getName())
                 .build());
         }
 

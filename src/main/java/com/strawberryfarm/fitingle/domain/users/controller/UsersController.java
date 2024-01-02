@@ -49,7 +49,7 @@ public class UsersController {
     @PostMapping("/auth/email-confirm")
     @Operation(summary = "이메일 인증 확인")
     public ResponseEntity<?> emailCertificationConfirm(@RequestBody
-        EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto) {
+    EmailCertificationConfirmRequestDto emailCertificationConfirmRequestDto) {
         return ResponseEntity.ok(usersService.emailCertificationConfirm(emailCertificationConfirmRequestDto));
     }
 
@@ -72,9 +72,9 @@ public class UsersController {
 
         if (resultDto.getData() == null) {
             return ResponseEntity.ok(ResultDto.builder()
-                    .message(resultDto.getMessage())
-                    .data(null)
-                    .errorCode(resultDto.getErrorCode())
+                .message(resultDto.getMessage())
+                .data(null)
+                .errorCode(resultDto.getErrorCode())
                 .build());
         }
 
