@@ -36,6 +36,10 @@ public enum ErrorCode {
     EXPIRED_REFRESH_TOKEN(200,"AU003","Expired Refresh Token"),
     UNSUPPORTED_REFRESH_TOKEN(200,"AU004","Unsupported Refresh Token"),
     EMPTY_CLAIM_REFRESH_TOKEN(200,"AU005","Empty Claim Refresh Token"),
+
+    //Chat
+    MESSAGE_SEND_ERROR(401,"CH000","Web Chat Message Send Error"),
+
     //SUCCESS
     SUCCESS(200,"1111","Success");
     private int status;

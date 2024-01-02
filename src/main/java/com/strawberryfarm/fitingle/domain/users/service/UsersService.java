@@ -3,8 +3,13 @@ package com.strawberryfarm.fitingle.domain.users.service;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.adminarea.entity.AdminArea;
 import com.strawberryfarm.fitingle.domain.adminarea.repository.AdminAreaRepository;
+import com.strawberryfarm.fitingle.domain.keyword.dto.KeywordDto;
 import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
 import com.strawberryfarm.fitingle.domain.keyword.repository.KeywordRepository;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaDeleteResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterResponseDto;
@@ -14,8 +19,8 @@ import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDt
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAllUsersResponse;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseDto;
@@ -25,10 +30,6 @@ import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetR
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationResponseDto;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
@@ -49,7 +50,6 @@ import javax.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -209,9 +209,9 @@ public class UsersService {
 
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
-            String accessToken = jwtTokenManager.genAccessToken(authentication);
-            String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
             Users findUsers = usersRepository.findUsersByEmail(authentication.getName()).get();
+            String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
+            String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
 
             redisTemplate.opsForValue().set(findUsers.getEmail()
                 ,refreshToken
@@ -413,9 +413,17 @@ public class UsersService {
         }
 
         Users findUser = findUsers.get();
+        List<KeywordDto> keywords = new ArrayList<>();
+
+        for (int i = 0; i < findUser.getKeywords().size(); i++) {
+            keywords.add(KeywordDto.builder()
+                    .id(findUser.getKeywords().get(i).getId())
+                    .name(findUser.getKeywords().get(i).getName())
+                .build());
+        }
 
         return KeywordGetResponseDto.builder()
-            .keywords(findUser.getKeywords().stream().map(x -> x.getName()).collect(Collectors.toList()))
+            .keywords(keywords)
             .build()
             .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }

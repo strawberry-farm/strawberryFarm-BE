@@ -20,16 +20,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	public static final String TOKEN_HEADER = "Authorization";
-	public static final String TOKEN_PREFIX = "Bearer ";
+	public static final String TOKEN_PREFIX = "Bearer :";
 	private final RedisTemplate redisTemplate;
 	private final JwtTokenManager jwtTokenManager;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String jwt = request.getHeader(TOKEN_HEADER);
+
+		//결과를 담아줄 겍체
 		ResultDto errorResultDto = new ResultDto();
+
 		String refreshToken = "";
+
+		//쿠키에서 refresh 토큰을 가져옴
 		Cookie[] cookies = request.getCookies();
+
 		if (cookies != null) {
 			for (Cookie cookie : cookies) {
 				if (cookie.getName().equals("refreshToken")) {
@@ -53,6 +59,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 				));
 				return;
 			} else {
+
 				if (jwtTokenManager.refreshTokenValidate(refreshToken,errorResultDto)) {
 					if (redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals("logout")) {
 						response.setStatus(HttpServletResponse.SC_OK);
@@ -73,8 +80,12 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 							.build()));
 						return;
 					}
-					if (jwtTokenManager.accessTokenValidate(jwt,errorResultDto)) {
-						Authentication authentication = jwtTokenManager.getAuthentication(jwt);
+
+					//실제 access 토큰 인증 부분(subAccessToken 은 "Bearer :"을 떼어낸 것)
+					String subAccessToken = jwt.substring(TOKEN_PREFIX.length());
+
+					if (jwtTokenManager.accessTokenValidate(subAccessToken,errorResultDto)) {
+						Authentication authentication = jwtTokenManager.getAuthentication(subAccessToken);
 						SecurityContextHolder.getContext().setAuthentication(authentication);
 					} else {
 						response.setStatus(HttpServletResponse.SC_OK);

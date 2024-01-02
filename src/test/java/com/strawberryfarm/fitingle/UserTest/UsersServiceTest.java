@@ -3,7 +3,9 @@ package com.strawberryfarm.fitingle.UserTest;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
-import com.strawberryfarm.fitingle.domain.keyword.entity.Keyword;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
@@ -18,14 +20,10 @@ import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLogoutResponse
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationConfirmResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.service.UsersService;
 import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
@@ -35,7 +33,6 @@ import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
 @TestInstance(Lifecycle.PER_CLASS)
