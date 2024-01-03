@@ -27,12 +27,12 @@ public class BoardDetailResponseDTO extends BaseDto {
 
     //board 정보
     private Long boardId;
-    private String postStatus;
-    private String titleContents;
-    private Long headCount;
+    private String title;
+    private String status;
+    private Long headcount;
     private String city;
     private String district;
-    private String BCode;
+    private String b_code;
     private String location;
     private String latitude;
     private String longitude;
