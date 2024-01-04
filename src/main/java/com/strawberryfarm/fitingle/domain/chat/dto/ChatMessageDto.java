@@ -3,6 +3,7 @@ package com.strawberryfarm.fitingle.domain.chat.dto;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
 import com.strawberryfarm.fitingle.domain.chat.type.ChatType;
+import com.strawberryfarm.fitingle.dto.BaseDto;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,21 +11,26 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 @ToString
-public class ChatMessageDto {
-	private Long id;
-	private Long chatRoomId;
-	private Long memberId;
+@Getter
+public class ChatMessageDto extends BaseDto {
 	private String nickname;
 
 	private String message;
-	private String region;
 
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime regDate;
+
+	public void modifyMessage(String message) {
+		this.message = message;
+	}
+
+	public void modifyRegDate(LocalDateTime regDate) {
+		this.regDate = regDate;
+	}
 }

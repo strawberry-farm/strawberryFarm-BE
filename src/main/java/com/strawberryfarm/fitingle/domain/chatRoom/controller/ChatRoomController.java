@@ -20,4 +20,5 @@ public class ChatRoomController {
 
 		return ResponseEntity.ok(chatRoomService.getChatRooms(userId));
 	}
+
 }

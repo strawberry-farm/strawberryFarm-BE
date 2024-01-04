@@ -3,6 +3,7 @@ package com.strawberryfarm.fitingle.domain.chat.entity;
 import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.chatRoom.entity.ChatRoom;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
@@ -31,6 +32,11 @@ public class Chat extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private Long chatIdx;
+
+    private String nicName;
+    private String message;
+
     @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "CHATROOM_ID")
     private ChatRoom chatRoom;
@@ -39,4 +45,5 @@ public class Chat extends BaseEntity {
         this.chatRoom = chatRoom;
         chatRoom.getChats().add(this);
     }
+
 }

@@ -32,6 +32,10 @@ public class ChatRoom extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	private int numsOfUsers;
+
+	private String chatRoomSummaryInfo;
+
 	@Builder.Default
 	@OneToMany(mappedBy = "chatRoom",fetch = FetchType.LAZY)
 	private List<UsersChatRoom> usersChatRooms = new ArrayList<>();
@@ -43,4 +47,12 @@ public class ChatRoom extends BaseEntity {
 	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "BOARD_ID")
 	private Board board;
+
+	public void reduceNumOfUsers() {
+		this.numsOfUsers--;
+	}
+
+	public void modifyChatRoomSummaryInfo(String chatRoomSummaryInfo) {
+		this.chatRoomSummaryInfo = chatRoomSummaryInfo;
+	}
 }

@@ -39,7 +39,7 @@ public enum ErrorCode {
     EMPTY_CLAIM_REFRESH_TOKEN(200,"AU005","Empty Claim Refresh Token"),
 
     //Chat
-    MESSAGE_SEND_ERROR(401,"CH000","Web Chat Message Send Error"),
+    NOT_EXIST_CHAT_ROOM(401,"CH000","Not Exist Chat Room"),
 
     //SUCCESS
     SUCCESS(200,"1111","Success");

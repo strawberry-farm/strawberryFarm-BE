@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
@@ -19,9 +20,7 @@ public class ChatPreHandler implements ChannelInterceptor {
 		try {
 			StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message,StompHeaderAccessor.class);
 
-
-			//연결 및 구독 확인
-
+			//헤더 가져오기
 		}catch (Exception e) {
 
 		}

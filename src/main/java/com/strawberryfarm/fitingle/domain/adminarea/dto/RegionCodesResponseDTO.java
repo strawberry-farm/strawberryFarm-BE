@@ -12,6 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RegionCodesResponseDTO {
     private List<RegionCode> regcodes;
+
     @Getter
     @Setter
     @NoArgsConstructor
