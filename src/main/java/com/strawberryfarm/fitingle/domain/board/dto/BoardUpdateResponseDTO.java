@@ -1,5 +1,7 @@
 package com.strawberryfarm.fitingle.domain.board.dto;
 
+
+import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import java.time.LocalDateTime;
@@ -12,16 +14,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class BoardRegisterResponseDTO extends BaseDto {
-
+public class BoardUpdateResponseDTO extends BaseDto {
     private Long boardsId;
     private String title;
     private LocalDateTime createdDate;
     private LocalDateTime updateDate;
 
     @Override
-    public ResultDto<BoardRegisterResponseDTO> doResultDto(String message, String errorCode) {
-        return ResultDto.<BoardRegisterResponseDTO>builder()
+    public ResultDto<BoardUpdateResponseDTO> doResultDto(String message, String errorCode) {
+        return ResultDto.<BoardUpdateResponseDTO>builder()
                 .message(message)
                 .data(this)
                 .errorCode(errorCode)

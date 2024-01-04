@@ -4,13 +4,10 @@ import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import com.strawberryfarm.fitingle.utils.S3Manager;
 import java.util.ArrayList;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
-import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.util.HashMap;
@@ -21,33 +18,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class FieldService {
 
-    private final S3Client s3Client;
     private final FieldRepository fieldRepository;
 
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucketName;
-
-    @Value("${cloud.aws.s3.url}")
-    private String s3BaseUrl;
-
-    private List<S3Object> getFieldObjectsFromS3() {
-        //AWS SDK for Java V2에서 제공하는 클래스로, Amazon S3의 listObjectsV2
-        ListObjectsV2Request listObjectsV2Request = ListObjectsV2Request.builder()
-                .bucket(bucketName)
-                .prefix("fields/")
-                .build();
-
-        ListObjectsV2Response listObjectsV2Response = s3Client.listObjectsV2(listObjectsV2Request);
-
-        List<S3Object> filteredList = new ArrayList<>();
-        for (S3Object s3Object : listObjectsV2Response.contents()) {
-            if (!s3Object.key().equals("fields/")) {
-                filteredList.add(s3Object);
-            }
-        }
-        return filteredList;
-    }
-
+    private final S3Manager s3Manager;
 
     private String mapToKoreanName(String fieldName) {
         // 나머지 스포츠와 그에 대응하는 한글 이름 추가 필요.
@@ -63,23 +36,18 @@ public class FieldService {
     }
 
     public void saveFieldsToDatabase() {
-        List<S3Object> fieldObjects = getFieldObjectsFromS3();
-
+        List<S3Object> fieldObjects = s3Manager.listObjectsFromS3("fields/");
         for (S3Object fieldObject : fieldObjects) {
             String objectKey = fieldObject.key(); // 예: "fields/baseball-20231021.jpg"
             String fieldName = objectKey.replace("fields/", "").split("-")[0]; // "baseball"
-
             Field field = Field.builder()
                     .name(mapToKoreanName(fieldName))
-                    .imageUrl(constructImageUrl(objectKey)) // 실제 S3에서의 URL 구성
+                    .imageUrl(s3Manager.getFileUrl(objectKey)) // 실제 S3에서의 URL 구성
                     .build();
-
             fieldRepository.save(field);
         }
     }
-    private String constructImageUrl(String objectKey) {
-        return s3BaseUrl + objectKey;
-    }
+
 
     public ResultDto getAllFields() {
         List<Field> fields = fieldRepository.findAll();
