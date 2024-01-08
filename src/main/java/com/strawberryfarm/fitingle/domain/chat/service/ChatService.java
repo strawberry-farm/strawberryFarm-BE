@@ -15,6 +15,7 @@ import com.strawberryfarm.fitingle.domain.chatRoom.repository.ChatRoomRepository
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import com.strawberryfarm.fitingle.security.JwtTokenManager;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,11 +40,20 @@ public class ChatService {
 	private final ChatRepository chatRepository;
 	private final ChatRoomRepository chatRoomRepository;
 	private final RabbitAdmin rabbitAdmin;
+	private final JwtTokenManager jwtTokenManager;
 	private static final String CHAT_EXCHANGE_NAME = "chat.exchange";
-	public void join(Long userId, ChatMessageDto chatMessageDto,RabbitTemplate rabbitTemplate,Long chatRoomId) {
+	public void join(ChatMessageDto chatMessageDto,RabbitTemplate rabbitTemplate,Long chatRoomId) {
 		//message 커스터 마이징
 		chatMessageDto.modifyMessage(chatMessageDto.getNickname() + "님이 입장하였습니다.");
 		chatMessageDto.modifyRegDate(LocalDateTime.now());
+
+		//userId 뽑기
+		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
+
+		//토큰 확인
+		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
+			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
+		}
 
 		//채팅방 존재 여부 확인
 		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
@@ -67,9 +77,17 @@ public class ChatService {
 		chatRepository.save(newChat);
 	}
 
-	public void messageSend(Long userId,Long chatRoomId,ChatMessageDto chatMessageDto,RabbitTemplate rabbitTemplate) {
+	public void messageSend(Long chatRoomId,ChatMessageDto chatMessageDto,RabbitTemplate rabbitTemplate) {
 		//메시지 커스터 마이징
 		chatMessageDto.modifyRegDate(LocalDateTime.now());
+
+		//userId 뽑기
+		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
+
+		//토큰 확인
+		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
+			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
+		}
 
 		//채팅방 존재 여부 확인
 		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
@@ -92,10 +110,18 @@ public class ChatService {
 		chatRepository.save(newChat);
 	}
 
-	public void exitChatRoom(Long userId, Long chatRoomId, ChatMessageDto chatMessageDto, RabbitTemplate rabbitTemplate) {
+	public void exitChatRoom(Long chatRoomId, ChatMessageDto chatMessageDto, RabbitTemplate rabbitTemplate) {
 		//메시지 커스터 마이징
 		chatMessageDto.modifyMessage(chatMessageDto.getNickname() + "님이 나가셨습니다.");
 		chatMessageDto.modifyRegDate(LocalDateTime.now());
+
+		//userId 뽑기
+		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
+
+		//토큰 확인
+		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
+			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
+		}
 
 		//채팅방 존재 여부 확인
 		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);

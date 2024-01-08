@@ -23,6 +23,8 @@ public class ChatMessageDto extends BaseDto {
 
 	private String message;
 
+	private String accessToken;
+
 	@JsonDeserialize(using = LocalDateTimeDeserializer.class)
 	private LocalDateTime regDate;
 

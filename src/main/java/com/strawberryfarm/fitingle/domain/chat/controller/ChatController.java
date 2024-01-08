@@ -20,29 +20,23 @@ public class ChatController {
 
 	@MessageMapping("chat.join.{chatRoomId}")
 	public void join(
-		@AuthenticationPrincipal UserDetails userDetails,
 		@Payload ChatMessageDto chatMessageDto,
 		@DestinationVariable Long chatRoomId) {
-		Long userId = Long.parseLong(userDetails.getUsername());
-		chatService.join(userId,chatMessageDto,rabbitTemplate,chatRoomId);
+		chatService.join(chatMessageDto,rabbitTemplate,chatRoomId);
 	}
 
 	@MessageMapping("chat.message.{chatRoomId}")
 	public void send(
-		@AuthenticationPrincipal UserDetails userDetails,
 		@Payload ChatMessageDto chatMessageDto,
 		@DestinationVariable Long chatRoomId) {
-		Long userId = Long.parseLong(userDetails.getUsername());
-		chatService.messageSend(userId,chatRoomId,chatMessageDto,rabbitTemplate);
+		chatService.messageSend(chatRoomId,chatMessageDto,rabbitTemplate);
 	}
 
 	@MessageMapping("chat.exit.{chatRoomId}")
 	public void exitChatRoom(
-		@AuthenticationPrincipal UserDetails userDetails,
 		@Payload ChatMessageDto chatMessageDto,
 		@DestinationVariable Long chatRoomId) {
-		Long userId = Long.parseLong(userDetails.getUsername());
-		chatService.exitChatRoom(userId,chatRoomId,chatMessageDto,rabbitTemplate);
+		chatService.exitChatRoom(chatRoomId,chatMessageDto,rabbitTemplate);
 	}
 
 	@RabbitListener(queues = "chat.queue")

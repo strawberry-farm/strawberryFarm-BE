@@ -14,17 +14,5 @@ import org.springframework.messaging.support.MessageHeaderAccessor;
 @RequiredArgsConstructor
 @Slf4j
 public class ChatPreHandler implements ChannelInterceptor {
-	private final JwtTokenManager jwtTokenManager;
-	@Override
-	public Message<?> preSend(Message<?> message, MessageChannel channel) {
-		try {
-			StompHeaderAccessor headerAccessor = MessageHeaderAccessor.getAccessor(message,StompHeaderAccessor.class);
 
-			//헤더 가져오기
-		}catch (Exception e) {
-
-		}
-
-		return message;
-	}
 }

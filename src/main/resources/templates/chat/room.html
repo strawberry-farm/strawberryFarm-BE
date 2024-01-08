@@ -96,10 +96,11 @@
     },{'auto-delete':true, 'durable':false, 'exclusive':false});
 
     //입장 메세지 전송
-    stomp.send(`/pub/chat.enter.${chatRoomId}`, {}, JSON.stringify({
-      memberId: 1,
+    stomp.send(`/pub/chat.join.${chatRoomId}`, {Authorize : "Bearer testest"}, JSON.stringify({
       nickname: nickname
     }));
+
+
 
   }, onError, '/');
 
@@ -112,7 +113,6 @@
 
     stomp.send(`/pub/chat.message.${chatRoomId}`, {}, JSON.stringify({
       message: message,
-      memberId: 1,
       nickname: nickname
     }));
   });
