@@ -200,7 +200,7 @@ public class BoardService {
 
         BoardDetailResponseDTO boardDetailResponsedto = BoardDetailResponseDTO.builder()
                 .boardId((board.getId()))
-                .userId(user.getId())
+                //.userId(user.getId())
                 .nickname(user.getNickname())
                 .status(board.getPostStatus().toString())
                 .headcount(board.getHeadCount())
@@ -259,11 +259,11 @@ public class BoardService {
         }
 
         return QnaDTO.builder()
-                .userId(qna.getUser().getId())
+                //.userId(qna.getUser().getId())
                 .qnaId(qna.getId())
                 .profile(qna.getUser().getProfileImageUrl())
                 .nickName(qna.getUser().getNickname())
-                .contents(canViewComment ? qna.getContents() : null)
+                .contents(canViewComment ? qna.getContents() : "비공개 글 입니다.")
                 .status(qna.isStatus())
                 .comment(commentDto)
                 .build();
@@ -272,10 +272,10 @@ public class BoardService {
         Users user = comment.getUser();
 
         return CommentDTO.builder()
-                .userId(user.getId())
+                //.userId(user.getId())
                 .nickname(user.getNickname())
                 .profile(user.getProfileImageUrl())
-                .contents(canViewComment ? comment.getContents() : null)
+                .contents(canViewComment ? comment.getContents() : "비공개 글 입니다.")
                 .build();
     }
 }
