@@ -17,7 +17,7 @@ import lombok.ToString;
 @ToString
 public class BoardRegisterRequestDTO {
 
-    private Long userId; // 회원아이디
+    //private Long userId; // 회원아이디
     private String title; //제목
     private Long fieldId; //분야
     private Long headcount; //인원

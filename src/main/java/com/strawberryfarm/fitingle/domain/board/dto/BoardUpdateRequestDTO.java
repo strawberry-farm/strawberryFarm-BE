@@ -28,6 +28,6 @@ public class BoardUpdateRequestDTO {
     private String question; //신청서
     private String city; //도시
     private String district; //시
-    private String b_code;
+    private String b_code; // 지역코드 5자리
     private List<String> tags; // 태그 리스트
 }

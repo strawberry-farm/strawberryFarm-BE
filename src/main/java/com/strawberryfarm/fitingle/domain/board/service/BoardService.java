@@ -54,10 +54,11 @@ public class BoardService {
     //BOARDS 등록
     @Transactional
     public ResultDto<BoardRegisterResponseDTO> boardRegister(BoardRegisterRequestDTO boardRegisterRequestDTO,
-                                                             List<MultipartFile> images) {
+                                                             List<MultipartFile> images,
+                                                             Long userId) {
         try {
-            Users user = usersRepository.findById(boardRegisterRequestDTO.getUserId())
-                    .orElseThrow(() -> new EntityNotFoundException("User not found"));
+            Users user = usersRepository.findById(userId)
+                    .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 회원입니다."));
 
             Board board = Board.builder()
                     .user(user)
@@ -128,14 +129,14 @@ public class BoardService {
         try {
         // 기존 Board 엔티티 찾기
         Board board = boardRepository.findById(boardsId)
-                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시물 입니다."));
 
         //Board 엔티티의 필드 업데이트 (연관관계 엔티티 제외)
         board.updateBoard(boardUpdateRequestDTO);
 
         // 필드 업데이트
         Field field = fieldRepository.findById(boardUpdateRequestDTO.getFieldId())
-                .orElseThrow(() -> new EntityNotFoundException("Field not found"));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 필드 입니다."));
         board.addField(field);
 
         // 기존 태그 제거 및 새 태그 추가
@@ -180,10 +181,12 @@ public class BoardService {
 
     //Boards 상세보기
     @Transactional(readOnly = true)
-    public ResultDto<BoardDetailResponseDTO> boardDetail(Long boardsId) {
+    public ResultDto<BoardDetailResponseDTO> boardDetail(Long boardsId,Long userId) {
 
         Board board = boardRepository.findById(boardsId)
-                .orElseThrow(() -> new EntityNotFoundException("Board not found"));
+                .orElseThrow(() -> new EntityNotFoundException("존재하지 않는 게시물 입니다."));
+
+        boolean isOwner = board.getUser().getId().equals(userId);
 
         List<String> imageUrls = board.getImages().stream()
                 .map(Image::getImageUrl)
@@ -194,7 +197,6 @@ public class BoardService {
                 .collect(Collectors.toList());
 
         Users user = board.getUser();
-
 
         BoardDetailResponseDTO boardDetailResponsedto = BoardDetailResponseDTO.builder()
                 .boardId((board.getId()))
@@ -212,11 +214,13 @@ public class BoardService {
                 .question(board.getQuestion())
                 .days(board.getDays().toString())
                 .times(board.getTimes().toString())
+                .isOwner(isOwner)
 
                 //Q&A , Comments
                 .qnas(board.getQnas().stream()
-                         .map(this::convertToQnaDto)
-                         .collect(Collectors.toList()))
+                        .map(qna -> convertToQnaDto(qna, userId, isOwner))
+                        .collect(Collectors.toList()))
+
                 //field
                 .fieldId(board.getField().getId())
                 .fieldName(board.getField().getName())
@@ -242,31 +246,36 @@ public class BoardService {
         return groupsRepository.countByBoardId(boardId);
     }
 
-    //해당 데이터 없어서
-    private QnaDTO convertToQnaDto(Qna qna) {
-        Users user = qna.getUser();
-        Comment comment = qna.getComment();
+    //qna & comment 해당 데이터 없어서 db로 더미 넣어서 확인함.
+    private QnaDTO convertToQnaDto(Qna qna, Long userId, boolean isOwner) {
+        boolean isAuthor = qna.getUser().getId().equals(userId); //문의 글 작성자
+        boolean isPublicQna = qna.isStatus(); //공개 여부
+
+        //문의 작성자 || 게시글 작성자 || 공개여부
+        boolean canViewComment = isPublicQna || isAuthor || isOwner;
         CommentDTO commentDto = null;
-        if (comment != null) {
-            commentDto = convertToCommentDto(comment);
+        if (qna.getComment() != null) {
+            commentDto = convertToCommentDto(qna.getComment(), canViewComment);
         }
+
         return QnaDTO.builder()
-                .userId(user.getId())
+                .userId(qna.getUser().getId())
                 .qnaId(qna.getId())
-                .profile(user.getProfileImageUrl())
-                .nickName(user.getNickname())
-                .contents(qna.getContents())
+                .profile(qna.getUser().getProfileImageUrl())
+                .nickName(qna.getUser().getNickname())
+                .contents(canViewComment ? qna.getContents() : null)
                 .status(qna.isStatus())
                 .comment(commentDto)
                 .build();
     }
-    private CommentDTO convertToCommentDto(Comment comment) {
+    private CommentDTO convertToCommentDto(Comment comment, boolean canViewComment) {
         Users user = comment.getUser();
+
         return CommentDTO.builder()
                 .userId(user.getId())
                 .nickname(user.getNickname())
                 .profile(user.getProfileImageUrl())
-                .contents(comment.getContents())
+                .contents(canViewComment ? comment.getContents() : null)
                 .build();
     }
 }
