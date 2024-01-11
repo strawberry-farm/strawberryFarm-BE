@@ -39,7 +39,7 @@ public class JwtTokenManager {
 	private final Key key;
 
 	public JwtTokenManager(@Value("${jwt.secretKey}")
-						   String secretKey) {
+	String secretKey) {
 		byte[] byteKey = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(byteKey);
 	}
@@ -110,23 +110,23 @@ public class JwtTokenManager {
 		}
 
 		Collection<? extends GrantedAuthority> authorities =
-				Arrays.stream(claims.get("auth").toString().split(","))
-						.map(SimpleGrantedAuthority::new)
-						.collect(Collectors.toList());
+			Arrays.stream(claims.get("auth").toString().split(","))
+				.map(SimpleGrantedAuthority::new)
+				.collect(Collectors.toList());
 
 		String test = claims.getSubject();
 		UserDetails userDetails = new User(claims.getSubject(),"",authorities);
 		return new UsernamePasswordAuthenticationToken(userDetails,"",authorities);
- 	}
+	}
 
-	 public String getSubject(String refreshToken) {
-		 Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+	public String getSubject(String refreshToken) {
+		Claims claims = Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
 
-		 if (claims.getSubject() == null) {
-			 return null;
-		 }
+		if (claims.getSubject() == null) {
+			return null;
+		}
 
-		 return claims.getSubject();
+		return claims.getSubject();
 	}
 
 	public String genAccessToken(Authentication authentication,Long userId) {
@@ -134,21 +134,21 @@ public class JwtTokenManager {
 		Date expireDate = new Date(now+ACCESS_TOKEN_EXPIRE_TIME);
 
 		String authorities = authentication.getAuthorities().stream()
-				.map(GrantedAuthority::getAuthority)
-				.collect(Collectors.joining(","));
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
 
 		Map<String,String> authoritiesMap = new HashMap<>();
 
 		authoritiesMap.put("auth",authorities);
 
 		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
-				.setHeaderParam("typ", "jwt")
-				.setClaims(authoritiesMap)
-				.setSubject(Long.toString(userId))
-				.setIssuer("fitingle")
-				.setIssuedAt(Date.from(Instant.now()))
-				.setExpiration(expireDate)
-				.compact();
+			.setHeaderParam("typ", "jwt")
+			.setClaims(authoritiesMap)
+			.setSubject(Long.toString(userId))
+			.setIssuer("fitingle")
+			.setIssuedAt(Date.from(Instant.now()))
+			.setExpiration(expireDate)
+			.compact();
 	}
 
 	public String genRefreshToken(String userName) {
@@ -156,12 +156,12 @@ public class JwtTokenManager {
 		Date expireDate = new Date(now+REFRESH_TOKEN_EXPIRE_TIME);
 
 		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
-				.setHeaderParam("typ", "jwt")
-				.setSubject(userName)
-				.setIssuer("fitingle")
-				.setIssuedAt(Date.from(Instant.now()))
-				.setExpiration(expireDate)
-				.compact();
+			.setHeaderParam("typ", "jwt")
+			.setSubject(userName)
+			.setIssuer("fitingle")
+			.setIssuedAt(Date.from(Instant.now()))
+			.setExpiration(expireDate)
+			.compact();
 	}
 
 	public String genToken(Long second) {
@@ -170,13 +170,13 @@ public class JwtTokenManager {
 		Date expireDate = new Date(now+expireTime);
 
 		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
-				.setHeaderParam("typ", "jwt")
-				.setIssuer("GaJaMy")
-				.setSubject("subject")
-				.claim("name", "사용자")
-				.setIssuedAt(Date.from(Instant.now()))
-				.setExpiration(expireDate)
-				.compact();
+			.setHeaderParam("typ", "jwt")
+			.setIssuer("GaJaMy")
+			.setSubject("subject")
+			.claim("name", "사용자")
+			.setIssuedAt(Date.from(Instant.now()))
+			.setExpiration(expireDate)
+			.compact();
 	}
 
 	private ResultDto setResultDto(String message, String errorCode) {

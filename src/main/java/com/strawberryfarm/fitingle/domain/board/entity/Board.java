@@ -1,8 +1,8 @@
 package com.strawberryfarm.fitingle.domain.board.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.chatRoom.entity.ChatRoom;
-import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
@@ -28,6 +28,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,7 +38,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "board")
 public class Board extends BaseEntity {
 
@@ -49,10 +50,6 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "userId")
     private Users user;
 
-    //문의 연관관계 매핑
-    @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Comment> comments = new ArrayList<>();
 
     //분야 연관관계 매핑
     @OneToOne(fetch = FetchType.LAZY)
@@ -66,7 +63,7 @@ public class Board extends BaseEntity {
 
     //이미지 연관관계 매핑
     @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL,orphanRemoval = true)
     private List<Image> images = new ArrayList<>();
 
     //Qna 연관관계 매핑
@@ -76,7 +73,7 @@ public class Board extends BaseEntity {
 
     //태그 연관관계 매핑
     @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Tag> tags = new ArrayList<>();
 
     //wish 연관관계 매핑
@@ -136,6 +133,21 @@ public class Board extends BaseEntity {
     }
 
 
+    // board 업데이트
+    public void updateBoard(BoardUpdateRequestDTO dto) {
+        this.titleContents = dto.getTitle();
+        this.postStatus = PostStatus.Y; // 또는 dto에서 상태를 받아서 설정
+        this.city = dto.getCity();
+        this.district = dto.getDistrict();
+        this.headCount = dto.getHeadcount();
+        this.BCode = dto.getB_code();
+        this.location = dto.getLocation();
+        this.latitude = dto.getLatitude();
+        this.longitude = dto.getLongitude();
+        this.question = dto.getQuestion();
+        this.days = Days.valueOf(dto.getDays());
+        this.times = Times.valueOf(dto.getTimes());
+    }
 
 
     //연관관계 메서드
@@ -145,19 +157,32 @@ public class Board extends BaseEntity {
             field.setBoard(this);
         }
     }
+
     public void addTag(Tag tag) {
         this.tags.add(tag);
         if (tag.getBoard() != this) {
             tag.setBoard(this);
         }
     }
-    public void addComment(Comment comment) {
-        this.comments.add(comment);
-        comment.setBoard(this);
-    }
 
     public void addImage(Image image) {
         images.add(image);
-        image.setBoard(this);
+        if (image.getBoard() != this) {
+            image.setBoard(this);
+        }
     }
+
+    // image 목록을 비우는 메소드
+    public void clearImages() {
+        this.images.clear();
+    }
+
+    // tag 목록을 비우는 메소드
+    public void clearTags() {
+        this.tags.clear();
+    }
+
+
+
+
 }

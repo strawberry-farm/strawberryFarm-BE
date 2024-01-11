@@ -1,9 +1,6 @@
 package com.strawberryfarm.fitingle.domain.chat.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
-import com.strawberryfarm.fitingle.domain.chat.dto.ChatCreateResponseDto;
 import com.strawberryfarm.fitingle.domain.chat.dto.ChatErrorMessageDto;
 import com.strawberryfarm.fitingle.domain.chat.dto.ChatListResponseDto;
 import com.strawberryfarm.fitingle.domain.chat.dto.ChatListResponseDto.ChatInfo;
@@ -12,27 +9,18 @@ import com.strawberryfarm.fitingle.domain.chat.entity.Chat;
 import com.strawberryfarm.fitingle.domain.chat.repository.ChatRepository;
 import com.strawberryfarm.fitingle.domain.chatRoom.entity.ChatRoom;
 import com.strawberryfarm.fitingle.domain.chatRoom.repository.ChatRoomRepository;
-import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
-import com.strawberryfarm.fitingle.dto.BaseDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.core.ApplicationContext;
 import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.socket.TextMessage;
-import org.springframework.web.socket.WebSocketSession;
 
 @Service
 @RequiredArgsConstructor
