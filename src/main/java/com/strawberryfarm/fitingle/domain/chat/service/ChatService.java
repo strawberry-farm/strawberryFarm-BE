@@ -48,20 +48,11 @@ public class ChatService {
 		chatMessageDto.modifyRegDate(LocalDateTime.now());
 
 		//userId 뽑기
-		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
-
-		//토큰 확인
-		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
-		}
+		Long userId = validToken(chatMessageDto, rabbitTemplate);
 
 		//채팅방 존재 여부 확인
-		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
-
-		//채팅방이 없을 시, 에러 메시지를 보냄
-		if (!findChatRooms.isPresent()) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.NOT_EXIST_CHAT_ROOM);
-		}
+		Optional<ChatRoom> findChatRooms = getChatRoomAndValid(
+			chatRoomId, rabbitTemplate, userId);
 
 		//입장 메시지 보내기
 		rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME,"room."+chatRoomId,chatMessageDto);
@@ -82,20 +73,11 @@ public class ChatService {
 		chatMessageDto.modifyRegDate(LocalDateTime.now());
 
 		//userId 뽑기
-		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
+		Long userId = validToken(chatMessageDto, rabbitTemplate);
 
-		//토큰 확인
-		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
-		}
-
-		//채팅방 존재 여부 확인
-		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
-
-		//채팅방이 없을 시, 에러 메시지를 보냄
-		if (!findChatRooms.isPresent()) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.NOT_EXIST_CHAT_ROOM);
-		}
+		//채팅방 확인
+		Optional<ChatRoom> findChatRooms = getChatRoomAndValid(
+			chatRoomId, rabbitTemplate, userId);
 
 		//메시지 보내기
 		rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME,"room."+chatRoomId,chatMessageDto);
@@ -110,26 +92,28 @@ public class ChatService {
 		chatRepository.save(newChat);
 	}
 
-	public void exitChatRoom(Long chatRoomId, ChatMessageDto chatMessageDto, RabbitTemplate rabbitTemplate) {
-		//메시지 커스터 마이징
-		chatMessageDto.modifyMessage(chatMessageDto.getNickname() + "님이 나가셨습니다.");
-		chatMessageDto.modifyRegDate(LocalDateTime.now());
-
-		//userId 뽑기
-		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
-
-		//토큰 확인
-		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
-		}
-
+	private Optional<ChatRoom> getChatRoomAndValid(Long chatRoomId, RabbitTemplate rabbitTemplate,
+		Long userId) {
 		//채팅방 존재 여부 확인
 		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
 
 		//채팅방이 없을 시, 에러 메시지를 보냄
 		if (!findChatRooms.isPresent()) {
-			exceptSend(userId,rabbitTemplate,ErrorCode.NOT_EXIST_CHAT_ROOM);
+			exceptSend(userId, rabbitTemplate,ErrorCode.NOT_EXIST_CHAT_ROOM);
 		}
+		return findChatRooms;
+	}
+
+	public void exitChatRoom(Long chatRoomId, ChatMessageDto chatMessageDto, RabbitTemplate rabbitTemplate) {
+		//메시지 커스터 마이징
+		chatMessageDto.modifyMessage(chatMessageDto.getNickname() + "님이 나가셨습니다.");
+		chatMessageDto.modifyRegDate(LocalDateTime.now());
+
+		Long userId = validToken(chatMessageDto, rabbitTemplate);
+
+		//채팅방 존재 여부 확인
+		Optional<ChatRoom> findChatRooms = getChatRoomAndValid(
+			chatRoomId, rabbitTemplate, userId);
 
 		//메시지 보내기
 		rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME,"room."+chatRoomId,chatMessageDto);
@@ -141,6 +125,43 @@ public class ChatService {
 		if (findChatRoom.getNumsOfUsers() == 0) {
 			chatRoomRepository.delete(findChatRoom);
 		}
+	}
+
+	//마지막 읽은 메시지 10개 + 읽지 않은 메시지 전부
+	public ResultDto<?> getChatList(String userId,Long chatRoomId) {
+		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
+
+		if (!findChatRooms.isPresent()) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_CHAT_ROOM.getMessage())
+				.errorCode(ErrorCode.NOT_EXIST_CHAT_ROOM.getCode())
+				.data(null)
+				.build();
+		}
+
+		ChatRoom findChatRoom = findChatRooms.get();
+		String chatRoomSummaryInfo = findChatRoom.getChatRoomSummaryInfo();
+		StringBuilder newChatRoomSummaryInfo = new StringBuilder();
+
+		List<ChatInfo> chatInfoList = getChatInfos(
+			userId, chatRoomSummaryInfo, newChatRoomSummaryInfo);
+
+		findChatRoom.modifyChatRoomSummaryInfo(newChatRoomSummaryInfo.toString());
+
+		return ChatListResponseDto.builder()
+			.chatList(chatInfoList)
+			.build().doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
+	}
+
+	private Long validToken(ChatMessageDto chatMessageDto, RabbitTemplate rabbitTemplate) {
+		//userId 뽑기
+		Long userId = Long.parseLong(jwtTokenManager.getSubject(chatMessageDto.getAccessToken()));
+
+		//토큰 확인
+		if (!jwtTokenManager.accessTokenValidate(chatMessageDto.getAccessToken())) {
+			exceptSend(userId, rabbitTemplate,ErrorCode.INVALID_ACCESS_TOKEN);
+		}
+		return userId;
 	}
 
 	public void exceptSend(Long userId, RabbitTemplate rabbitTemplate,ErrorCode errorCode) {
@@ -165,22 +186,8 @@ public class ChatService {
 		rabbitTemplate.convertAndSend("",dynamicQueueName,errorMessageDto);
 	}
 
-	//마지막 읽은 메시지 10개 + 읽지 않은 메시지 전부
-	public ResultDto<?> getChatList(String userId,Long chatRoomId) {
-		Optional<ChatRoom> findChatRooms = chatRoomRepository.findById(chatRoomId);
-
-		if (!findChatRooms.isPresent()) {
-			return ResultDto.builder()
-				.message(ErrorCode.NOT_EXIST_CHAT_ROOM.getMessage())
-				.errorCode(ErrorCode.NOT_EXIST_CHAT_ROOM.getCode())
-				.data(null)
-				.build();
-		}
-
-		ChatRoom findChatRoom = findChatRooms.get();
-		String chatRoomSummaryInfo = findChatRoom.getChatRoomSummaryInfo();
-		StringBuilder newChatRoomSummaryInfo = new StringBuilder();
-
+	private List<ChatInfo> getChatInfos(String userId, String chatRoomSummaryInfo,
+		StringBuilder newChatRoomSummaryInfo) {
 		String[] split = chatRoomSummaryInfo.split("|");
 		List<ChatInfo> chatInfoList = new ArrayList<>();
 
@@ -203,12 +210,7 @@ public class ChatService {
 				newChatRoomSummaryInfo.append(split[i]+"|");
 			}
 		}
-
-		findChatRoom.modifyChatRoomSummaryInfo(newChatRoomSummaryInfo.toString());
-
-		return ChatListResponseDto.builder()
-			.chatList(chatInfoList)
-			.build().doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
+		return chatInfoList;
 	}
 
 	private List<ChatInfo> ChatListToChatInfoList(List<Chat> chats) {

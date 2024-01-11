@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ChatRestController {
 	private final ChatService chatService;
 	@GetMapping("/chat/list/{chatRoomId}")
-	public ResponseEntity<?> getChats(@PathVariable Long chatRoomId) {
-
-		return ResponseEntity.ok("1123");
+	public ResponseEntity<?> getChats(@AuthenticationPrincipal UserDetails userDetails, @PathVariable Long chatRoomId) {
+		String userId = userDetails.getUsername();
+		return ResponseEntity.ok(chatService.getChatList(userId,chatRoomId));
 	}
 }

@@ -96,7 +96,7 @@ public class BoardService {
 
 
             Board savedBoard = boardRepository.save(board);
-            chatRoomService.createChatRoom(new Long(boardRegisterRequestDTO.getUserId()));
+            chatRoomService.createChatRoom(new Long(boardRegisterRequestDTO.getUserId()),"test");
             // BoardRegisterResponseDTO 객체 생성 및 필요한 정보 설정
             BoardRegisterResponseDTO responseDTO = BoardRegisterResponseDTO.builder()
                     .postsId(savedBoard.getId())

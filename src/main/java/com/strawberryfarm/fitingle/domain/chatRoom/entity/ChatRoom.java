@@ -32,6 +32,8 @@ public class ChatRoom extends BaseEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
+	private String chatRoomName;
+
 	private int numsOfUsers;
 
 	private String chatRoomSummaryInfo;
@@ -54,5 +56,9 @@ public class ChatRoom extends BaseEntity {
 
 	public void modifyChatRoomSummaryInfo(String chatRoomSummaryInfo) {
 		this.chatRoomSummaryInfo = chatRoomSummaryInfo;
+	}
+
+	public void modifyChatRoomName(String chatRoomName) {
+		this.chatRoomName = chatRoomName;
 	}
 }

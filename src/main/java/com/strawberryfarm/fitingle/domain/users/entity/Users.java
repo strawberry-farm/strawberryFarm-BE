@@ -74,6 +74,7 @@ public class Users extends BaseEntity {
     @OneToMany(mappedBy = "users",fetch = FetchType.LAZY,cascade = CascadeType.REMOVE)
     private List<Keyword> keywords = new ArrayList<>();
 
+    //user-chatRoom 매핑
     @OneToMany(mappedBy = "users",fetch = FetchType.LAZY)
     private List<UsersChatRoom> usersChatRooms = new ArrayList<>();
 

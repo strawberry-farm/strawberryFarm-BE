@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.config;
 
 import com.strawberryfarm.fitingle.security.ChatPreHandler;
+import javax.websocket.OnError;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
@@ -34,6 +35,5 @@ public class StompConfig implements WebSocketMessageBrokerConfigurer {
 		//메시지 송신 경로
 		registry.setApplicationDestinationPrefixes("/pub");
 	}
-
 
 }
