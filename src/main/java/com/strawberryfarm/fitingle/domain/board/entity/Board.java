@@ -2,8 +2,7 @@ package com.strawberryfarm.fitingle.domain.board.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
-import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
+import com.strawberryfarm.fitingle.domain.chatRoom.entity.ChatRoom;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
@@ -47,7 +46,7 @@ public class Board extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
     @JoinColumn(name = "userId")
     private Users user;
 
@@ -81,6 +80,10 @@ public class Board extends BaseEntity {
     @Builder.Default
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
     private List<Wish> wishes = new ArrayList<>();
+
+    //chatRoom 연관관계 매핑
+    @OneToOne(mappedBy = "board",cascade = CascadeType.ALL)
+    private ChatRoom chatRoom;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

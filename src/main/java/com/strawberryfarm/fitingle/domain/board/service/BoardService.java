@@ -12,6 +12,7 @@ import com.strawberryfarm.fitingle.domain.board.entity.Days;
 import com.strawberryfarm.fitingle.domain.board.entity.PostStatus;
 import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
+import com.strawberryfarm.fitingle.domain.chatRoom.service.ChatRoomService;
 import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
@@ -44,6 +45,8 @@ public class BoardService {
 
     private final BoardRepository boardRepository;
     private final FieldRepository fieldRepository;
+
+    private final ChatRoomService chatRoomService;
 
     private final WishRepository wishRepository;
 
@@ -101,10 +104,8 @@ public class BoardService {
             Field field = fieldRepository.findById(boardRegisterRequestDTO.getFieldId()).orElse(null);
             board.addField(field);
 
-            //여기에 채팅
-
             Board savedBoard = boardRepository.save(board);
-
+            chatRoomService.createChatRoom(new Long(boardRegisterRequestDTO.getUserId()),"test");
             // BoardRegisterResponseDTO 객체 생성 및 필요한 정보 설정
             BoardRegisterResponseDTO responseDTO = BoardRegisterResponseDTO.builder()
                     .boardsId(savedBoard.getId())

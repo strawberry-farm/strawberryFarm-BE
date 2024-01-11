@@ -15,8 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 @Transactional
-public class
-JwtTokenValidateTest {
+public class JwtTokenValidateTest {
 	@Autowired
 	private JwtTokenManager jwtTokenManager;
 

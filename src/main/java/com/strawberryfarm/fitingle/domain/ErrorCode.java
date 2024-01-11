@@ -20,6 +20,7 @@ public enum ErrorCode {
     WRONG_PASSWORD_FORMAT(200,"US007","Wrong Password Format"),
     LOGOUT_USERS(200,"US008","Already Logout User"),
     DUPLICATE_LOGIN(200,"US009","Already Login Other Device"),
+    ACCESS_TOKEN_PREFIX_ERROR(200,"US011","Access Token Prefix Error"),
     INTEREST_AREA_NOT_REGISTER(200,"US010","Interest Area Is Not Register"),
 
     // AUTH
@@ -38,7 +39,7 @@ public enum ErrorCode {
     EMPTY_CLAIM_REFRESH_TOKEN(200,"AU005","Empty Claim Refresh Token"),
 
     //Chat
-    MESSAGE_SEND_ERROR(401,"CH000","Web Chat Message Send Error"),
+    NOT_EXIST_CHAT_ROOM(401,"CH000","Not Exist Chat Room"),
 
     //SUCCESS
     SUCCESS(200,"1111","Success");

@@ -68,6 +68,20 @@ public class JwtTokenManager {
 		return false;
 	}
 
+	public boolean accessTokenValidate(String accessToken) {
+		if (!StringUtils.hasText(accessToken)) {
+			return false;
+		}
+
+
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+			return true;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
 	public boolean refreshTokenValidate(String refreshToken,ResultDto result) {
 		if (!StringUtils.hasText(refreshToken)) {
 			result.setResultData(ErrorCode.EMPTY_REFRESH_TOKEN.getMessage(),null, ErrorCode.EMPTY_REFRESH_TOKEN.getCode());
