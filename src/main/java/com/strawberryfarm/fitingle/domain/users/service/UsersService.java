@@ -18,6 +18,8 @@ import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordDeleteRespons
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordGetResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterResponseDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAccessTokenRefreshRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAccessTokenRefreshResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAllUsersResponse;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
@@ -55,6 +57,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -180,7 +183,7 @@ public class UsersService {
             .updateDate(LocalDateTime.now())
             .build();
 
-        usersRepository.save(newUsers);
+        Users save = usersRepository.save(newUsers);
 
         return UsersSignUpResponseDto.builder()
             .email(newUsers.getEmail())
@@ -210,7 +213,11 @@ public class UsersService {
             Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 
             Users findUsers = usersRepository.findUsersByEmail(authentication.getName()).get();
-            String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
+            //실제 서비스에서는 아래 주석으로 교체
+            //String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
+            String accessToken = jwtTokenManager.genAccessTokenWithExpiredTime(authentication,
+                findUsers.getId(), usersLoginRequestDto.getExpiredTime());
+
             String refreshToken = jwtTokenManager.genRefreshToken(authentication.getName());
 
             redisTemplate.opsForValue().set(findUsers.getEmail()
@@ -238,9 +245,45 @@ public class UsersService {
     }
 
     @Transactional
+    public ResultDto<?> refreshAccessToken(Long userId, UsersAccessTokenRefreshRequestDto usersAccessTokenRefreshRequestDto) {
+        Optional<Users> findUsers = usersRepository.findById(userId);
+        Users findUser = findUsers.get();
+        String email = findUser.getEmail();
+        if (!checkEmailValid(email)) {
+            return ResultDto.builder()
+                .message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.WRONG_EMAIL_FORMAT.getCode())
+                .build();
+        }
+
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            //실제 서비스에서는 아래 주석으로 교체
+            //String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
+            String accessToken = jwtTokenManager.genAccessTokenWithExpiredTime(authentication,
+                userId, usersAccessTokenRefreshRequestDto.getExpiredTime());
+
+            return UsersAccessTokenRefreshResponseDto.builder()
+                .accessToken(accessToken)
+                .email(email)
+                .build()
+                .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+        } catch (Exception e) {
+            return ResultDto.builder()
+                .message(ErrorCode.INCORRECT_AUTH_INFO.getMessage())
+                .data(null)
+                .errorCode(ErrorCode.INCORRECT_AUTH_INFO.getCode())
+                .build();
+        }
+    }
+
+    @Transactional
     public ResultDto<?> logout(String refreshToken) {
         String email = jwtTokenManager.getSubject(refreshToken);
         redisTemplate.opsForValue().set(email,"logout",jwtTokenManager.getRefreshTokenExpiredTime(),TimeUnit.SECONDS);
+        SecurityContextHolder.clearContext();
         return UsersLogoutResponseDto.builder()
             .email(email)
             .build()

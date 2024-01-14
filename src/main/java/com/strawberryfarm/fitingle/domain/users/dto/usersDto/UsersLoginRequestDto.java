@@ -17,4 +17,6 @@ public class UsersLoginRequestDto {
     private String email;
     @Schema(description = "비밀번호", example = "1234!@")
     private String password;
+    @Schema(description = "만료 시간", example = "분 단위")
+    private int expiredTime;
 }

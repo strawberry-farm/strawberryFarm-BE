@@ -4,6 +4,7 @@ import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationC
 import com.strawberryfarm.fitingle.domain.users.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
+import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAccessTokenRefreshRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLoginResponseVo;
@@ -97,7 +98,7 @@ public class UsersController {
     }
 
     @GetMapping("/user")
-    @Operation(summary = "로그아웃")
+    @Operation(summary = "유저 상세 정보 가져오기")
     public ResponseEntity<?> getUsersDetail(@AuthenticationPrincipal UserDetails userDetails) {
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(usersService.getUsersDetail(userId));
@@ -144,6 +145,14 @@ public class UsersController {
     public ResponseEntity<?> deleteKeyword(@AuthenticationPrincipal UserDetails userDetails,@RequestParam Long keywordId) {
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(usersService.deleteKeyword(userId,keywordId));
+    }
+
+    @PostMapping("/auth/accessToken/refresh")
+    @Operation(summary = "엑세스 토큰 갱신")
+    public ResponseEntity<?> deleteKeyword(@AuthenticationPrincipal UserDetails userDetails, @RequestBody
+        UsersAccessTokenRefreshRequestDto usersAccessTokenRefreshRequestDto) {
+        Long userId = Long.parseLong(userDetails.getUsername());
+        return ResponseEntity.ok(usersService.refreshAccessToken(userId,usersAccessTokenRefreshRequestDto));
     }
 
     @GetMapping("/list")

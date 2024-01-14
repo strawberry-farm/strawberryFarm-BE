@@ -1,7 +1,9 @@
 package com.strawberryfarm.fitingle.security.authservice;
 
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.security.authobject.AuthUsers;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
