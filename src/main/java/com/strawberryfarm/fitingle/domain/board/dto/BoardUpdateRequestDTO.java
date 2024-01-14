@@ -18,6 +18,7 @@ import lombok.ToString;
 public class BoardUpdateRequestDTO {
 
     private String title; //제목
+    private String contents; //내용
     private Long fieldId; //분야
     private Long headcount; //인원
     private String location; //상세 장소

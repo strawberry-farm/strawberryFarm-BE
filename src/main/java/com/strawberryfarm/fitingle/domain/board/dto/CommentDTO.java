@@ -9,7 +9,7 @@ import lombok.Setter;
 @Builder
 @Setter
 public class CommentDTO {
-    private Long userId;
+    //private Long userId;
     private String nickname;
     private String profile;
     private String contents;

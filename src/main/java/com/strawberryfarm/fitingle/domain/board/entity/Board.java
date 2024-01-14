@@ -2,8 +2,6 @@ package com.strawberryfarm.fitingle.domain.board.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
-import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
@@ -87,7 +85,10 @@ public class Board extends BaseEntity {
     private PostStatus postStatus;
 
     @Lob
-    private String titleContents;
+    private String title;
+
+    @Lob
+    private String contents;
 
     @Column(nullable = false)
     private Long headCount;
@@ -119,6 +120,7 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Times times;
+
 //
 //    @Column(nullable = false)
 //    private Long views;
@@ -132,7 +134,8 @@ public class Board extends BaseEntity {
 
     // board 업데이트
     public void updateBoard(BoardUpdateRequestDTO dto) {
-        this.titleContents = dto.getTitle();
+        this.title = dto.getTitle();
+        this.contents = dto.getContents();
         this.postStatus = PostStatus.Y; // 또는 dto에서 상태를 받아서 설정
         this.city = dto.getCity();
         this.district = dto.getDistrict();
@@ -166,6 +169,12 @@ public class Board extends BaseEntity {
         images.add(image);
         if (image.getBoard() != this) {
             image.setBoard(this);
+        }
+    }
+    public void addQna(Qna qna){
+        this.qnas.add(qna);
+        if(qna.getBoard()!= this){
+            qna.setBoard(this);
         }
     }
 
