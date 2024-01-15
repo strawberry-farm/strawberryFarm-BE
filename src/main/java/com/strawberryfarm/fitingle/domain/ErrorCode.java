@@ -40,6 +40,21 @@ public enum ErrorCode {
     //Chat
     MESSAGE_SEND_ERROR(401,"CH000","Web Chat Message Send Error"),
 
+    //Field
+    NOT_EXIST_FIELD(200,"FD000","Not Exist Field"),
+
+    //Boards
+    NOT_EXIST_BOARDS(200,"BO000","Not Exist Boards"),
+
+    //Qna
+    NOT_EXIST_QNA(200,"QN000","Not Exist Qna"),
+
+    //Comment
+    COMMENT_PERMISSION_DENIED(403, "CM000", "Permission Denied for Commenting"),
+    COMMENT_ALREADY_EXISTS(400, "CM001", "Comment Already Exists"),
+
+
+
     //SUCCESS
     SUCCESS(200,"1111","Success");
     private int status;
