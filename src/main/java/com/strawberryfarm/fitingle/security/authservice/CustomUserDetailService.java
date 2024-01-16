@@ -18,7 +18,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AuthUsers authUsers = new AuthUsers(usersRepository.findUsersByEmail(username).orElseThrow(() -> new UsernameNotFoundException("사용자 없음")));
+        AuthUsers authUsers = new AuthUsers(usersRepository.findUsersById(Long.parseLong(username)).orElseThrow(() -> new UsernameNotFoundException("사용자 없음")));
         return new User(authUsers.getUsername(),authUsers.getPassword(),authUsers.getAuthorities());
     }
 }

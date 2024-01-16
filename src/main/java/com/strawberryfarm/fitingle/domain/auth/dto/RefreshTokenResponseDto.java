@@ -1,15 +1,16 @@
-package com.strawberryfarm.fitingle.domain.users.dto.emailDto;
+package com.strawberryfarm.fitingle.domain.auth.dto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Getter
 @AllArgsConstructor
-@NoArgsConstructor
+@RequiredArgsConstructor
 @SuperBuilder
-public class EmailCertificationResponseDto extends BaseDto {
-	private String email;
+public class RefreshTokenResponseDto extends BaseDto {
+	private String accessToken;
 }
