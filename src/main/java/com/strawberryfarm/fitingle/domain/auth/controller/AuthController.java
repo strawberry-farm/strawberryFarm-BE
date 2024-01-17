@@ -7,10 +7,10 @@ import com.strawberryfarm.fitingle.domain.auth.service.AuthService;
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.AuthLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAccessTokenRefreshRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthAccessTokenRefreshRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.AuthLoginResponseVo;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthSignUpRequestDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,12 +52,13 @@ public class AuthController {
 	@PostMapping("/refreshToken")
 	@Operation(summary = "엑세스 토큰 갱신")
 	public ResponseEntity<?> refreshToken(@AuthenticationPrincipal UserDetails userDetails,
-		@RequestBody UsersAccessTokenRefreshRequestDto usersAccessTokenRefreshRequestDto,
+		@RequestBody AuthAccessTokenRefreshRequestDto authAccessTokenRefreshRequestDto,
 		HttpServletRequest request,
 		HttpServletResponse response) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
-		ResultDto resultDto = authService.refreshAccessToken(userId,usersAccessTokenRefreshRequestDto);
+		ResultDto resultDto = authService.refreshAccessToken(userId,
+			authAccessTokenRefreshRequestDto);
 
 		if (resultDto.getData() == null) {
 			return ResponseEntity.ok(ResultDto.builder()
@@ -122,14 +123,14 @@ public class AuthController {
 
 	@PostMapping("/signup")
 	@Operation(summary = "회원 가입", description = "회원 가입 API 해당 API 호출 전 이메일 인증 과정 필요")
-	public ResponseEntity<?> signUp(@RequestBody UsersSignUpRequestDto usersSignUpRequestDto) {
-		return ResponseEntity.ok(authService.signUp(usersSignUpRequestDto));
+	public ResponseEntity<?> signUp(@RequestBody AuthSignUpRequestDto authSignUpRequestDto) {
+		return ResponseEntity.ok(authService.signUp(authSignUpRequestDto));
 	}
 
 	@PostMapping("/password-edit")
 	@Operation(summary = "비밀 번호 수정 요청")
-	public ResponseEntity<?> passwordEdit(@RequestBody UsersPasswordResetRequestDto usersPasswordResetRequestDto){
-		return ResponseEntity.ok(authService.passwordEdit(usersPasswordResetRequestDto));
+	public ResponseEntity<?> passwordEdit(@RequestBody AuthPasswordResetRequestDto authPasswordResetRequestDto){
+		return ResponseEntity.ok(authService.passwordEdit(authPasswordResetRequestDto));
 	}
 
 	private static void initCookie(HttpServletResponse response, ResultDto resultDto) {

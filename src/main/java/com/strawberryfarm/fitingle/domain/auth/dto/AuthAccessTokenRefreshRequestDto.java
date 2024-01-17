@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
+package com.strawberryfarm.fitingle.domain.auth.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 @RequiredArgsConstructor
 @AllArgsConstructor
-public class UsersAccessTokenRefreshRequestDto {
+public class AuthAccessTokenRefreshRequestDto {
 	private String email;
 	private int expiredTime;
 }

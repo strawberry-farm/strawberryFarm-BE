@@ -7,14 +7,14 @@ import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationCo
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationResponseDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.AuthLoginRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersAccessTokenRefreshRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthAccessTokenRefreshRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.AuthLoginResponseDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.AuthLoginResponseVo;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersLogoutResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersPasswordResetResponseDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpRequestDto;
-import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersSignUpResponseDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthPasswordResetRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthPasswordResetResponseDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthSignUpRequestDto;
+import com.strawberryfarm.fitingle.domain.auth.dto.AuthSignUpResponseDto;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
@@ -59,8 +59,8 @@ public class AuthService {
 	private String mailSenderEmail;
 
 	@Transactional
-	public ResultDto<?> signUp(UsersSignUpRequestDto usersSignUpRequestDto) {
-		if (!UsersUtil.checkEmailValid(usersSignUpRequestDto.getEmail())) {
+	public ResultDto<?> signUp(AuthSignUpRequestDto authSignUpRequestDto) {
+		if (!UsersUtil.checkEmailValid(authSignUpRequestDto.getEmail())) {
 			return ResultDto.builder()
 				.message(ErrorCode.WRONG_EMAIL_FORMAT.getMessage())
 				.data(null)
@@ -68,7 +68,7 @@ public class AuthService {
 				.build();
 		}
 
-		if (!UsersUtil.checkPasswordValid(usersSignUpRequestDto.getPassword())) {
+		if (!UsersUtil.checkPasswordValid(authSignUpRequestDto.getPassword())) {
 			return ResultDto.builder()
 				.message(ErrorCode.WRONG_PASSWORD_FORMAT.getMessage())
 				.data(null)
@@ -77,9 +77,9 @@ public class AuthService {
 		}
 
 		Users newUsers = Users.builder()
-			.email(usersSignUpRequestDto.getEmail())
-			.password(passwordEncoder.encode(usersSignUpRequestDto.getPassword()))
-			.nickname(usersSignUpRequestDto.getNickName())
+			.email(authSignUpRequestDto.getEmail())
+			.password(passwordEncoder.encode(authSignUpRequestDto.getPassword()))
+			.nickname(authSignUpRequestDto.getNickName())
 			.roles("ROLE_USERS")
 			.profileImageUrl("default")
 			.signUpType(SignUpType.FITINGLE)
@@ -90,7 +90,7 @@ public class AuthService {
 
 		Users save = usersRepository.save(newUsers);
 
-		return UsersSignUpResponseDto.builder()
+		return AuthSignUpResponseDto.builder()
 			.email(newUsers.getEmail())
 			.nickName(newUsers.getNickname())
 			.createdDate(newUsers.getCreatedDate())
@@ -158,7 +158,7 @@ public class AuthService {
 	}
 
 	@Transactional
-	public ResultDto<?> refreshAccessToken(Long userId, UsersAccessTokenRefreshRequestDto usersAccessTokenRefreshRequestDto) {
+	public ResultDto<?> refreshAccessToken(Long userId, AuthAccessTokenRefreshRequestDto authAccessTokenRefreshRequestDto) {
 		Optional<Users> findUsers = usersRepository.findById(userId);
 		Users findUser = findUsers.get();
 		String email = findUser.getEmail();
@@ -177,7 +177,7 @@ public class AuthService {
 			//실제 서비스에서는 아래 주석으로 교체
 			//String accessToken = jwtTokenManager.genAccessToken(authentication, findUsers.getId());
 			String accessToken = jwtTokenManager.genAccessTokenWithExpiredTime(authentication,
-				userId, usersAccessTokenRefreshRequestDto.getExpiredTime());
+				userId, authAccessTokenRefreshRequestDto.getExpiredTime());
 
 
 			System.out.println("authentication.getName()2 : " + authentication.getName());
@@ -294,9 +294,9 @@ public class AuthService {
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(),ErrorCode.SUCCESS.getCode());
 	}
 
-	public ResultDto<?> passwordEdit(UsersPasswordResetRequestDto usersPasswordResetRequestDto) {
-		String email = usersPasswordResetRequestDto.getEmail();
-		String password = usersPasswordResetRequestDto.getPassword();
+	public ResultDto<?> passwordEdit(AuthPasswordResetRequestDto authPasswordResetRequestDto) {
+		String email = authPasswordResetRequestDto.getEmail();
+		String password = authPasswordResetRequestDto.getPassword();
 
 		if (!UsersUtil.checkEmailValid(email)) {
 			return ResultDto.builder()
@@ -321,7 +321,7 @@ public class AuthService {
 
 		Users updatedUser = usersRepository.save(findUser);
 
-		return UsersPasswordResetResponseDto.builder()
+		return AuthPasswordResetResponseDto.builder()
 			.email(updatedUser.getEmail())
 			.build()
 			.doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
