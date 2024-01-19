@@ -4,6 +4,8 @@ import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterResponseDTO;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchResponseDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.CommentDTO;
@@ -30,6 +32,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -355,6 +361,27 @@ public class BoardService {
 //                .contents(canViewComment ? comment.getContents() : "비공개 글 입니다.")
 //                .build();
 //    }
+
+    public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<BoardSearchDTO> boards = boardRepository.boardSearch(userId, keyword, pageable);
+        long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
+
+
+        BoardSearchResponseDto result = BoardSearchResponseDto.builder()
+            .totalCount(totalCount)
+            .boards(boards)
+            .build();
+
+        ResultDto response = ResultDto.builder()
+            .message(String.valueOf(ErrorCode.SUCCESS))
+            .data(result)
+            .build();
+
+
+        return response;
+    }
 }
 
 

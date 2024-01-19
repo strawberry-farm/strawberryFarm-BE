@@ -3,10 +3,11 @@ package com.strawberryfarm.fitingle.domain.board.controller;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.service.BoardService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(value = "/boards", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
+@Tag(name = "Board", description = "Board API")
 public class BoardController {
 
     private final BoardService boardService;
@@ -52,4 +54,14 @@ public class BoardController {
 
         return ResponseEntity.ok(boardService.boardDetail(boardsId,userId));
     }
+
+    @GetMapping("/search")
+    @Operation(summary = "게시물 검색", description = "게시물 검색 api")
+    public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam("keyword") String keyword, @RequestParam("page") int page,
+        @RequestParam("size") int size) {
+        Long userId = Long.parseLong(userDetails.getUsername());
+        return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
+    }
+
 }
