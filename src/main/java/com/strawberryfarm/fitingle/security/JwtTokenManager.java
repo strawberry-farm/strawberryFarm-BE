@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
 @Getter
 public class JwtTokenManager {
 	private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000*60*60;
+	private static final long USER_DEFINED_EXPIRED_TIME = 1000;
 	private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000*60*60*24;
 	private final Key key;
 
@@ -118,6 +119,28 @@ public class JwtTokenManager {
 	public String genAccessToken(Authentication authentication,Long userId) {
 		long now = (new Date()).getTime();
 		Date expireDate = new Date(now+ACCESS_TOKEN_EXPIRE_TIME);
+
+		String authorities = authentication.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
+
+		Map<String,String> authoritiesMap = new HashMap<>();
+
+		authoritiesMap.put("auth",authorities);
+
+		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
+			.setHeaderParam("typ", "jwt")
+			.setClaims(authoritiesMap)
+			.setSubject(Long.toString(userId))
+			.setIssuer("fitingle")
+			.setIssuedAt(Date.from(Instant.now()))
+			.setExpiration(expireDate)
+			.compact();
+	}
+
+	public String genAccessTokenWithExpiredTime(Authentication authentication,Long userId,int expiredTime) {
+		long now = (new Date()).getTime();
+		Date expireDate = new Date(now+USER_DEFINED_EXPIRED_TIME  * expiredTime);
 
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)

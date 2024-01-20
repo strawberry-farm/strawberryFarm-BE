@@ -1,7 +1,9 @@
 package com.strawberryfarm.fitingle.security.authservice;
 
+import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.security.authobject.AuthUsers;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -16,7 +18,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        AuthUsers authUsers = new AuthUsers(usersRepository.findUsersByEmail(username).orElseThrow(() -> new UsernameNotFoundException("사용자 없음")));
+        AuthUsers authUsers = new AuthUsers(usersRepository.findUsersById(Long.parseLong(username)).orElseThrow(() -> new UsernameNotFoundException("사용자 없음")));
         return new User(authUsers.getUsername(),authUsers.getPassword(),authUsers.getAuthorities());
     }
 }
