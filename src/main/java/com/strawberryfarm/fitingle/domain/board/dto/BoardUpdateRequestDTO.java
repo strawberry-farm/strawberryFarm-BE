@@ -15,9 +15,8 @@ import lombok.ToString;
 @Builder
 @Setter
 @ToString
-public class BoardRegisterRequestDTO {
+public class BoardUpdateRequestDTO {
 
-    //private Long userId; // 회원아이디
     private String title; //제목
     private String contents; //내용
     private Long fieldId; //분야
@@ -30,6 +29,6 @@ public class BoardRegisterRequestDTO {
     private String question; //신청서
     private String city; //도시
     private String district; //시
-    private String b_code;
+    private String b_code; // 지역코드 5자리
     private List<String> tags; // 태그 리스트
 }

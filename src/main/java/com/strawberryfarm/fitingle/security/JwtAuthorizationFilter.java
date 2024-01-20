@@ -59,7 +59,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 				));
 				return;
 			} else {
-
 				if (jwtTokenManager.refreshTokenValidate(refreshToken,errorResultDto)) {
 					if (redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals("logout")) {
 						response.setStatus(HttpServletResponse.SC_OK);
@@ -70,7 +69,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 							.errorCode(ErrorCode.LOGOUT_USERS.getCode())
 							.build()));
 						return;
-					} else if (!redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals(refreshToken)) {
+					} /*else if (!redisTemplate.opsForValue().get(jwtTokenManager.getSubject(refreshToken)).equals(refreshToken)) {
 						response.setStatus(HttpServletResponse.SC_OK);
 						response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 						response.getWriter().write(objectMapper.writeValueAsString(ResultDto.builder()
@@ -79,7 +78,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 							.errorCode(ErrorCode.DUPLICATE_LOGIN.getCode())
 							.build()));
 						return;
-					}
+					}*/
 
 					//실제 access 토큰 인증 부분(subAccessToken 은 "Bearer :"을 떼어낸 것)
 					String subAccessToken = jwt.substring(TOKEN_PREFIX.length());

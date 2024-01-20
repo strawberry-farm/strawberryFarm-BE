@@ -1,7 +1,6 @@
-package com.strawberryfarm.fitingle.domain.users.dto.emailDto;
+package com.strawberryfarm.fitingle.domain.comment.dto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
-import com.strawberryfarm.fitingle.dto.ResultDto;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -11,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@SuperBuilder
-public class EmailCertificationConfirmResponseDto extends BaseDto {
-	private String email;
+@Builder
+public class CommentRegisterResponseDTO extends BaseDto {
+    Long qndId;
 }

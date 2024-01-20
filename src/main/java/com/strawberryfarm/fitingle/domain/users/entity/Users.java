@@ -121,7 +121,9 @@ public class Users extends BaseEntity {
 
     public void addComment(Comment comment) {
         comments.add(comment);
-        comment.setUser(this);
+        if(comment.getUser()!= this){
+            comment.setUser(this);
+        }
     }
 
     public void addGroup(Groups group) {
@@ -136,7 +138,9 @@ public class Users extends BaseEntity {
 
     public void addQna(Qna qna) {
         qnas.add(qna);
-        qna.setUser(this);
+        if (qna.getUser() != this) {
+            qna.setUser(this);
+        }
     }
 
     public void addWish(Wish wish) {
