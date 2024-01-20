@@ -29,6 +29,7 @@ public class BoardDetailResponseDTO extends BaseDto {
     private Long boardId;
     private String title;
     private String status;
+    private String contents;
     private Long headcount;
     private String city;
     private String district;
@@ -39,10 +40,11 @@ public class BoardDetailResponseDTO extends BaseDto {
     private String question;
     private String days;
     private String times;
+    private boolean isOwner;
 
     //=======추가 데이터=======
     //user 정보
-    private Long userId;
+    //private Long userId;
     private String nickname;
 
     //qnas & comment 정보

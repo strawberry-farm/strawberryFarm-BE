@@ -15,10 +15,14 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
+@NoArgsConstructor
 @Table(name = "comment")
 public class Comment extends BaseEntity {
     @Id
@@ -37,9 +41,15 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String contents;
 
+    @Builder
+    public Comment(Users user, Qna qna, String contents) {
+        this.user = user;
+        this.qna = qna;
+        this.contents = contents;
+    }
+
     public void setUser(Users users) {
         this.user = user;
     }
-
 
 }

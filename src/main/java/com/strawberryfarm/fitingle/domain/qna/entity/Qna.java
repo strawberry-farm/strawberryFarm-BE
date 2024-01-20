@@ -16,11 +16,19 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
+@Builder
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "qna")
+@ToString(exclude = {"user","board"})
 public class Qna extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +39,7 @@ public class Qna extends BaseEntity {
     private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "boardId", insertable = false, updatable = false)
+    @JoinColumn(name = "boardId")
     private Board board;
 
     @OneToOne(mappedBy = "qna", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -48,5 +56,9 @@ public class Qna extends BaseEntity {
 
     public void setUser(Users users) {
         this.user =  users;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }

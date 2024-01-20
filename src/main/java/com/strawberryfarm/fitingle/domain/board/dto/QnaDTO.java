@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class QnaDTO {
-    private Long userId;
+    //private Long userId;
     private Long qnaId;
     private String profile;
     private String nickName;
