@@ -100,7 +100,7 @@ public class AuthService {
 	}
 
 	@Transactional
-	public ResultDto<?> login(AuthLoginRequestDto authLoginRequestDto, Long userId) {
+	public ResultDto<?> login(AuthLoginRequestDto authLoginRequestDto) {
 		String email = authLoginRequestDto.getEmail();
 		String password = authLoginRequestDto.getPassword();
 
@@ -116,7 +116,7 @@ public class AuthService {
 			Users findUsers = usersRepository.findUsersByEmail(email).get();
 
 			UsernamePasswordAuthenticationToken authenticationToken =
-				new UsernamePasswordAuthenticationToken(Long.toString(userId), password);
+				new UsernamePasswordAuthenticationToken(Long.toString(findUsers.getId()), password);
 
 			Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
 

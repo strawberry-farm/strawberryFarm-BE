@@ -1,8 +1,13 @@
 package com.strawberryfarm.fitingle.security.exception;
 
-import javax.naming.AuthenticationException;
+import com.strawberryfarm.fitingle.domain.ErrorCode;
+import lombok.Getter;
 
-public class CustomException extends AuthenticationException {
-
-
+@Getter
+public class CustomException extends RuntimeException{
+	private ErrorCode errorCode;
+	public CustomException(ErrorCode errorCode) {
+		super(errorCode.getMessage());
+		this.errorCode = errorCode;
+	}
 }

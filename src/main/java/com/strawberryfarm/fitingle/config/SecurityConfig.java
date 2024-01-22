@@ -1,7 +1,8 @@
 package com.strawberryfarm.fitingle.config;
 
 import com.strawberryfarm.fitingle.security.EntryPoint.JwtAuthenticationEntryPoint;
-import com.strawberryfarm.fitingle.security.JwtAuthorizationFilter;
+import com.strawberryfarm.fitingle.security.filters.ExceptionHandleFilter;
+import com.strawberryfarm.fitingle.security.filters.JwtAuthorizationFilter;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -28,6 +29,7 @@ public class SecurityConfig {
 		http.httpBasic().disable();
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 		http.addFilterBefore(new JwtAuthorizationFilter(redisTemplate,jwtTokenManager), UsernamePasswordAuthenticationFilter.class)
+			.addFilterBefore(new ExceptionHandleFilter(), JwtAuthorizationFilter.class)
 			.authorizeRequests()
 			.antMatchers("/**").permitAll()
 			.anyRequest().authenticated();
