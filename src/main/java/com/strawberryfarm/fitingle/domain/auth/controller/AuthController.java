@@ -101,8 +101,10 @@ public class AuthController {
 
 	@PostMapping("/login")
 	@Operation(summary = "로그인", description = "로그인 api")
-	public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletResponse response) {
-		ResultDto resultDto = authService.login(authLoginRequestDto);
+	public ResponseEntity<?> login(@AuthenticationPrincipal UserDetails userDetails, @RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletResponse response) {
+		Long userId = Long.parseLong(userDetails.getUsername());
+
+		ResultDto resultDto = authService.login(authLoginRequestDto,userId);
 
 		if (resultDto.getData() == null) {
 			return ResponseEntity.ok(ResultDto.builder()
