@@ -177,6 +177,12 @@ public class Board extends BaseEntity {
             qna.setBoard(this);
         }
     }
+    public void addWish(Wish wish) {
+        wishes.add(wish);
+        if(wish.getBoard() != this) {
+            wish.setBoard(this);
+        }
+    }
 
     // image 목록을 비우는 메소드
     public void clearImages() {
