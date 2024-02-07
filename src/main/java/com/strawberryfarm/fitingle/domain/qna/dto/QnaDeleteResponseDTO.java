@@ -7,4 +7,5 @@ import lombok.Getter;
 @Builder
 @Getter
 public class QnaDeleteResponseDTO extends BaseDto {
+    private Long qnaId;
 }

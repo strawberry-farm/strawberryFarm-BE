@@ -69,6 +69,26 @@ public class JwtTokenManager {
 		return false;
 	}
 
+	public ErrorCode accessTokenValidate(String accessToken) {
+		if (!StringUtils.hasText(accessToken)) {
+			return ErrorCode.EMPTY_ACCESS_TOKEN;
+		}
+
+
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+			return ErrorCode.SUCCESS;
+		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+			return ErrorCode.INVALID_ACCESS_TOKEN;
+		} catch (ExpiredJwtException e) {
+			return ErrorCode.EXPIRED_ACCESS_TOKEN;
+		} catch (UnsupportedJwtException e) {
+			return ErrorCode.UNSUPPORTED_ACCESS_TOKEN;
+		} catch (IllegalArgumentException e) {
+			return ErrorCode.EMPTY_CLAIM_ACCESS_TOKEN;
+		}
+	}
+
 	public boolean refreshTokenValidate(String refreshToken,ResultDto result) {
 		if (!StringUtils.hasText(refreshToken)) {
 			result.setResultData(ErrorCode.EMPTY_REFRESH_TOKEN.getMessage(),null, ErrorCode.EMPTY_REFRESH_TOKEN.getCode());
@@ -87,6 +107,23 @@ public class JwtTokenManager {
 		}
 
 		return false;
+	}
+
+	public ErrorCode refreshTokenValidate(String refreshToken) {
+		if (!StringUtils.hasText(refreshToken)) {
+			return ErrorCode.EMPTY_REFRESH_TOKEN;
+		}
+
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+			return ErrorCode.SUCCESS;
+		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+			return ErrorCode.INVALID_REFRESH_TOKEN;
+		} catch (ExpiredJwtException e) {
+			return ErrorCode.EXPIRED_REFRESH_TOKEN;
+		} catch (UnsupportedJwtException e) {
+			return ErrorCode.UNSUPPORTED_REFRESH_TOKEN;
+		}
 	}
 
 	public Authentication getAuthentication(String accessToken) {
