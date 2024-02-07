@@ -64,5 +64,8 @@ public class BoardDetailResponseDTO extends BaseDto {
     private List<String> tags; //가져와야함.
 
     //wish 정보(종아요 했는지)
-    private boolean wish;
+    private boolean wishState;
+
+    //wish id값
+    private Long wishId;
 }

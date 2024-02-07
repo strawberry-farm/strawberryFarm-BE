@@ -40,6 +40,7 @@ public class BoardController {
     @PutMapping(value = "/{boardsId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
                                          @RequestParam("images") List<MultipartFile> images,
+                                         //이미지 url 또 따로 받음.
                                          @ModelAttribute BoardUpdateRequestDTO boardUpdateRequestDTO){
         return ResponseEntity.ok(boardService.boardUpdate(boardsId, boardUpdateRequestDTO, images));
     }
