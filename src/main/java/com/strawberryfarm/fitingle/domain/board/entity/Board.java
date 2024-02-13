@@ -56,9 +56,8 @@ public class Board extends BaseEntity {
     private Field field;
 
     // Groups 연관관계 매핑
-    @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Groups> groups = new ArrayList<>();
+    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
+    private Groups group;
 
     //이미지 연관관계 매핑
     @Builder.Default
