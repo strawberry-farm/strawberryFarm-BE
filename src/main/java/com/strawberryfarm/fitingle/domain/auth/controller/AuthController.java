@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,6 +37,12 @@ import org.springframework.web.util.CookieGenerator;
 @Tag(name = "Auth", description = "AUTH API")
 public class AuthController {
 	private final AuthService authService;
+
+	@GetMapping("/cors")
+	public ResponseEntity<?> corsTest() {
+		return ResponseEntity.ok("corsTest");
+	}
+
 	@PostMapping("/email-request")
 	@Operation(summary = "이메일 인증 요청")
 	public ResponseEntity<?> emailCertificationRequest(
