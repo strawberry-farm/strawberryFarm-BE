@@ -105,4 +105,5 @@ public class UsersRepositoryTest {
 		//then
 		assertThat(patchedUsers.getNickname()).isEqualTo(findUsers.getNickname());
 	}
+
 }
