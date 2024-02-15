@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -142,11 +143,19 @@ public class AuthController {
 	}
 
 	private static void initCookie(HttpServletResponse response, ResultDto resultDto) {
-		CookieGenerator cg = new CookieGenerator();
-		cg.setCookieName("refreshToken");
-		cg.setCookieHttpOnly(true);
-		cg.setCookieMaxAge(60*60*24);
-		cg.setCookiePath("/");
-		cg.addCookie(response,((AuthLoginResponseVo) resultDto.getData()).getRefreshToken());
+//		CookieGenerator cg = new CookieGenerator();
+//		cg.setCookieName("refreshToken");
+//		cg.setCookieHttpOnly(true);
+//		cg.setCookieMaxAge(60*60*24);
+//		cg.setCookiePath("/");
+//		cg.addCookie(response,((AuthLoginResponseVo) resultDto.getData()).getRefreshToken());
+		ResponseCookie cookie = ResponseCookie.from("refreshToken",((AuthLoginResponseVo) resultDto.getData()).getRefreshToken())
+			.path("/")
+			.sameSite("None")
+			.httpOnly(true)
+			.secure(true)
+			.maxAge(60*60*24)
+			.build();
+		response.addHeader("Set-CooKie",cookie.toString());
 	}
 }
