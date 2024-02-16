@@ -14,6 +14,7 @@ import com.strawberryfarm.fitingle.domain.auth.dto.AuthSignUpRequestDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.time.Duration;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -143,19 +144,13 @@ public class AuthController {
 	}
 
 	private static void initCookie(HttpServletResponse response, ResultDto resultDto) {
-//		CookieGenerator cg = new CookieGenerator();
-//		cg.setCookieName("refreshToken");
-//		cg.setCookieHttpOnly(true);
-//		cg.setCookieMaxAge(60*60*24);
-//		cg.setCookiePath("/");
-//		cg.addCookie(response,((AuthLoginResponseVo) resultDto.getData()).getRefreshToken());
 		ResponseCookie cookie = ResponseCookie.from("refreshToken",((AuthLoginResponseVo) resultDto.getData()).getRefreshToken())
 			.path("/")
 			.sameSite("None")
 			.httpOnly(true)
 			.secure(true)
-			.maxAge(60*60*24)
+			.maxAge(Duration.ofDays(1))
 			.build();
-		response.addHeader("Set-CooKie",cookie.toString());
+		response.addHeader("Set-Cookie",cookie.toString());
 	}
 }
