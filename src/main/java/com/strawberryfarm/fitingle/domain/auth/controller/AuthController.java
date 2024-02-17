@@ -149,7 +149,6 @@ public class AuthController {
 			.sameSite("None")
 			.httpOnly(true)
 			.secure(true)
-			.domain("localhost")
 			.maxAge(Duration.ofDays(1))
 			.build();
 		response.addHeader("Set-Cookie",cookie.toString());
