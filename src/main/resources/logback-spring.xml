@@ -49,9 +49,13 @@
     </root>
 
     <!-- log 레벨 설정 (org.springframework.web=debug)-->
-    <logger name="com.strawberryfarm.fitingle" level="DEBUG">
+    <logger name="com.strawberryfarm.fitingle" level="INFO">
         <appender-ref ref="FILE" />
     </logger>
 
+    <!-- 우리 개발환경-->
+    <!--<logger name="com.strawberryfarm.fitingle" level="DEBUG">-->
+    <!-- <appender-ref ref="FILE" />-->
+    <!--</logger>-->
 
 </configuration>

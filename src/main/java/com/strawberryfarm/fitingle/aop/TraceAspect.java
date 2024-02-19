@@ -14,6 +14,8 @@ public class TraceAspect {
     @Before("@annotation(com.strawberryfarm.fitingle.annotation.Trace)")
     public void doTrace(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
-        log.info("[trace] {} args={}", joinPoint.getSignature(), args);
+        log.info("==============================[EXECU]{}==============================",joinPoint.getSignature().toShortString());
+        log.info("ARGS={}",args);
+        log.info("==============================[END]{}==============================",joinPoint.getSignature().toShortString());
     }
 }

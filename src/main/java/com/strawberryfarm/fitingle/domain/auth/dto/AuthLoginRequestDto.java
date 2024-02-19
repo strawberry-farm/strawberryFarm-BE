@@ -5,12 +5,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Schema(description = "사용자 로그인 요청 Dto")
+@ToString
 public class AuthLoginRequestDto {
 
 	@Schema(description = "이메일", example = "user@example.com")
