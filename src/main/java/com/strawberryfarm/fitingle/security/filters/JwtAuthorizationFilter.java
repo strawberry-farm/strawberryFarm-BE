@@ -23,26 +23,27 @@ import org.springframework.web.filter.OncePerRequestFilter;
 @Slf4j
 @RequiredArgsConstructor
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
-	public static final String TOKEN_HEADER = "Authorization";
+	public static final String ACCESS_TOKEN_HEADER = "Authorization";
+	public static final String REFRESH_TOKEN_HEADER = "Refresh-Token";
 	public static final String TOKEN_PREFIX = "Bearer :";
 	private final RedisTemplate redisTemplate;
 	private final JwtTokenManager jwtTokenManager;
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-		String authorizationHeaderValue = request.getHeader(TOKEN_HEADER);
-		String refreshToken = "";
+		String authorizationHeaderValue = request.getHeader(ACCESS_TOKEN_HEADER);
+		String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
 
 		//쿠키에서 refresh 토큰을 가져옴
-		Cookie[] cookies = request.getCookies();
-
-		if (cookies != null) {
-			for (Cookie cookie : cookies) {
-				if (cookie.getName().equals("refreshToken")) {
-					refreshToken = cookie.getValue();
-				}
-			}
-		}
+//		Cookie[] cookies = request.getCookies();
+//
+//		if (cookies != null) {
+//			for (Cookie cookie : cookies) {
+//				if (cookie.getName().equals("refreshToken")) {
+//					refreshToken = cookie.getValue();
+//				}
+//			}
+//		}
 
 		if (!ObjectUtils.isEmpty(authorizationHeaderValue)) {
 			//토큰 타입 확인

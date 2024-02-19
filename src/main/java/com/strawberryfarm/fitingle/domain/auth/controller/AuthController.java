@@ -70,19 +70,21 @@ public class AuthController {
 		ResultDto resultDto = authService.refreshAccessToken(userId,
 			authAccessTokenRefreshRequestDto);
 
-		if (resultDto.getData() == null) {
-			return ResponseEntity.ok(ResultDto.builder()
-				.message(resultDto.getMessage())
-				.data(null)
-				.errorCode(resultDto.getErrorCode())
-				.build());
-		}
+//		if (resultDto.getData() == null) {
+//			return ResponseEntity.ok(ResultDto.builder()
+//				.message(resultDto.getMessage())
+//				.data(null)
+//				.errorCode(resultDto.getErrorCode())
+//				.build());
+//		}
+//
+//		refreshCookie(request, response, resultDto);
 
-		refreshCookie(request, response, resultDto);
+//		return ResponseEntity.ok(RefreshTokenResponseDto.builder()
+//				.accessToken(((RefreshTokenResponseVo)resultDto.getData()).getAccessToken())
+//			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode()));
 
-		return ResponseEntity.ok(RefreshTokenResponseDto.builder()
-				.accessToken(((RefreshTokenResponseVo)resultDto.getData()).getAccessToken())
-			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode()));
+		return ResponseEntity.ok(resultDto);
 	}
 
 	private static void refreshCookie(HttpServletRequest request, HttpServletResponse response,
@@ -114,21 +116,22 @@ public class AuthController {
 	public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletResponse response) {
 		ResultDto resultDto = authService.login(authLoginRequestDto);
 
-		if (resultDto.getData() == null) {
-			return ResponseEntity.ok(ResultDto.builder()
-				.message(resultDto.getMessage())
-				.data(null)
-				.errorCode(resultDto.getErrorCode())
-				.build());
-		}
+//		if (resultDto.getData() == null) {
+//			return ResponseEntity.ok(ResultDto.builder()
+//				.message(resultDto.getMessage())
+//				.data(null)
+//				.errorCode(resultDto.getErrorCode())
+//				.build());
+//		}
 
-		initCookie(response, resultDto);
+//		initCookie(response, resultDto);
 
-		return ResponseEntity.ok(ResultDto.builder()
-			.message(resultDto.getMessage())
-			.data(((AuthLoginResponseVo)resultDto.getData()).getAuthLoginResponseDto())
-			.errorCode(resultDto.getErrorCode())
-			.build());
+//		return ResponseEntity.ok(ResultDto.builder()
+//			.message(resultDto.getMessage())
+//			.data(((AuthLoginResponseVo)resultDto.getData()).getAuthLoginResponseDto())
+//			.errorCode(resultDto.getErrorCode())
+//			.build());
+		return ResponseEntity.ok(resultDto);
 	}
 
 	@PostMapping("/signup")
@@ -149,7 +152,6 @@ public class AuthController {
 			.sameSite("None")
 			.httpOnly(true)
 			.secure(true)
-			.domain("localhost")
 			.maxAge(Duration.ofDays(1))
 			.build();
 		response.addHeader("Set-Cookie",cookie.toString());

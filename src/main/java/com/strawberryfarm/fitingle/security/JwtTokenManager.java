@@ -113,7 +113,6 @@ public class JwtTokenManager {
 		if (!StringUtils.hasText(refreshToken)) {
 			return ErrorCode.EMPTY_REFRESH_TOKEN;
 		}
-
 		try {
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
 			return ErrorCode.SUCCESS;
