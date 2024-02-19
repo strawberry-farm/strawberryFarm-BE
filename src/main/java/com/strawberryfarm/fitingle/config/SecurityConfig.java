@@ -7,6 +7,7 @@ import com.strawberryfarm.fitingle.security.filters.JwtAuthorizationFilter;
 import java.util.Collections;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -22,6 +23,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @Configuration
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 	private final JwtTokenManager jwtTokenManager;
 	private final RedisTemplate redisTemplate;
