@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.board.service;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
@@ -55,6 +56,7 @@ public class BoardService {
 
     //BOARDS 등록
     @Transactional
+    @Trace
     public ResultDto<BoardRegisterResponseDTO> boardRegister(BoardRegisterRequestDTO boardRegisterRequestDTO,
                                                              List<MultipartFile> images,
                                                              Long userId) {

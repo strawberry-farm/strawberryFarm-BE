@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.field.service;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
@@ -35,6 +36,7 @@ public class FieldService {
         return nameMapping.getOrDefault(fieldName, fieldName);
     }
 
+    @Trace
     public void saveFieldsToDatabase() {
         List<S3Object> fieldObjects = s3Manager.listObjectsFromS3("fields/");
         for (S3Object fieldObject : fieldObjects) {
@@ -49,6 +51,7 @@ public class FieldService {
     }
 
 
+    @Trace
     public ResultDto getAllFields() {
         List<Field> fields = fieldRepository.findAll();
         List<FieldsResponseDTO> fieldDtos = new ArrayList<>();
