@@ -84,6 +84,11 @@ dependencies {
     // Springdoc
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
 
+    //aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
+
+
+
 }
 
 tasks.named('test') {

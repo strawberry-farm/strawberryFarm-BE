@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.security.filters;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
@@ -30,6 +31,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	private final JwtTokenManager jwtTokenManager;
 
 	@Override
+	@Trace
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 		String authorizationHeaderValue = request.getHeader(ACCESS_TOKEN_HEADER);
 		String refreshToken = request.getHeader(REFRESH_TOKEN_HEADER);
@@ -49,7 +51,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 			//토큰 타입 확인
 			//Bearer 방식이 아닐 때
 			if (!authorizationHeaderValue.startsWith(TOKEN_PREFIX)) {
-				log.info("INVALID_TOKEN_TYPE : Not Bearer");
+				//log.info("INVALID_TOKEN_TYPE : Not Bearer");
 				throw new CustomException(ErrorCode.INVALID_TOKEN_TYPE);
 			}
 

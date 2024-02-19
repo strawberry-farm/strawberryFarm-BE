@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.adminarea.service;
 
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.adminarea.dto.AdminAreaResponseDTO;
 import com.strawberryfarm.fitingle.domain.adminarea.dto.RegionCodesResponseDTO;
 import com.strawberryfarm.fitingle.domain.adminarea.dto.RegionCodesResponseDTO.RegionCode;
@@ -30,6 +31,7 @@ public class AdminAreaService {
 
 
     // '시도' 이름을 간략화하기 위한 상수 매핑
+
     private static final Map<String, String> SIDO_NAME_MAP = Map.ofEntries(
             Map.entry("특별시", ""),
             Map.entry("광역시", ""),
@@ -73,6 +75,7 @@ public class AdminAreaService {
     }
 
     // 세종시를 맵에 추가하는 메소드 수정
+    @Trace
     private void addSejongAreasToMap(Map<String, AdminArea> areasToSaveMap) {
         String sejongSidoName = "세종";
         String sejongCode = "36"; // 세종시의 실제 코드로 변경해야 할 수 있습니다.
