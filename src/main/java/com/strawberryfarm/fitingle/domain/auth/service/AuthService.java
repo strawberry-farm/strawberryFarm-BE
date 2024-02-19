@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.auth.service;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
+import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseVo;
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationConfirmRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.emailDto.EmailCertificationConfirmResponseDto;
@@ -133,12 +134,20 @@ public class AuthService {
 
 			refreshRefreshToken(email, refreshToken);
 
-			return AuthLoginResponseVo.builder()
-				.authLoginResponseDto(AuthLoginResponseDto.builder()
-					.email(email)
-					.nickName(nickname)
-					.accessToken(accessToken)
-					.build())
+//			return AuthLoginResponseVo.builder()
+//				.authLoginResponseDto(AuthLoginResponseDto.builder()
+//					.email(email)
+//					.nickName(nickname)
+//					.accessToken(accessToken)
+//					.build())
+//				.refreshToken(refreshToken)
+//				.build()
+//				.doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+
+			return AuthLoginResponseDto.builder()
+				.email(email)
+				.nickName(nickname)
+				.accessToken(accessToken)
 				.refreshToken(refreshToken)
 				.build()
 				.doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
@@ -185,7 +194,7 @@ public class AuthService {
 
 			refreshRefreshToken(email, refreshToken);
 
-			return RefreshTokenResponseVo.builder()
+			return RefreshTokenResponseDto.builder()
 				.accessToken(accessToken)
 				.refreshToken(refreshToken)
 				.build()

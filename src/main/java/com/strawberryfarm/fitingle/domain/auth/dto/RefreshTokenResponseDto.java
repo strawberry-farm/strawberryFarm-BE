@@ -13,4 +13,5 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 public class RefreshTokenResponseDto extends BaseDto {
 	private String accessToken;
+	private String refreshToken;
 }
