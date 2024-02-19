@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.auth.controller;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseVo;
@@ -113,6 +114,7 @@ public class AuthController {
 
 	@PostMapping("/login")
 	@Operation(summary = "로그인", description = "로그인 api")
+	@Trace
 	public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletResponse response) {
 		ResultDto resultDto = authService.login(authLoginRequestDto);
 

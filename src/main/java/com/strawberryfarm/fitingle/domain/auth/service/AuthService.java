@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.auth.service;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.RefreshTokenResponseVo;
@@ -32,6 +33,7 @@ import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -46,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
 	private final PasswordEncoder passwordEncoder;
 	private final UsersRepository usersRepository;
