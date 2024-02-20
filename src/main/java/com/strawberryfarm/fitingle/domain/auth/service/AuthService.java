@@ -24,6 +24,7 @@ import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
 import com.strawberryfarm.fitingle.domain.users.type.CertificationType;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.security.JwtTokenManager;
+import com.strawberryfarm.fitingle.utils.LogUtil;
 import com.strawberryfarm.fitingle.utils.RandCodeMaker;
 import com.strawberryfarm.fitingle.utils.UsersUtil;
 import java.io.UnsupportedEncodingException;
@@ -107,6 +108,8 @@ public class AuthService {
 	public ResultDto<?> login(AuthLoginRequestDto authLoginRequestDto) {
 		String email = authLoginRequestDto.getEmail();
 		String password = authLoginRequestDto.getPassword();
+
+		LogUtil.customInfo("디버그 메시지 서비스");
 
 		if (!UsersUtil.checkEmailValid(email)) {
 			return ResultDto.builder()

@@ -9,12 +9,10 @@ public class ThreadLocalLogTrace implements LogTrace {
     private static final String COMPLETE_PREFIX = "<--";
     private static final String EX_PREFIX = "<X-";
 
-    private ThreadLocal<TraceId> traceIdHolder = new ThreadLocal<>();
-
     @Override
     public TraceStatus begin(String message) {
         syncTraceId();
-        TraceId traceId = traceIdHolder.get();
+        TraceId traceId = TraceIdHolder.getId(); // TraceIdHolder를 통해 현재 TraceId를 가져옵니다.
         Long startTimeMs = System.currentTimeMillis();
         log.info("[{}] {}{}", traceId.getId(), addSpace(START_PREFIX, traceId.getLevel()), message);
 
@@ -45,27 +43,27 @@ public class ThreadLocalLogTrace implements LogTrace {
     }
 
     private void syncTraceId() {
-        TraceId traceId = traceIdHolder.get();
-        if (traceId == null) {
-            traceIdHolder.set(new TraceId());
+        TraceId currentTraceId = TraceIdHolder.getId();
+        if (currentTraceId == null) {
+            TraceIdHolder.set(new TraceId());
         } else {
-            traceIdHolder.set(traceId.createNextId());
+            TraceIdHolder.set(currentTraceId.createNextId());
         }
     }
 
     private void releaseTraceId() {
-        TraceId traceId = traceIdHolder.get();
-        if (traceId.isFirstLevel()) {
-            traceIdHolder.remove();//destroy
-        } else {
-            traceIdHolder.set(traceId.createPreviousId());
+        TraceId currentTraceId = TraceIdHolder.getId();
+        if (currentTraceId != null && currentTraceId.isFirstLevel()) {
+            TraceIdHolder.remove();
+        } else if (currentTraceId != null) {
+            TraceIdHolder.set(currentTraceId.createPreviousId());
         }
     }
 
-    private static String addSpace(String prefix, int level) {
+    private String addSpace(String prefix, int level) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < level; i++) {
-            sb.append( (i == level - 1) ? "|" + prefix : "|   ");
+            sb.append((i == level - 1) ? "|" + prefix : "|   ");
         }
         return sb.toString();
     }
