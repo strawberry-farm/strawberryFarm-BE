@@ -13,6 +13,7 @@ import com.strawberryfarm.fitingle.domain.auth.dto.AuthLoginResponseVo;
 import com.strawberryfarm.fitingle.domain.auth.dto.AuthPasswordResetRequestDto;
 import com.strawberryfarm.fitingle.domain.auth.dto.AuthSignUpRequestDto;
 import com.strawberryfarm.fitingle.dto.ResultDto;
+import com.strawberryfarm.fitingle.utils.LogUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.time.Duration;
@@ -114,7 +115,10 @@ public class AuthController {
 	@Operation(summary = "로그인", description = "로그인 api")
 	@Trace
 	public ResponseEntity<?> login(@RequestBody AuthLoginRequestDto authLoginRequestDto, HttpServletResponse response) {
+		LogUtil.customInfo("디버그 메시지 컨트롤러");
 		ResultDto resultDto = authService.login(authLoginRequestDto);
+
+
 
 		if (resultDto.getData() == null) {
 			return ResponseEntity.ok(ResultDto.builder()
