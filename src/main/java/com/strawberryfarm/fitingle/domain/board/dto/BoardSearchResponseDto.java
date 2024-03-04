@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.board.dto;
 
+import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,5 +19,5 @@ public class BoardSearchResponseDto {
     private long totalCount;
 
     @Schema(description = "게시물 목록")
-    private List<BoardSearchDTO> boards;
+    private List<BoardSearchKeywordDto> boards;
 }

@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.15'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
 }
 
 group = 'com.strawberryfarm'
@@ -23,6 +24,8 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+
+    querydsl.extendsFrom compileClasspath
 }
 
 repositories {
@@ -83,12 +86,38 @@ dependencies {
 
     // Springdoc
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
+    
+    // querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0'
+    implementation 'com.querydsl:querydsl-apt:5.0.0'
+}
 
+// querydsl 설정 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+// querydsl 설정 끝
+
+sourceSets {
+    // querydsl
+    main.java.srcDir querydslDir
     //aop
     implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
-
-
-
 }
 
 tasks.named('test') {
