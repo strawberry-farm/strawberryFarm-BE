@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.board.service;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
@@ -58,6 +59,7 @@ public class BoardService {
 
     //BOARDS 등록
     @Transactional
+    @Trace
     public ResultDto<BoardRegisterResponseDTO> boardRegister(BoardRegisterRequestDTO boardRegisterRequestDTO,
                                                              List<MultipartFile> images,
                                                              Long userId) {
@@ -122,6 +124,7 @@ public class BoardService {
         }
 
         board.addField(fieldOptional.get());
+
 
         //여기에 채팅
         Board savedBoard = boardRepository.save(board);
@@ -235,6 +238,11 @@ public class BoardService {
                     .build();
         }
 
+        Optional<Long> wishIdOptional = checkWish(userOptional.get().getId(), boardOptional.get().getId());
+        boolean wishState = wishIdOptional.isPresent();
+        Long wishId = wishIdOptional.orElse(null);
+
+
         boolean isOwner = boardOptional.get().getUser().getId().equals(userId);
 
         List<String> imageUrls = boardOptional.get().getImages().stream()
@@ -281,15 +289,16 @@ public class BoardService {
                 //tags
                 .tags(tags)
                 .participantCount(checkParticipant(boardOptional.get().getId()))
-                .wish(checkWish(userOptional.get().getId(), boardOptional.get().getId()))
+                .wishState(wishState)
+                .wishId(wishId)
                 .build();
 
         return boardDetailResponsedto.doResultDto("success", "1111");
     }
 
-    private boolean checkWish(Long userId, Long boardId) {
+    private Optional<Long> checkWish(Long userId, Long boardId) {
         Optional<Wish> wish = wishRepository.findByUserIdAndBoardId(userId, boardId);
-        return wish.isPresent();
+        return wish.map(Wish::getId);
     }
 
     private int checkParticipant(Long boardId) {

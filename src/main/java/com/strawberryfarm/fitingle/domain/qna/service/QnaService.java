@@ -78,5 +78,50 @@ public class QnaService {
                 .errorCode(ErrorCode.SUCCESS.getCode())
                 .build();
     }
+    @Transactional
+    public ResultDto<QnaDeleteResponseDTO> deleteQnaAndComment(Long qnaId, Long userId){
+
+        //1.유저 아이디 존재 확인
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<QnaDeleteResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+        //2.qna 존재 확인
+        Optional<Qna> qnaOptional = qnaRepository.findById(qnaId);
+        if (!qnaOptional.isPresent()) {
+            return ResultDto.<QnaDeleteResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_QNA.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_QNA.getCode())
+                    .build();
+        }
+        //3.Qna의 주인 확인
+        Qna qna = qnaOptional.get();
+        if (!qna.getUser().getId().equals(userId)) {
+            return ResultDto.<QnaDeleteResponseDTO>builder()
+                    .message(ErrorCode.QNA_PERMISSION_DENIED.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.QNA_PERMISSION_DENIED.getCode())
+                    .build();
+        }
+
+        // Qna 삭제
+        qnaRepository.deleteById(qnaId);
+
+        QnaDeleteResponseDTO responseDTO = QnaDeleteResponseDTO.builder()
+                .qnaId(qnaId)
+                .build();
+
+        return ResultDto.<QnaDeleteResponseDTO>builder()
+                .message(ErrorCode.SUCCESS.getMessage())
+                .data(responseDTO)
+                .errorCode(ErrorCode.SUCCESS.getCode())
+                .build();
+    }
+
 
 }
