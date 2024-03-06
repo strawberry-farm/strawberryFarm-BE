@@ -367,7 +367,7 @@ public class BoardService {
         Pageable pageable = PageRequest.of(page, size);
 
         long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
-        List<BoardSearchKeywordDto> boards = boardRepositoryCustom.boardSearchKeyword(page, size);
+        List<BoardSearchKeywordDto> boards = boardRepositoryCustom.boardSearchKeyword(userId, keyword, page, size);
 
 //        List<BoardSearchDTO> boards = boardRepository.boardSearch(userId, keyword, pageable);
 //        long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);

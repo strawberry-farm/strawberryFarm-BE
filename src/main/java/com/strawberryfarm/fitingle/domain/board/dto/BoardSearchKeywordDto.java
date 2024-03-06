@@ -5,6 +5,7 @@ import com.strawberryfarm.fitingle.domain.board.entity.Days;
 import com.strawberryfarm.fitingle.domain.board.entity.PostStatus;
 import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import io.swagger.v3.oas.annotations.media.Schema;
+import javax.persistence.Lob;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -12,7 +13,6 @@ import lombok.Getter;
 @AllArgsConstructor
 public class BoardSearchKeywordDto {
 
-    @JsonIgnore
     @Schema(description = "게시물 제목", example = "조기 축구 모집합니다~")
     private String title;
 
@@ -33,7 +33,7 @@ public class BoardSearchKeywordDto {
 
     @Schema(description = "모집상태", example = "Y")
     private PostStatus postStatus;
-//
+
 //    @Schema(description = "관심여부", example = "Y")
 //    private String wishYn;
 }
