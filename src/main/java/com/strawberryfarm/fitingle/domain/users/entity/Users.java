@@ -145,7 +145,9 @@ public class Users extends BaseEntity {
 
     public void addWish(Wish wish) {
         wishes.add(wish);
-        wish.setUser(this);
+        if(wish.getUser() != this) {
+            wish.setUser(this);
+        }
     }
 
     public void addKeyword(Keyword keyword) {

@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
+package com.strawberryfarm.fitingle.domain.auth.dto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import lombok.AllArgsConstructor;
@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class UsersPasswordResetResponseDto extends BaseDto {
+public class AuthPasswordResetResponseDto extends BaseDto {
 	private String email;
 
 }

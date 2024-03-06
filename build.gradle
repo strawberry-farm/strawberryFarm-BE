@@ -53,6 +53,8 @@ dependencies {
 
     // security
     implementation 'org.springframework.boot:spring-boot-starter-security'
+    testImplementation 'org.springframework.security:spring-security-test'
+
     // jwt
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
@@ -84,11 +86,10 @@ dependencies {
 
     // Springdoc
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
-
+    
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0'
     implementation 'com.querydsl:querydsl-apt:5.0.0'
-
 }
 
 // querydsl 설정 시작
@@ -110,11 +111,14 @@ compileQuerydsl {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
+// querydsl 설정 끝
 
 sourceSets {
+    // querydsl
     main.java.srcDir querydslDir
+    //aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
 }
-// querydsl 설정 끝
 
 tasks.named('test') {
     useJUnitPlatform()

@@ -41,17 +41,24 @@ public enum ErrorCode {
     MESSAGE_SEND_ERROR(401,"CH000","Web Chat Message Send Error"),
 
     //Field
-    NOT_EXIST_FIELD(200,"FD000","Not Exist Field"),
+    NOT_EXIST_FIELD(400,"FD000","Not Exist Field"),
 
     //Boards
-    NOT_EXIST_BOARDS(200,"BO000","Not Exist Boards"),
+    NOT_EXIST_BOARDS(400,"BO000","Not Exist Boards"),
 
     //Qna
-    NOT_EXIST_QNA(200,"QN000","Not Exist Qna"),
+    NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),
+    QNA_PERMISSION_DENIED(403,"QN001","Permission Denied for DeleteQna"),
 
     //Comment
     COMMENT_PERMISSION_DENIED(403, "CM000", "Permission Denied for Commenting"),
     COMMENT_ALREADY_EXISTS(400, "CM001", "Comment Already Exists"),
+
+    //Wish
+    NOT_EXIST_WISH(400,"WI000","Not Exist Wish"),
+    WISH_PERMISSION_DENIED(403,"WI001","Permission Denied for DeleteWish"),
+    DUPLICATE_WISH(403,"WI002","Wish Already Exists"),
+
 
 
 

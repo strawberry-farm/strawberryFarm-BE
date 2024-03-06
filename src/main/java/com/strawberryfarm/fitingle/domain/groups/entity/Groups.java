@@ -12,6 +12,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.Getter;
 
@@ -27,7 +28,7 @@ public class Groups extends BaseEntity {
     @JoinColumn(name = "userId")
     private Users user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "boardId")
     private Board board;
 
@@ -38,5 +39,9 @@ public class Groups extends BaseEntity {
     public void setUser(Users user) {
         this.user = user;
         user.getGroups().add(this);
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }
