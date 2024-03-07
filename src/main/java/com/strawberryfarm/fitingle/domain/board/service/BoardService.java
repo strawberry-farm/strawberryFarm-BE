@@ -29,11 +29,14 @@ import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
 import com.strawberryfarm.fitingle.domain.tag.entity.Tag;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
+import com.strawberryfarm.fitingle.domain.users.status.SignUpType;
+import com.strawberryfarm.fitingle.domain.users.status.UsersStatus;
 import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import com.strawberryfarm.fitingle.domain.wish.repository.WishRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.utils.S3Manager;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -410,6 +413,53 @@ public class BoardService {
         ResultDto response = ResultDto.builder()
             .message(String.valueOf(ErrorCode.SUCCESS))
             .data(result)
+            .build();
+
+        return response;
+    }
+
+    @Transactional
+    public ResultDto addBoardTestData() {
+        Field field = fieldRepository.findById(1L)
+            .orElseThrow(() -> new NoSuchElementException("not found field"));
+
+        for (int i = 0; i < 10; i++) {
+            Users users = Users.builder()
+                .email("user" + (i + 1) + "@" + "g.com")
+                .nickname("user" + (i + 1))
+                .password("$2a$10$uWnsKvXZOTxJaKYBxEeK1O7pQc7V5vvazkE1k8VSi.XEC/lRtacEi")
+                .profileImageUrl("default")
+                .roles("ROLE_USERS")
+                .signUpType(SignUpType.FITINGLE)
+                .status(UsersStatus.AUTHORIZED)
+                .build();
+            usersRepository.save(users);
+
+            for (int j = 0; j < 30; j++) {
+                Board board = Board.builder()
+                    .user(users)
+                    .field(field)
+                    .postStatus(PostStatus.Y)
+                    .title("제목" + (i + 1))
+                    .contents("내용" + (i + 1))
+                    .headCount(10L)
+                    .city("city")
+                    .district("district")
+                    .BCode("BCode")
+                    .location("location" + (i+1))
+                    .latitude("latitude")
+                    .longitude("longitude")
+                    .question("question")
+                    .days(Days.ANYDAY)
+                    .times(Times.DAWN)
+                    .build();
+                boardRepository.save(board);
+            }
+        }
+
+        ResultDto response = ResultDto.builder()
+            .message(String.valueOf(ErrorCode.SUCCESS))
+            .data(null)
             .build();
 
         return response;
