@@ -7,6 +7,8 @@ import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchKeywordDto;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserDto;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserResponseDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchResponseDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
@@ -383,6 +385,24 @@ public class BoardService {
 
 
         BoardSearchResponseDto result = BoardSearchResponseDto.builder()
+            .totalCount(totalCount)
+            .boards(boards)
+            .build();
+
+        ResultDto response = ResultDto.builder()
+            .message(String.valueOf(ErrorCode.SUCCESS))
+            .data(result)
+            .build();
+
+        return response;
+    }
+
+    public ResultDto<List<BoardSearchNonUserResponseDto>> boardSearchNonUser(String keyword, int page, int size) {
+
+        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, page, size);
+        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword);
+
+        BoardSearchNonUserResponseDto result = BoardSearchNonUserResponseDto.builder()
             .totalCount(totalCount)
             .boards(boards)
             .build();
