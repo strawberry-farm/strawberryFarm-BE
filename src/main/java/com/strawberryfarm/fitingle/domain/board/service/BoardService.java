@@ -6,6 +6,7 @@ import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
+import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchKeywordDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchResponseDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
@@ -16,6 +17,7 @@ import com.strawberryfarm.fitingle.domain.board.entity.Days;
 import com.strawberryfarm.fitingle.domain.board.entity.PostStatus;
 import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
+import com.strawberryfarm.fitingle.domain.board.repository.BoardRepositoryCustom;
 import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
@@ -46,6 +48,7 @@ public class BoardService {
     private final S3Manager s3Manager;
 
     private final BoardRepository boardRepository;
+    private final BoardRepositoryCustom boardRepositoryCustom;
     private final FieldRepository fieldRepository;
 
     private final WishRepository wishRepository;
@@ -372,8 +375,11 @@ public class BoardService {
     public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        List<BoardSearchDTO> boards = boardRepository.boardSearch(userId, keyword, pageable);
         long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
+        List<BoardSearchKeywordDto> boards = boardRepositoryCustom.boardSearchKeyword(userId, keyword, page, size);
+
+//        List<BoardSearchDTO> boards = boardRepository.boardSearch(userId, keyword, pageable);
+//        long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
 
 
         BoardSearchResponseDto result = BoardSearchResponseDto.builder()
@@ -385,7 +391,6 @@ public class BoardService {
             .message(String.valueOf(ErrorCode.SUCCESS))
             .data(result)
             .build();
-
 
         return response;
     }

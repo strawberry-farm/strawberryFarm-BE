@@ -63,7 +63,14 @@ public class BoardController {
     public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
         @RequestParam("keyword") String keyword, @RequestParam("page") int page,
         @RequestParam("size") int size) {
+//        StopWatch stopWatch = new StopWatch();
+//        stopWatch.start();
+
         Long userId = Long.parseLong(userDetails.getUsername());
+
+//        stopWatch.stop();
+//        System.out.println(stopWatch.prettyPrint());
+
         return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
     }
     //trace, debug 안보
