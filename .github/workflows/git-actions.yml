@@ -71,7 +71,7 @@ jobs:
         key: ${{ secrets.PRIVATE_PEM_KEY }} 
         script: | 
           docker stop $(docker ps -a -q)
-          docker rmi strawberrfarm/main:latest
+          docker rmi strawberryfarm/main:latest
           docker pull strawberryfarm/main:latest
           docker-compose up -d
     - name: Remove Github Actions IP From Security Group # AWS 접근을 위한 IP Git Actions의 IP를 보안 그룹에서 할당 해제
