@@ -41,8 +41,9 @@ public class BoardSearchNonUserDto {
     private PostStatus postStatus;
 
     @QueryProjection
-    public BoardSearchNonUserDto(String title, String location, String fieldName, Days days,
+    public BoardSearchNonUserDto(long boardId, String title, String location, String fieldName, Days days,
         Times times, Long headCount, PostStatus postStatus) {
+        this.boardId = boardId;
         this.title = title;
         this.location = location;
         this.fieldName = fieldName;
