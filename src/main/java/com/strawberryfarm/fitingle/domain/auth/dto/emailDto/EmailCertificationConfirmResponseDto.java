@@ -1,7 +1,9 @@
-package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
+package com.strawberryfarm.fitingle.domain.auth.dto.emailDto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
+import com.strawberryfarm.fitingle.dto.ResultDto;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -10,7 +12,6 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class UsersLoginResponseVo extends BaseDto {
-    private UsersLoginResponseDto usersLoginResponseDto;
-    private String refreshToken;
+public class EmailCertificationConfirmResponseDto extends BaseDto {
+	private String email;
 }

@@ -14,11 +14,12 @@ public class AppConfig implements WebMvcConfigurer{
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
-            .allowedOrigins("*")
-            .allowedMethods("GET","POST","DELETE","PATCH");
-        WebMvcConfigurer.super.addCorsMappings(registry);
-    }
+//    @Override
+//    public void addCorsMappings(CorsRegistry registry) {
+//        registry.addMapping("http://localhost:8080/**")
+//            .allowedOrigins("*")
+//            .allowedMethods("*")
+//            .allowedHeaders("*")
+//            .maxAge(3600L);
+//    }
 }

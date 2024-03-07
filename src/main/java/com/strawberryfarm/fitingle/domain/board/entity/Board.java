@@ -56,9 +56,8 @@ public class Board extends BaseEntity {
     private Field field;
 
     // Groups 연관관계 매핑
-    @Builder.Default
-    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL)
-    private List<Groups> groups = new ArrayList<>();
+    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
+    private Groups group;
 
     //이미지 연관관계 매핑
     @Builder.Default
@@ -175,6 +174,12 @@ public class Board extends BaseEntity {
         this.qnas.add(qna);
         if(qna.getBoard()!= this){
             qna.setBoard(this);
+        }
+    }
+    public void addWish(Wish wish) {
+        wishes.add(wish);
+        if(wish.getBoard() != this) {
+            wish.setBoard(this);
         }
     }
 

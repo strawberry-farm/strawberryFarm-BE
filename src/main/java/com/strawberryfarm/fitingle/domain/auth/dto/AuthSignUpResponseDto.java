@@ -1,9 +1,7 @@
-package com.strawberryfarm.fitingle.domain.users.dto.usersDto;
+package com.strawberryfarm.fitingle.domain.auth.dto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
-import com.strawberryfarm.fitingle.dto.ResultDto;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -14,7 +12,7 @@ import lombok.experimental.SuperBuilder;
 @AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
-public class UsersSignUpResponseDto extends BaseDto {
+public class AuthSignUpResponseDto extends BaseDto {
     private String email;
     private String nickName;
     private LocalDateTime createdDate;

@@ -35,6 +35,7 @@ import org.springframework.util.StringUtils;
 @Getter
 public class JwtTokenManager {
 	private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000*60*60;
+	private static final long USER_DEFINED_EXPIRED_TIME = 1000;
 	private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000*60*60*24;
 	private final Key key;
 
@@ -68,6 +69,26 @@ public class JwtTokenManager {
 		return false;
 	}
 
+	public ErrorCode accessTokenValidate(String accessToken) {
+		if (!StringUtils.hasText(accessToken)) {
+			return ErrorCode.EMPTY_ACCESS_TOKEN;
+		}
+
+
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(accessToken).getBody();
+			return ErrorCode.SUCCESS;
+		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+			return ErrorCode.INVALID_ACCESS_TOKEN;
+		} catch (ExpiredJwtException e) {
+			return ErrorCode.EXPIRED_ACCESS_TOKEN;
+		} catch (UnsupportedJwtException e) {
+			return ErrorCode.UNSUPPORTED_ACCESS_TOKEN;
+		} catch (IllegalArgumentException e) {
+			return ErrorCode.EMPTY_CLAIM_ACCESS_TOKEN;
+		}
+	}
+
 	public boolean refreshTokenValidate(String refreshToken,ResultDto result) {
 		if (!StringUtils.hasText(refreshToken)) {
 			result.setResultData(ErrorCode.EMPTY_REFRESH_TOKEN.getMessage(),null, ErrorCode.EMPTY_REFRESH_TOKEN.getCode());
@@ -86,6 +107,22 @@ public class JwtTokenManager {
 		}
 
 		return false;
+	}
+
+	public ErrorCode refreshTokenValidate(String refreshToken) {
+		if (!StringUtils.hasText(refreshToken)) {
+			return ErrorCode.EMPTY_REFRESH_TOKEN;
+		}
+		try {
+			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(refreshToken).getBody();
+			return ErrorCode.SUCCESS;
+		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {
+			return ErrorCode.INVALID_REFRESH_TOKEN;
+		} catch (ExpiredJwtException e) {
+			return ErrorCode.EXPIRED_REFRESH_TOKEN;
+		} catch (UnsupportedJwtException e) {
+			return ErrorCode.UNSUPPORTED_REFRESH_TOKEN;
+		}
 	}
 
 	public Authentication getAuthentication(String accessToken) {
@@ -118,6 +155,28 @@ public class JwtTokenManager {
 	public String genAccessToken(Authentication authentication,Long userId) {
 		long now = (new Date()).getTime();
 		Date expireDate = new Date(now+ACCESS_TOKEN_EXPIRE_TIME);
+
+		String authorities = authentication.getAuthorities().stream()
+			.map(GrantedAuthority::getAuthority)
+			.collect(Collectors.joining(","));
+
+		Map<String,String> authoritiesMap = new HashMap<>();
+
+		authoritiesMap.put("auth",authorities);
+
+		return Jwts.builder().signWith(this.key, SignatureAlgorithm.HS256)
+			.setHeaderParam("typ", "jwt")
+			.setClaims(authoritiesMap)
+			.setSubject(Long.toString(userId))
+			.setIssuer("fitingle")
+			.setIssuedAt(Date.from(Instant.now()))
+			.setExpiration(expireDate)
+			.compact();
+	}
+
+	public String genAccessTokenWithExpiredTime(Authentication authentication,Long userId,int expiredTime) {
+		long now = (new Date()).getTime();
+		Date expireDate = new Date(now+USER_DEFINED_EXPIRED_TIME  * expiredTime);
 
 		String authorities = authentication.getAuthorities().stream()
 			.map(GrantedAuthority::getAuthority)

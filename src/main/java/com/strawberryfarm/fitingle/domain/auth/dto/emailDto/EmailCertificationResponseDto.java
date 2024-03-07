@@ -1,4 +1,4 @@
-package com.strawberryfarm.fitingle.domain.users.dto.emailDto;
+package com.strawberryfarm.fitingle.domain.auth.dto.emailDto;
 
 import com.strawberryfarm.fitingle.dto.BaseDto;
 import lombok.AllArgsConstructor;

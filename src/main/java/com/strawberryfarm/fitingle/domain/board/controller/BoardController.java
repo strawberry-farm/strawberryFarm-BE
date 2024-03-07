@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@Slf4j
 @RequestMapping(value = "/boards", produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 @Tag(name = "Board", description = "Board API")
@@ -40,6 +42,7 @@ public class BoardController {
     @PutMapping(value = "/{boardsId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
                                          @RequestParam("images") List<MultipartFile> images,
+                                         //이미지 url 또 따로 받음.
                                          @ModelAttribute BoardUpdateRequestDTO boardUpdateRequestDTO){
         return ResponseEntity.ok(boardService.boardUpdate(boardsId, boardUpdateRequestDTO, images));
     }
@@ -70,5 +73,13 @@ public class BoardController {
 
         return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
     }
-
+    //trace, debug 안보
+    @GetMapping("/test")
+    public void test() {
+        log.trace("TRACE!!");
+        log.debug("DEBUG!!");
+        log.info("INFO!!");
+        log.warn("WARN!!");
+        log.error("ERROR!!");
+    }
 }

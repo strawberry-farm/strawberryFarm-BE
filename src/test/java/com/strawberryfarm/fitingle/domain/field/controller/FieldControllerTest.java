@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.field.controller;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.strawberryfarm.fitingle.domain.field.dto.FieldsResponseDTO;
@@ -46,11 +47,11 @@ class FieldControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.get("/field")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.message").value("분야 정보를 성공적으로 가져왔습니다."))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.fieldId").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.fieldName").value("축구"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.data.image")
+                .andExpect(jsonPath("$.message").value("분야 정보를 성공적으로 가져왔습니다."))
+                .andExpect(jsonPath("$.data.fieldId").value(1L))
+                .andExpect(jsonPath("$.data.fieldName").value("축구"))
+                .andExpect(jsonPath("$.data.image")
                         .value("https://strawberry-bucket.s3.ap-northeast-2.amazonaws.com/fields/soccer-20231021.jpg"))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.errorCode").value("1111"));
+                .andExpect(jsonPath("$.errorCode").value("1111"));
     }
 }

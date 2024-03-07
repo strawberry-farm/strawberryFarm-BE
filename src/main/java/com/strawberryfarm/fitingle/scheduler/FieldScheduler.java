@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.scheduler;
 
+import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.field.service.FieldService;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
