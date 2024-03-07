@@ -81,6 +81,12 @@ public class BoardController {
         return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, page, size));
     }
 
+    @PostMapping("/test")
+    @Operation(summary = "검색 데이터 넣기", description = "데이터 넣는 api")
+    public ResponseEntity<?> addBoardTestData() {
+        return ResponseEntity.ok(boardService.addBoardTestData());
+    }
+
     //trace, debug 안보
     @GetMapping("/test")
     public void test() {
