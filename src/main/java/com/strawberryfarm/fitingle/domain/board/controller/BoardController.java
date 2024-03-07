@@ -73,6 +73,14 @@ public class BoardController {
 
         return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
     }
+
+    @GetMapping("/search/non-user")
+    @Operation(summary = "게시물 검색", description = "게시물 검색 api")
+    public ResponseEntity<?> boardSearchNonUser(@RequestParam("keyword") String keyword,
+        @RequestParam("page") int page, @RequestParam("size") int size) {
+        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, page, size));
+    }
+
     //trace, debug 안보
     @GetMapping("/test")
     public void test() {
