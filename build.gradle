@@ -86,10 +86,14 @@ dependencies {
 
     // Springdoc
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.9'
-    
+
+    //aop
+    implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
+
     // querydsl
     implementation 'com.querydsl:querydsl-jpa:5.0.0'
     implementation 'com.querydsl:querydsl-apt:5.0.0'
+
 }
 
 // querydsl 설정 시작
@@ -111,14 +115,11 @@ compileQuerydsl {
 tasks.withType(JavaCompile) {
     options.encoding = 'UTF-8'
 }
-// querydsl 설정 끝
 
 sourceSets {
-    // querydsl
     main.java.srcDir querydslDir
-    //aop
-    implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
 }
+// querydsl 설정 끝
 
 tasks.named('test') {
     useJUnitPlatform()
