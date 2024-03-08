@@ -98,7 +98,18 @@ dependencies {
 }
 
 // querydsl 설정 시작
-compileJava {
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+
+compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
 // querydsl 설정 끝
