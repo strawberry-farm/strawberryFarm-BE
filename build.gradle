@@ -99,6 +99,7 @@ dependencies {
 
 // querydsl 설정 시작
 def querydslDir = "$buildDir/generated/querydsl"
+file(querydslDir).mkdirs()
 
 querydsl {
     jpa = true
