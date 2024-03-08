@@ -420,7 +420,7 @@ public class BoardService {
 
     @Transactional
     public ResultDto addBoardTestData() {
-        Field field = fieldRepository.findById(1L)
+        Field field = fieldRepository.findById(2L)
             .orElseThrow(() -> new NoSuchElementException("not found field"));
 
         for (int i = 0; i < 10; i++) {
@@ -440,13 +440,13 @@ public class BoardService {
                     .user(users)
                     .field(field)
                     .postStatus(PostStatus.Y)
-                    .title("제목" + (i + 1))
-                    .contents("내용" + (i + 1))
+                    .title(users.getNickname() + "의 " + (j + 1) + "번째 게시물")
+                    .contents("내용" + (j + 1))
                     .headCount(10L)
                     .city("city")
                     .district("district")
                     .BCode("BCode")
-                    .location("location" + (i+1))
+                    .location("location" + (j+1))
                     .latitude("latitude")
                     .longitude("longitude")
                     .question("question")
