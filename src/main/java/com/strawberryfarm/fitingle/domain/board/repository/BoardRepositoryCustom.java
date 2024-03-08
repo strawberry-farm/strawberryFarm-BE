@@ -51,6 +51,7 @@ public class BoardRepositoryCustom {
 
         return queryFactory
             .select(new QBoardSearchNonUserDto(
+                board.id,
                 board.title,
                 board.location,
                 field.name.as("fieldName"),
