@@ -91,12 +91,16 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-aop' //직접 추가
 
     // querydsl
-    implementation 'com.querydsl:querydsl-jpa:5.0.0'
     implementation 'com.querydsl:querydsl-apt:5.0.0'
+    implementation 'com.querydsl:querydsl-jpa:5.0.0'
+    implementation "com.querydsl:querydsl-core:5.0.0"
+    annotationProcessor 'com.querydsl:querydsl-apt:5.0.0'
+    annotationProcessor 'jakarta.persistence:jakarta.persistence-api'
 }
 
 // querydsl 설정 시작
 def querydslDir = "$buildDir/generated/querydsl"
+file(querydslDir).mkdirs()
 
 querydsl {
     jpa = true
@@ -109,14 +113,6 @@ sourceSets {
 
 compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
-}
-
-tasks.withType(JavaCompile) {
-    options.encoding = 'UTF-8'
-}
-
-sourceSets {
-    main.java.srcDir querydslDir
 }
 // querydsl 설정 끝
 
