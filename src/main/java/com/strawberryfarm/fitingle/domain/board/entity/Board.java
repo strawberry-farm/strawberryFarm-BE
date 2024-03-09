@@ -51,7 +51,7 @@ public class Board extends BaseEntity {
 
 
     //분야 연관관계 매핑
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fieldId")
     private Field field;
 
@@ -152,9 +152,7 @@ public class Board extends BaseEntity {
     //연관관계 메서드
     public void addField(Field field) {
         this.field = field;
-        if (field.getBoard() != this) {
-            field.setBoard(this);
-        }
+        field.getBoards().add(this);
     }
 
     public void addTag(Tag tag) {
@@ -192,8 +190,6 @@ public class Board extends BaseEntity {
     public void clearTags() {
         this.tags.clear();
     }
-
-
 
 
 }

@@ -13,13 +13,11 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
 
 @Entity
 @Getter
@@ -32,8 +30,8 @@ public class Field extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(mappedBy = "field", fetch = FetchType.LAZY)
-    private Board board;
+    @OneToMany(mappedBy = "field", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Board> boards = new ArrayList<>(); // 여기를 수정했습니다.
 
     @OneToMany(mappedBy = "field", cascade = CascadeType.ALL)
     private List<InterestField> interestFields = new ArrayList<>();
@@ -41,12 +39,14 @@ public class Field extends BaseEntity {
     @Column(nullable = false)
     private String name;
 
-    //프론트 상의 필요, 디폴트 이미지 있다고 생각할지.
     @Column(nullable = false)
     private String imageUrl;
 
-    //연관관계 메서드
+    // 연관관계 편의 메서드
     public void setBoard(Board board) {
-        this.board = board;
+        this.boards.add(board);
+        if (board.getField() != this) {
+            board.addField(this);
+        }
     }
 }
