@@ -119,6 +119,8 @@ public class BoardService {
         // 연관관계 세팅 (field)
         // 예) fieldId를 기반으로 Field 객체를 조회한 후, board에 설정
         Optional<Field> fieldOptional = fieldRepository.findById(boardRegisterRequestDTO.getFieldId());
+        fieldOptional.ifPresent(field -> field.setBoard(board)); // addBoard 메소드는 Field 엔티티에 정의되어 있어야 합니다.
+
 
         if (!fieldOptional.isPresent()) {
             return ResultDto.<BoardRegisterResponseDTO>builder()
@@ -128,7 +130,6 @@ public class BoardService {
                     .build();
         }
 
-        board.addField(fieldOptional.get());
 
 
         //여기에 채팅
