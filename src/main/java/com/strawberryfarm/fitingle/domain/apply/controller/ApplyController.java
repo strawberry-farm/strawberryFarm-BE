@@ -31,7 +31,7 @@ public class ApplyController {
 		return ResponseEntity.ok(applyService.apply(applyRequestDto,boardId,userId));
 	}
 
-	@GetMapping("/user/groups/apply/{boardId}")
+	@GetMapping("/user/groups/applyList/{boardId}")
 	public ResponseEntity<?> getApplyList(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable Long boardId) {

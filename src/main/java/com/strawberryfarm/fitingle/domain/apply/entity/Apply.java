@@ -33,15 +33,12 @@ public class Apply extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private Users user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "board_id")
+    @JoinColumn(name = "boardId")
     private Board board;
-
-    @Column(nullable = false)
-    private Long boardId;
 
     @Lob
     private String contents;
