@@ -1,15 +1,15 @@
 package com.strawberryfarm.fitingle.domain.groups.service;
 
 import com.strawberryfarm.fitingle.domain.ErrorCode;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
+import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
 import com.strawberryfarm.fitingle.domain.groups.dto.GroupsGetMyGroupsResponseDto;
 import com.strawberryfarm.fitingle.domain.groups.dto.PostDetailDto;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
 import com.strawberryfarm.fitingle.domain.groups.repository.GroupsRepository;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
+import com.strawberryfarm.fitingle.domain.qna.dto.QnaRegisterResponseDTO;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
@@ -26,57 +26,76 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class GroupsService {
 
-	private final GroupsRepository groupsRepository;
-	private final UsersRepository usersRepository;
-	public ResultDto<?> getMyGroups(Long userId,GroupsStatus status) {
-		log.info("getMyGroups Service Start");
+    private final GroupsRepository groupsRepository;
+    private final UsersRepository usersRepository;
 
-		Optional<Users> findUsers = usersRepository.findById(userId);
+    private final BoardRepository boardRepository;
 
-		if (!findUsers.isPresent()) {
-			return ResultDto.builder()
-				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
-				.data(null)
-				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
-				.build();
-		}
+    public ResultDto<?> getMyGroups(Long userId, GroupsStatus status) {
+        log.info("getMyGroups Service Start");
 
-		Users findUser = findUsers.get();
+        Optional<Users> findUsers = usersRepository.findById(userId);
 
-		List<Groups> groups;
+        if (!findUsers.isPresent()) {
+            return ResultDto.builder()
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .data(null)
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .build();
+        }
 
-		if (status == GroupsStatus.ALL) {
-			groups = findUser.getGroups();
-		} else {
-			groups = findUser.getGroups().stream().filter(gorup -> gorup.getStatus() == status).collect(
-				Collectors.toList());
-		}
+        Users findUser = findUsers.get();
 
-		List<PostDetailDto> posts = new ArrayList<>();
+        List<Groups> groups;
 
-		for (Groups g : groups) {
-			Board board = g.getBoard();
-			int participantCount = groupsRepository.getParticipantCount(board.getId());
+        if (status == GroupsStatus.ALL) {
+            groups = findUser.getGroups();
+        } else {
+            groups = findUser.getGroups().stream().filter(gorup -> gorup.getStatus() == status).collect(
+                    Collectors.toList());
+        }
 
-			List<String> imageUrls = board.getImages().stream().map(Image::getImageUrl)
-					.collect(Collectors.toList());
-			posts.add(PostDetailDto.builder()
-					.postId(board.getId())
-					.title(board.getTitle())
-					.location(board.getLocation())
-					.times(board.getTimes())
-					.days(board.getDays())
-					.headCount(board.getHeadCount().intValue())
-					.participantCount(participantCount)
-					.status(g.getStatus())
-					.imagesUrl(imageUrls)
-				.build());
-		}
+        List<PostDetailDto> posts = new ArrayList<>();
 
-		log.info("getMyGroups Service End");
-		return GroupsGetMyGroupsResponseDto.builder()
-			.posts(posts)
-			.build()
-			.doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
-	}
+        for (Groups g : groups) {
+            Board board = g.getBoard();
+            int participantCount = groupsRepository.getParticipantCount(board.getId());
+
+            List<String> imageUrls = board.getImages().stream().map(Image::getImageUrl)
+                    .collect(Collectors.toList());
+            posts.add(PostDetailDto.builder()
+                    .postId(board.getId())
+                    .title(board.getTitle())
+                    .location(board.getLocation())
+                    .times(board.getTimes())
+                    .days(board.getDays())
+                    .headCount(board.getHeadCount().intValue())
+                    .participantCount(participantCount)
+                    .status(g.getStatus())
+                    .imagesUrl(imageUrls)
+                    .build());
+        }
+
+        log.info("getMyGroups Service End");
+        return GroupsGetMyGroupsResponseDto.builder()
+                .posts(posts)
+                .build()
+                .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+    }
+
+    public void groupsCreate(Users user, Board board) {
+		Groups groups = Groups.builder()
+                .user(user)
+                .board(board)
+                .status(GroupsStatus.HOST)
+                .build();
+
+        // 연관관계 편의 메서드 호출
+        user.addGroup(groups); // Users 엔티티에 Groups 인스턴스를 추가
+        board.addGroup(groups); // Board 엔티티에 Groups 인스턴스를 추가
+
+        groupsRepository.save(groups);
+    }
+
 }
+
