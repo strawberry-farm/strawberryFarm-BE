@@ -55,9 +55,10 @@ public class Board extends BaseEntity {
     @JoinColumn(name = "fieldId")
     private Field field;
 
-    // Groups 연관관계 매핑
-    @OneToOne(mappedBy = "board", cascade = CascadeType.ALL)
-    private Groups group;
+    // Groups 연관관계 매핑: 1:N 관계로 변경
+    @Builder.Default
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Groups> groups = new ArrayList<>();
 
     //이미지 연관관계 매핑
     @Builder.Default
@@ -191,5 +192,9 @@ public class Board extends BaseEntity {
         this.tags.clear();
     }
 
+    public void addGroup(Groups group) {
+        this.groups.add(group);
+        group.setBoard(this);
+    }
 
 }
