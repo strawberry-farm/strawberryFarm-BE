@@ -332,6 +332,7 @@ public class BoardService {
         return QnaDTO.builder()
                 //.userId(qna.getUser().getId())
                 .qnaId(qna.getId())
+                .userId(qna.getUser().getId())
                 .profile(qna.getUser().getProfileImageUrl())
                 .nickName(qna.getUser().getNickname())
                 .contents(canViewComment ? qna.getContents() : "비공개 글 입니다.")
