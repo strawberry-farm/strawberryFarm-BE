@@ -24,6 +24,7 @@ import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
 import com.strawberryfarm.fitingle.domain.groups.repository.GroupsRepository;
+import com.strawberryfarm.fitingle.domain.groups.service.GroupsService;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
 import com.strawberryfarm.fitingle.domain.tag.entity.Tag;
@@ -61,6 +62,9 @@ public class BoardService {
     private final GroupsRepository groupsRepository;
 
     private final UsersRepository usersRepository;
+
+    private final GroupsService groupsService;
+
 
     //BOARDS 등록
     @Transactional
@@ -130,10 +134,12 @@ public class BoardService {
                     .build();
         }
 
-
-
-        //여기에 채팅
         Board savedBoard = boardRepository.save(board);
+
+        // 1.Groups 생성 및 저장
+        groupsService.groupsCreate(userOptional.get(), savedBoard);
+
+        // 2.여기에 채팅 필요
 
         // BoardRegisterResponseDTO 객체 생성 및 필요한 정보 설정
         BoardRegisterResponseDTO responseDTO = BoardRegisterResponseDTO.builder()
@@ -326,6 +332,7 @@ public class BoardService {
         return QnaDTO.builder()
                 //.userId(qna.getUser().getId())
                 .qnaId(qna.getId())
+                .userId(qna.getUser().getId())
                 .profile(qna.getUser().getProfileImageUrl())
                 .nickName(qna.getUser().getNickname())
                 .contents(canViewComment ? qna.getContents() : "비공개 글 입니다.")

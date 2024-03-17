@@ -46,6 +46,9 @@ public enum ErrorCode {
     //Boards
     NOT_EXIST_BOARDS(400,"BO000","Not Exist Boards"),
 
+    //Apply
+    NOT_EXIST_APPLY(200,"AP000","Not Exist Apply"),
+
     //Qna
     NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),
     QNA_PERMISSION_DENIED(403,"QN001","Permission Denied for DeleteQna"),

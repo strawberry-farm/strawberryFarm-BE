@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.apply.entity;
 
 import com.strawberryfarm.fitingle.domain.BaseEntity;
+import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,13 +16,16 @@ import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Getter
 @Table(name = "apply")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@SuperBuilder
 public class Apply extends BaseEntity {
 
     @Id
@@ -29,11 +33,12 @@ public class Apply extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "userId")
     private Users user;
 
-    @Column(nullable = false)
-    private Long boardId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "boardId")
+    private Board board;
 
     @Lob
     private String contents;
@@ -46,11 +51,14 @@ public class Apply extends BaseEntity {
         this.user = users;
     }
 
-//    @Column(nullable = false)
-//    private LocalDateTime created_date;
-//
-//    @Column(nullable = false)
-//    private LocalDateTime updated_date;
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+
+    public void modifyStatus(ApplyStatus status) {
+        this.status = status;
+    }
+
 }
 
 
