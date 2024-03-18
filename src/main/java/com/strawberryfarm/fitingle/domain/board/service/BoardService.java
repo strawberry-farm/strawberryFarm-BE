@@ -231,7 +231,6 @@ public class BoardService {
     //Boards 상세보기
     @Transactional(readOnly = true)
     public ResultDto<BoardDetailResponseDTO> boardDetail(Long boardsId, Long userId) {
-
         Optional<Board> boardOptional = boardRepository.findById(boardsId);
         if (!boardOptional.isPresent()) {
             return ResultDto.<BoardDetailResponseDTO>builder()
@@ -241,72 +240,70 @@ public class BoardService {
                     .build();
         }
 
-        Optional<Users> userOptional = usersRepository.findById(userId);
-        if (!userOptional.isPresent()) {
-            return ResultDto.<BoardDetailResponseDTO>builder()
-                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
-                    .data(null)
-                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
-                    .build();
+        Board board = boardOptional.get();
+        boolean isOwner = (userId != null && board.getUser() != null && userId.equals(board.getUser().getId()));
+
+        String nickname = "Anonymous"; // 기본 닉네임 설정
+        Optional<Users> userOptional = Optional.empty();
+        if (userId != null) {
+            userOptional = usersRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                nickname = userOptional.get().getNickname();
+            }
         }
 
-        Optional<Long> wishIdOptional = checkWish(userOptional.get().getId(), boardOptional.get().getId());
-        boolean wishState = wishIdOptional.isPresent();
-        Long wishId = wishIdOptional.orElse(null);
+        boolean wishState = false;
+        Long wishId = null;
+        if (userId != null) {
+            Optional<Long> wishIdOptional = checkWish(userId, board.getId());
+            wishState = wishIdOptional.isPresent();
+            wishId = wishIdOptional.orElse(null);
+        }
 
-
-        boolean isOwner = boardOptional.get().getUser().getId().equals(userId);
-
-        List<String> imageUrls = boardOptional.get().getImages().stream()
+        List<String> imageUrls = board.getImages().stream()
                 .map(Image::getImageUrl)
                 .collect(Collectors.toList());
-
-        List<String> tags = boardOptional.get().getTags().stream()
+        List<String> tags = board.getTags().stream()
                 .map(Tag::getContents)
                 .collect(Collectors.toList());
 
-        //todo 인원수가 다 찼을때 status를 N으로 변경 시켜야함. 여기서 하는게 아닐듯..?
+        List<QnaDTO> qnas = board.getQnas().stream()
+                .map(qna -> convertToQnaDto(qna, userId, isOwner))
+                .collect(Collectors.toList());
 
-        BoardDetailResponseDTO boardDetailResponsedto = BoardDetailResponseDTO.builder()
-                .boardId((boardOptional.get().getId()))
-                //.userId(userOptional.get().getId())
-                .nickname(userOptional.get().getNickname())
-                .status(boardOptional.get().getPostStatus().toString())
-                .contents(boardOptional.get().getContents())
-                .headcount(boardOptional.get().getHeadCount())
-                .title(boardOptional.get().getTitle())
-                .city(boardOptional.get().getCity())
-                .district(boardOptional.get().getDistrict())
-                .b_code(boardOptional.get().getBCode())
-                .location(boardOptional.get().getLocation())
-                .latitude(boardOptional.get().getLatitude())
-                .longitude(boardOptional.get().getLongitude())
-                .question(boardOptional.get().getQuestion())
-                .days(boardOptional.get().getDays().toString())
-                .times(boardOptional.get().getTimes().toString())
+        BoardDetailResponseDTO boardDetailResponseDTO = BoardDetailResponseDTO.builder()
+                .boardId(board.getId())
+                .nickname(nickname)
+                .status(board.getPostStatus().toString())
+                .contents(board.getContents())
+                .headcount(board.getHeadCount())
+                .title(board.getTitle())
+                .city(board.getCity())
+                .district(board.getDistrict())
+                .b_code(board.getBCode())
+                .location(board.getLocation())
+                .latitude(board.getLatitude())
+                .longitude(board.getLongitude())
+                .question(board.getQuestion())
+                .days(board.getDays().toString())
+                .times(board.getTimes().toString())
                 .isOwner(isOwner)
-
-                //Q&A , Comments
-                .qnas(boardOptional.get().getQnas().stream()
-                        .map(qna -> convertToQnaDto(qna, userId, isOwner))
-                        .collect(Collectors.toList()))
-
-                //field
-                .fieldId(boardOptional.get().getField().getId())
-                .fieldName(boardOptional.get().getField().getName())
-
-                //images
-                .images(imageUrls)
-
-                //tags
-                .tags(tags)
-                .participantCount(checkParticipant(boardOptional.get().getId()))
                 .wishState(wishState)
                 .wishId(wishId)
+                .images(imageUrls)
+                .tags(tags)
+                .participantCount(checkParticipant(board.getId()))
+                .qnas(qnas)
+                .fieldId(board.getField().getId())
+                .fieldName(board.getField().getName())
                 .build();
 
-        return boardDetailResponsedto.doResultDto("success", "1111");
+        return ResultDto.<BoardDetailResponseDTO>builder()
+                .message("success")
+                .data(boardDetailResponseDTO)
+                .build();
     }
+
 
     private Optional<Long> checkWish(Long userId, Long boardId) {
         Optional<Wish> wish = wishRepository.findByUserIdAndBoardId(userId, boardId);
