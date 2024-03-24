@@ -11,6 +11,10 @@ import com.strawberryfarm.fitingle.domain.apply.entity.ApplyStatus;
 import com.strawberryfarm.fitingle.domain.apply.repository.ApplyRepository;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
+import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
+import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
+import com.strawberryfarm.fitingle.domain.groups.repository.GroupsRepository;
+import com.strawberryfarm.fitingle.domain.groups.service.GroupsService;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
@@ -27,6 +31,11 @@ public class ApplyService {
 	private final ApplyRepository applyRepository;
 	private final BoardRepository boardRepository;
 	private final UsersRepository usersRepository;
+
+	private final GroupsService groupsService;
+
+	private final GroupsRepository groupsRepository;
+
 
 	@Transactional
 	public ResultDto<?> apply(ApplyRequestDto applyRequestDto, Long boardId, Long userId) {
@@ -60,6 +69,12 @@ public class ApplyService {
 		newApply.setUser(findUser);
 		newApply.setBoard(findBoard);
 
+		//todo 1.모임 테이블에 추가(상태값을 wait으로)
+		//유저랑, 보드, 상태값을 저장한다.
+		//기존에 없는지 확인을해야하지 않을까?
+		groupsService.groupsCreate(findUsers.get(), findBoards.get(), GroupsStatus.WAIT);
+
+		//todo 2. apply 추가
 		applyRepository.save(newApply);
 
 		return ApplyResponseDto.builder()
@@ -170,6 +185,15 @@ public class ApplyService {
 
 		apply.modifyStatus(ApplyStatus.Y);
 
+		//todo 여기에 모임에 상태값을 guest로 바꿈
+		Optional<Groups> groupsOptional = groupsRepository.findByUserIdAndBoardId(boardId,userId);
+		if (!groupsOptional.isPresent()) {
+			//여기에 조치 필요
+		}
+		Groups group = groupsOptional.get();
+		group.changeStatusToGuest(); // 상태값을 GUEST로 변경
+		groupsRepository.save(group); // 변경된 상태를 저장
+
 		return ApplyChangeResponseDto.builder()
 			.beforeStatus(ApplyStatus.I)
 			.curStatus(ApplyStatus.Y)
@@ -195,6 +219,8 @@ public class ApplyService {
 				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
 				.build();
 		}
+
+		//todo 여기에 모임의 wait를 삭제하고 apply 거절로 바꾸기 해야함.
 
 		Apply apply = applyRepository.getApplyByBoardIdAndUserId(boardId,userId);
 

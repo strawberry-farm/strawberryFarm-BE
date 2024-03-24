@@ -83,11 +83,11 @@ public class GroupsService {
                 .doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
     }
 
-    public void groupsCreate(Users user, Board board) {
+    public void groupsCreate(Users user, Board board, GroupsStatus groupsStatus) {
 		Groups groups = Groups.builder()
                 .user(user)
                 .board(board)
-                .status(GroupsStatus.HOST)
+                .status(groupsStatus)
                 .build();
 
         // 연관관계 편의 메서드 호출
