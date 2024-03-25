@@ -45,9 +45,13 @@ public enum ErrorCode {
 
     //Boards
     NOT_EXIST_BOARDS(400,"BO000","Not Exist Boards"),
+    NOT_OWNER_BOARDS(400,"BO001","Not Owner of Board"),
 
     //Apply
     NOT_EXIST_APPLY(200,"AP000","Not Exist Apply"),
+    NOT_APPLY_YOUR_BOARD(200,"AP001","Can't Apply Your Board"),
+    ALREADY_APPLIED(200,"AP002","Already Applied or Waiting"),
+
 
     //Qna
     NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),

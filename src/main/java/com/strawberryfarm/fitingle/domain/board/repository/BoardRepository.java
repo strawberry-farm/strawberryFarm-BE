@@ -3,6 +3,8 @@ package com.strawberryfarm.fitingle.domain.board.repository;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import java.util.List;
+import java.util.Optional;
+import javax.swing.text.html.Option;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +23,10 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     @Query(value = "SELECT count(*) from board b join field f on f.id = b.field_id left join wish w on w.board_id = b.id and w.user_id = :userId WHERE upper(b.title) LIKE upper(concat('%', :keyword, '%')) OR upper(b.location) LIKE upper(concat('%', :keyword, '%'))", nativeQuery = true)
     long boardSearchTotalCount(@Param("userId") Long userId, @Param("keyword") String keyword);
+
+    List<Board> findByUserId(Long userId);
+
+    Optional<Board> findByIdAndUserId(Long BoardId, Long userId);
 
 
 }
