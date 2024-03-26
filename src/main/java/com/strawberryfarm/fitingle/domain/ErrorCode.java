@@ -66,6 +66,9 @@ public enum ErrorCode {
     WISH_PERMISSION_DENIED(403,"WI001","Permission Denied for DeleteWish"),
     DUPLICATE_WISH(403,"WI002","Wish Already Exists"),
 
+    //Group
+    NOT_EXIST_GROUP(400,"GO000","Not Exist Group"),
+
 
 
 

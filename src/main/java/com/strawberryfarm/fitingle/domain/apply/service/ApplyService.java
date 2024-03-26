@@ -65,7 +65,7 @@ public class ApplyService {
 		Users findUser = findUsers.get();
 		Board findBoard = findBoards.get();
 
-		// 게시물의 소유자가 신청을 시도하는 경우 에러 반환
+		// 1.게시물의 소유자가 신청을 시도하는 경우 에러 반환
 		if (findBoard.getUser().getId().equals(userId)) {
 			return ResultDto.builder()
 					.message(ErrorCode.NOT_APPLY_YOUR_BOARD.getMessage())
@@ -73,7 +73,7 @@ public class ApplyService {
 					.errorCode(ErrorCode.NOT_APPLY_YOUR_BOARD.getCode())
 					.build();
 		}
-		// 이미 신청이 있는지 확인(거절은 다시 신청 가능)
+		// 2.이미 신청이 있는지 확인(거절은 다시 신청 가능)
 		Optional<Apply> existingApply = applyRepository.findByUserIdAndBoardId(userId, boardId);
 		if (existingApply.isPresent() && !existingApply.get().getStatus().equals(ApplyStatus.N)) {
 			return ResultDto.builder()
@@ -216,7 +216,7 @@ public class ApplyService {
 			List<Apply> applyList = Collections.singletonList(applyOptional.get());
 			applyListToApplyDtoList(board, applyList, result);
 		}
-		//4.비어있는경우
+		//4.결과 비어있는경우
 		if (result.isEmpty()) {
 			return ResultDto.builder()
 					.message(ErrorCode.SUCCESS.getMessage())
@@ -231,18 +231,23 @@ public class ApplyService {
 
 
 	//todo 여기서부터 다시 필요
-	public ResultDto<?> acceptApply(Long boardId, Long userId) {
-		boolean existUsers = usersRepository.existsById(userId);
-		boolean existBoard = boardRepository.existsById(boardId);
+	@Transactional
+	public ResultDto<?> acceptApply(Long applyId, Long userId) {
 
-		if (!existBoard) {
+		Optional<Apply> existApply = applyRepository.findById(applyId);
+
+		if (!existApply.isPresent()) {
 			return ResultDto.builder()
-				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+				.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
 				.data(null)
-				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+				.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
 				.build();
 		}
 
+		Apply apply = existApply.get();
+
+
+		boolean existUsers = usersRepository.existsById(userId);
 		if (!existUsers) {
 			return ResultDto.builder()
 				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
@@ -251,26 +256,34 @@ public class ApplyService {
 				.build();
 		}
 
-		Apply apply = applyRepository.getApplyByBoardIdAndStatus(boardId,ApplyStatus.I);
 
-		if (apply == null) {
-			return ResultDto.builder()
-				.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
-				.data(null)
-				.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
-				.build();
+		//반장인지 체크
+		if(existApply.get().getBoard().getUser().getId() != userId){
+			return  ResultDto.builder()
+					.message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
+					.build();
 		}
 
+		//상태 Y로 변경
 		apply.modifyStatus(ApplyStatus.Y);
 
-		//todo 여기에 모임에 상태값을 guest로 바꿈
-		Optional<Groups> groupsOptional = groupsRepository.findByUserIdAndBoardId(boardId,userId);
+		//모임에 상태값을 guest로 바꿈
+		Optional<Groups> groupsOptional = groupsRepository.findByUserIdAndBoardId(apply.getBoard().getId(),userId);
 		if (!groupsOptional.isPresent()) {
-			//여기에 조치 필요
+			return  ResultDto.builder()
+					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode())
+					.build();
 		}
+
 		Groups group = groupsOptional.get();
-		group.changeStatusToGuest(); // 상태값을 GUEST로 변경
-		groupsRepository.save(group); // 변경된 상태를 저장
+
+		// 상태값을 GUEST로 변경
+		group.changeStatusToGuest();
+		//groupsRepository.save(group); // 변경된 상태를 저장
 
 		return ApplyChangeResponseDto.builder()
 			.beforeStatus(ApplyStatus.I)

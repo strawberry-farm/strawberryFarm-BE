@@ -61,13 +61,13 @@ public class ApplyController {
 //		return ResponseEntity.ok(applyService.cancelApply(boardId,userId));
 //	}
 
-	@PatchMapping("/user/groups/apply/{boardId}/accept")
+	@PatchMapping("/user/groups/apply/{applyId}/accept")
 	public ResponseEntity<?> acceptApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@PathVariable Long applyId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
-		return ResponseEntity.ok(applyService.acceptApply(boardId,userId));
+		return ResponseEntity.ok(applyService.acceptApply(applyId,userId));
 	}
 
 //	@PatchMapping("/user/groups/apply/{boardId}/reject")

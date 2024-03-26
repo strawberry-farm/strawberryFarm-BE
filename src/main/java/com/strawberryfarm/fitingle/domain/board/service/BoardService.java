@@ -308,6 +308,7 @@ public class BoardService {
 
     private Optional<Long> checkWish(Long userId, Long boardId) {
         Optional<Wish> wish = wishRepository.findByUserIdAndBoardId(userId, boardId);
+        System.out.println("Wish: " + wish); // 로그 출력
         return wish.map(Wish::getId);
     }
 
