@@ -52,6 +52,8 @@ public enum ErrorCode {
     NOT_APPLY_YOUR_BOARD(200,"AP001","Can't Apply Your Board"),
     ALREADY_APPLIED(200,"AP002","Already Applied or Waiting"),
 
+    CANNOT_CANCEL_APPROVED_APPLY(200,"AP003","Already approved apply cannot be cancelled"),
+
 
     //Qna
     NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),

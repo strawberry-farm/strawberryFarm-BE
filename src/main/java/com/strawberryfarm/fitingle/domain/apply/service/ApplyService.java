@@ -230,7 +230,6 @@ public class ApplyService {
 	}
 
 
-	//todo 여기서부터 다시 필요
 	@Transactional
 	public ResultDto<?> acceptApply(Long applyId, Long userId) {
 
@@ -291,45 +290,69 @@ public class ApplyService {
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 	}
 
-//	public ResultDto<?> cancelApply(Long boardId, Long userId) {
-//		boolean existUsers = usersRepository.existsById(userId);
-//		boolean existBoard = boardRepository.existsById(boardId);
-//
-//		if (!existUsers) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
-//				.build();
-//		}
-//
-//		if (!existBoard) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
-//				.build();
-//		}
-//
-//		//todo 여기에 모임의 wait를 삭제하고 apply 거절로 바꾸기 해야함.
-//
-//		Apply apply = applyRepository.getApplyByBoardIdAndUserId(boardId,userId);
-//
-//		if (apply == null) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
-//				.build();
-//		}
-//
-//		applyRepository.delete(apply);
-//
-//		return ApplyChangeResponseDto.builder()
-//			.beforeStatus(ApplyStatus.I)
-//			.curStatus(ApplyStatus.C)
-//			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
-//	}
+	public ResultDto<?> cancelApply(Long applyId, Long userId) {
+
+		Optional<Apply> existApply = applyRepository.findById(applyId);
+
+		if (!existApply.isPresent()) {
+			return ResultDto.builder()
+					.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
+					.build();
+		}
+
+		boolean existUsers = usersRepository.existsById(userId);
+
+		if (!existUsers) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+				.build();
+		}
+
+		Apply apply = existApply.get();
+
+		if (apply.getStatus() == ApplyStatus.Y) {
+			return ResultDto.builder()
+					.message(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
+					.build();
+		}
+
+		Long boardId = apply.getBoard().getId();
+		Optional<Groups> groupOptional = groupsRepository.findByUserIdAndBoardId(userId, boardId);
+
+		if (!groupOptional.isPresent()) {
+			return ResultDto.builder()
+					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode()) // 적절한 에러 코드 사용
+					.build();
+		}
+
+		Groups group = groupOptional.get();
+
+		if (group.getStatus() == GroupsStatus.GUEST) {
+			return ResultDto.builder()
+					.message(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
+					.build();
+		}
+
+		//todo 그룹의 wait를 삭제, apply도 삭제.(이미 승인이 된거는 삭제 불가능)
+		//그럼 그룹은 삭제를 해야되는건가?
+		groupsRepository.delete(group); // 그룹 삭제
+		applyRepository.delete(apply);
+
+		return ApplyChangeResponseDto.builder()
+			.beforeStatus(ApplyStatus.I)
+			.curStatus(ApplyStatus.C)
+			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+	}
 
 //	public ResultDto<?> rejectApply(Long boardId, Long userId) {
 //		boolean existUsers = usersRepository.existsById(userId);

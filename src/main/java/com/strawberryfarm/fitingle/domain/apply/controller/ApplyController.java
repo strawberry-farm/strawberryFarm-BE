@@ -52,14 +52,14 @@ public class ApplyController {
 		return ResponseEntity.ok(applyService.getMyApply(boardId, userId));
 	}
 
-//	@DeleteMapping("/user/groups/apply/{boardId}")
-//	public ResponseEntity<?> cancelApply(
-//		@AuthenticationPrincipal UserDetails userDetails,
-//		@PathVariable Long boardId) {
-//		Long userId = Long.parseLong(userDetails.getUsername());
-//
-//		return ResponseEntity.ok(applyService.cancelApply(boardId,userId));
-//	}
+	@DeleteMapping("/user/groups/apply/{applyId}")
+	public ResponseEntity<?> cancelApply(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable Long applyId) {
+		Long userId = Long.parseLong(userDetails.getUsername());
+
+		return ResponseEntity.ok(applyService.cancelApply(applyId,userId));
+	}
 
 	@PatchMapping("/user/groups/apply/{applyId}/accept")
 	public ResponseEntity<?> acceptApply(
