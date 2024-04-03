@@ -52,7 +52,9 @@ public enum ErrorCode {
     NOT_APPLY_YOUR_BOARD(200,"AP001","Can't Apply Your Board"),
     ALREADY_APPLIED(200,"AP002","Already Applied or Waiting"),
 
-    CANNOT_CANCEL_APPROVED_APPLY(200,"AP003","Already approved apply cannot be cancelled"),
+    CANNOT_CANCEL_APPROVED_APPLY(200,"AP003","Already Approved Apply Cannot be Cancelled"),
+
+    ALREADY_FULLED(200,"AP004","Can't Apply , Group Is Fulled"),
 
 
     //Qna

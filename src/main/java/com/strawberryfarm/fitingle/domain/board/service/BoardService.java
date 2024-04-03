@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.board.service;
 
+import com.google.gson.Gson;
 import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
@@ -83,21 +84,23 @@ public class BoardService {
                     .build();
         }
 
+        List<String> questions = boardRegisterRequestDTO.getQuestion();
+        Gson gson = new Gson();
+        String jsonQuestions = gson.toJson(questions);
+
         Board board = Board.builder()
                 .user(userOptional.get())
                 .title(boardRegisterRequestDTO.getTitle())
                 .postStatus(PostStatus.Y)
                 .contents(boardRegisterRequestDTO.getContents())
-                .city(boardRegisterRequestDTO.getCity())
-                .district(boardRegisterRequestDTO.getDistrict())
                 .headCount(boardRegisterRequestDTO.getHeadcount())
-                .BCode(boardRegisterRequestDTO.getB_code())
-                .location(boardRegisterRequestDTO.getLocation())
+                .BCode(boardRegisterRequestDTO.getBcode())
+                .location(boardRegisterRequestDTO.getDetail())
                 .latitude(boardRegisterRequestDTO.getLatitude())
                 .longitude(boardRegisterRequestDTO.getLongitude())
-                .question(boardRegisterRequestDTO.getQuestion())
-                .days(Days.valueOf(boardRegisterRequestDTO.getDays()))
-                .times(Times.valueOf(boardRegisterRequestDTO.getTimes()))
+                .question(jsonQuestions)
+                .days(Days.fromLabel(boardRegisterRequestDTO.getDays()))
+                .times(Times.fromLabel(boardRegisterRequestDTO.getTimes()))
                 .build();
 
         // 연관관계 세팅 (Tag)
@@ -279,8 +282,8 @@ public class BoardService {
                 .contents(board.getContents())
                 .headcount(board.getHeadCount())
                 .title(board.getTitle())
-                .city(board.getCity())
-                .district(board.getDistrict())
+//                .city(board.getCity())
+//                .district(board.getDistrict())
                 .b_code(board.getBCode())
                 .location(board.getLocation())
                 .latitude(board.getLatitude())
@@ -450,8 +453,8 @@ public class BoardService {
                     .title(users.getNickname() + "의 " + (j + 1) + "번째 게시물")
                     .contents("내용" + (j + 1))
                     .headCount(10L)
-                    .city("city")
-                    .district("district")
+//                    .city("city")
+//                    .district("district")
                     .BCode("BCode")
                     .location("location" + (j+1))
                     .latitude("latitude")

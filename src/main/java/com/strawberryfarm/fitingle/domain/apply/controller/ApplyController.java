@@ -70,12 +70,12 @@ public class ApplyController {
 		return ResponseEntity.ok(applyService.acceptApply(applyId,userId));
 	}
 
-//	@PatchMapping("/user/groups/apply/{boardId}/reject")
-//	public ResponseEntity<?> rejectApply(
-//		@AuthenticationPrincipal UserDetails userDetails,
-//		@PathVariable Long boardId) {
-//		Long userId = Long.parseLong(userDetails.getUsername());
-//
-//		return ResponseEntity.ok(applyService.rejectApply(boardId,userId));
-//	}
+	@PatchMapping("/user/groups/apply/{applyId}/reject")
+	public ResponseEntity<?> rejectApply(
+		@AuthenticationPrincipal UserDetails userDetails,
+		@PathVariable Long applyId) {
+		Long userId = Long.parseLong(userDetails.getUsername());
+
+		return ResponseEntity.ok(applyService.rejectApply(applyId,userId));
+	}
  }

@@ -48,18 +48,18 @@ public class ApplyService {
 
 		if (!findUsers.isPresent()) {
 			return ResultDto.builder()
-				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-				.data(null)
-				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
-				.build();
+					.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+					.build();
 		}
 
 		if (!findBoards.isPresent()) {
 			return ResultDto.builder()
-				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
-				.data(null)
-				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
-				.build();
+					.message(ErrorCode.NOT_EXIST_USERS.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+					.build();
 		}
 
 		Users findUser = findUsers.get();
@@ -74,44 +74,70 @@ public class ApplyService {
 					.build();
 		}
 		// 2.이미 신청이 있는지 확인(거절은 다시 신청 가능)
-		Optional<Apply> existingApply = applyRepository.findByUserIdAndBoardId(userId, boardId);
-		if (existingApply.isPresent() && !existingApply.get().getStatus().equals(ApplyStatus.N)) {
-			return ResultDto.builder()
-					.message(ErrorCode.ALREADY_APPLIED.getMessage())
-					.data(null)
-					.errorCode(ErrorCode.ALREADY_APPLIED.getCode())
+		Optional<Apply> existingApplyOpt = applyRepository.findByUserIdAndBoardId(userId, boardId);
+		if (existingApplyOpt.isPresent()) {
+			Apply existingApply = existingApplyOpt.get();
+			ApplyStatus status = existingApply.getStatus();
+
+			// 상태가 'I' 또는 'Y'인 경우, 에러 처리
+			if (status.equals(ApplyStatus.I) || status.equals(ApplyStatus.Y)) {
+				return ResultDto.builder()
+						.message(ErrorCode.ALREADY_APPLIED.getMessage())
+						.data(null)
+						.errorCode(ErrorCode.ALREADY_APPLIED.getCode())
+						.build();
+			}
+			// 상태가 'C' 또는 'N'인 경우, 상태를 'I'로 변경
+			else if (status.equals(ApplyStatus.C) || status.equals(ApplyStatus.N)) {
+				//상태값 제거하지말고 남기고
+				existingApply.modifyStatus(ApplyStatus.I);
+				applyRepository.save(existingApply);
+				return ApplyResponseDto.builder()
+						.contents("신청 완료")
+						.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+			}
+		} else {
+
+			if(findBoard.getHeadCount() <= groupsRepository.countByBoardId(findBoard.getId())){
+				return ResultDto.builder()
+						.message(ErrorCode.ALREADY_FULLED.getMessage())
+						.data(null)
+						.errorCode(ErrorCode.ALREADY_FULLED.getCode())
+						.build();
+			}
+
+			// 신청이 존재하지 않는 경우, 새로운 신청 추가
+			Apply newApply = Apply.builder()
+					.contents(applyRequestDto.getContents())
+					.status(ApplyStatus.I)
+					.user(findUser)
+					.board(findBoard)
 					.build();
+
+			applyRepository.save(newApply);
+
+			return ApplyResponseDto.builder()
+					.contents("신청 완료")
+					.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 		}
-
-		Apply newApply = Apply.builder()
-			.contents(applyRequestDto.getContents())
-			.status(ApplyStatus.I)
-			.build();
-
-		newApply.setUser(findUser);
-		newApply.setBoard(findBoard);
-
-		//todo 1.모임 테이블에 추가(상태값을 wait으로)
-		//유저랑, 보드, 상태값을 저장한다.
-		//기존에 없는지 확인을해야하지 않을까?
-		groupsService.groupsCreate(findUsers.get(), findBoards.get(), GroupsStatus.WAIT);
-
-		//todo 2. apply 추가
-		applyRepository.save(newApply);
-
-		return ApplyResponseDto.builder()
-			.contents("신청 완료")
-			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+		return ResultDto.builder()
+				.message("처리되지 않은 상태입니다.")
+				.data(null)
+				.errorCode("UNHANDLED_STATE")
+				.build();
 	}
+
+
+
 	public ResultDto<?> getApplyList(Long boardId,Long userId) {
 
 		//1.유저확인
 		boolean existUsers = usersRepository.existsById(userId);
 		if (!existUsers) {
 			return ResultDto.builder()
-					.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+					.message(ErrorCode.NOT_EXIST_USERS.getMessage())
 					.data(null)
-					.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+					.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
 					.build();
 		}
 		List<ApplyDto> result = new ArrayList<>();
@@ -246,8 +272,8 @@ public class ApplyService {
 		Apply apply = existApply.get();
 
 
-		boolean existUsers = usersRepository.existsById(userId);
-		if (!existUsers) {
+		Optional<Users> existUsers = usersRepository.findUsersById(userId);
+		if (!existUsers.isPresent()) {
 			return ResultDto.builder()
 				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
 				.data(null)
@@ -255,13 +281,23 @@ public class ApplyService {
 				.build();
 		}
 
+		Board findBoard = existApply.get().getBoard();
 
 		//반장인지 체크
-		if(existApply.get().getBoard().getUser().getId() != userId){
+		if(findBoard.getUser().getId() != userId){
 			return  ResultDto.builder()
 					.message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
 					.data(null)
 					.errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
+					.build();
+		}
+
+		//그룹인원을 찾아서 참여가 가능한지 조회
+		if(findBoard.getHeadCount() <= groupsRepository.countByBoardId(findBoard.getId())){
+			return ResultDto.builder()
+					.message(ErrorCode.ALREADY_FULLED.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.ALREADY_FULLED.getCode())
 					.build();
 		}
 
@@ -278,11 +314,9 @@ public class ApplyService {
 					.build();
 		}
 
-		Groups group = groupsOptional.get();
-
 		// 상태값을 GUEST로 변경
-		group.changeStatusToGuest();
-		//groupsRepository.save(group); // 변경된 상태를 저장
+		groupsService.groupsCreate(existUsers.get(), findBoard, GroupsStatus.GUEST);
+
 
 		return ApplyChangeResponseDto.builder()
 			.beforeStatus(ApplyStatus.I)
@@ -290,6 +324,7 @@ public class ApplyService {
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 	}
 
+	@Transactional
 	public ResultDto<?> cancelApply(Long applyId, Long userId) {
 
 		Optional<Apply> existApply = applyRepository.findById(applyId);
@@ -342,11 +377,8 @@ public class ApplyService {
 					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
 					.build();
 		}
-
-		//todo 그룹의 wait를 삭제, apply도 삭제.(이미 승인이 된거는 삭제 불가능)
-		//그럼 그룹은 삭제를 해야되는건가?
-		groupsRepository.delete(group); // 그룹 삭제
-		applyRepository.delete(apply);
+		apply.modifyStatus(ApplyStatus.C);
+		//applyRepository.delete(apply);
 
 		return ApplyChangeResponseDto.builder()
 			.beforeStatus(ApplyStatus.I)
@@ -354,41 +386,42 @@ public class ApplyService {
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 	}
 
-//	public ResultDto<?> rejectApply(Long boardId, Long userId) {
-//		boolean existUsers = usersRepository.existsById(userId);
-//		boolean existBoard = boardRepository.existsById(boardId);
-//
-//		if (!existUsers) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
-//				.build();
-//		}
-//
-//		if (!existBoard) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
-//				.build();
-//		}
-//
-//		Apply apply = applyRepository.getApplyByBoardIdAndUserId(boardId,userId);
-//
-//		if (apply == null) {
-//			return ResultDto.builder()
-//				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-//				.data(null)
-//				.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
-//				.build();
-//		}
-//
-//		apply.modifyStatus(ApplyStatus.N);
-//
-//		return ApplyChangeResponseDto.builder()
-//			.beforeStatus(ApplyStatus.I)
-//			.curStatus(ApplyStatus.N)
-//			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
-//	}
+	@Transactional
+	public ResultDto<?> rejectApply(Long applyId, Long userId) {
+		boolean existUsers = usersRepository.existsById(userId);
+
+		if (!existUsers) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+				.build();
+		}
+
+		Optional<Apply> existApply = applyRepository.findById(applyId);
+
+		if (!existApply.isPresent()) {
+			return ResultDto.builder()
+					.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
+					.build();
+		}
+		Apply apply = existApply.get();
+
+		if (apply.getStatus() == ApplyStatus.Y) {
+			return ResultDto.builder()
+					.message(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
+					.build();
+		}
+
+		apply.modifyStatus(ApplyStatus.N);
+
+		return ApplyChangeResponseDto.builder()
+			.beforeStatus(ApplyStatus.I)
+			.curStatus(ApplyStatus.N)
+			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+	}
 }

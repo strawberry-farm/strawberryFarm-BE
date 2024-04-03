@@ -17,19 +17,17 @@ import lombok.ToString;
 @ToString
 public class BoardRegisterRequestDTO {
 
-    //private Long userId; // 회원아이디
-    private String title; //제목
+    private String title; //제목 -
     private String contents; //내용
     private Long fieldId; //분야
     private Long headcount; //인원
-    private String location; //상세 장소
+    private String detail; //상세 장소
     private String latitude; //위도,경도
     private String longitude;
     private String days; // 요일
     private String times; //시간
-    private String question; //신청서
-    private String city; //도시
-    private String district; //시
-    private String b_code;
+    private List<String> question; // 신청서 질문 리스트
+    //private String question; //신청서
+    private String bcode;
     private List<String> tags; // 태그 리스트
 }
