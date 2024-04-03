@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,55 +27,55 @@ public class ApplyController {
 	@PostMapping("/board/apply/{boardId}")
 	public ResponseEntity<?> apply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		ApplyRequestDto applyRequestDto,
+		@RequestBody ApplyRequestDto applyRequestDto,
 		@PathVariable Long boardId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
 		return ResponseEntity.ok(applyService.apply(applyRequestDto,boardId,userId));
 	}
 
-	@GetMapping("/user/groups/applyList/{boardId}")
+	@GetMapping("/user/groups/applyList")
 	public ResponseEntity<?> getApplyList(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@RequestParam(required = false )Long boardId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
 		return ResponseEntity.ok(applyService.getApplyList(boardId,userId));
 	}
 
-	@GetMapping("/user/groups/apply/{boardId}")
+	@GetMapping("/user/groups/apply")
 	public ResponseEntity<?> getMyApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@RequestParam(required = false )Long boardId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
 		return ResponseEntity.ok(applyService.getMyApply(boardId, userId));
 	}
 
-	@DeleteMapping("/user/groups/apply/{boardId}")
+	@DeleteMapping("/user/groups/apply/{applyId}")
 	public ResponseEntity<?> cancelApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@PathVariable Long applyId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
-		return ResponseEntity.ok(applyService.cancelApply(boardId,userId));
+		return ResponseEntity.ok(applyService.cancelApply(applyId,userId));
 	}
 
-	@PatchMapping("/user/groups/apply/{boardId}/accept")
+	@PatchMapping("/user/groups/apply/{applyId}/accept")
 	public ResponseEntity<?> acceptApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@PathVariable Long applyId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
-		return ResponseEntity.ok(applyService.acceptApply(boardId,userId));
+		return ResponseEntity.ok(applyService.acceptApply(applyId,userId));
 	}
 
-	@PatchMapping("/user/groups/apply/{boardId}/reject")
+	@PatchMapping("/user/groups/apply/{applyId}/reject")
 	public ResponseEntity<?> rejectApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@PathVariable Long boardId) {
+		@PathVariable Long applyId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
 
-		return ResponseEntity.ok(applyService.rejectApply(boardId,userId));
+		return ResponseEntity.ok(applyService.rejectApply(applyId,userId));
 	}
  }

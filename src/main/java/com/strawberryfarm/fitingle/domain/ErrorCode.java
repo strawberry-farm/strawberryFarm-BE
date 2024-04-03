@@ -45,9 +45,17 @@ public enum ErrorCode {
 
     //Boards
     NOT_EXIST_BOARDS(400,"BO000","Not Exist Boards"),
+    NOT_OWNER_BOARDS(400,"BO001","Not Owner of Board"),
 
     //Apply
     NOT_EXIST_APPLY(200,"AP000","Not Exist Apply"),
+    NOT_APPLY_YOUR_BOARD(200,"AP001","Can't Apply Your Board"),
+    ALREADY_APPLIED(200,"AP002","Already Applied or Waiting"),
+
+    CANNOT_CANCEL_APPROVED_APPLY(200,"AP003","Already Approved Apply Cannot be Cancelled"),
+
+    ALREADY_FULLED(200,"AP004","Can't Apply , Group Is Fulled"),
+
 
     //Qna
     NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),
@@ -61,6 +69,9 @@ public enum ErrorCode {
     NOT_EXIST_WISH(400,"WI000","Not Exist Wish"),
     WISH_PERMISSION_DENIED(403,"WI001","Permission Denied for DeleteWish"),
     DUPLICATE_WISH(403,"WI002","Wish Already Exists"),
+
+    //Group
+    NOT_EXIST_GROUP(400,"GO000","Not Exist Group"),
 
 
 
