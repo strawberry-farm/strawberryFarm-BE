@@ -1,5 +1,6 @@
 package com.strawberryfarm.fitingle.domain.board.entity;
 
+import com.google.gson.Gson;
 import com.strawberryfarm.fitingle.domain.BaseEntity;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
@@ -93,11 +94,11 @@ public class Board extends BaseEntity {
     @Column(nullable = false)
     private Long headCount;
 
-    @Column(nullable = false)
-    private String city;
-
-    @Column(nullable = false)
-    private String district;
+//    @Column(nullable = false)
+//    private String city;
+//
+//    @Column(nullable = false)
+//    private String district;
 
     @Column(nullable = false)
     private String BCode;
@@ -137,14 +138,17 @@ public class Board extends BaseEntity {
         this.title = dto.getTitle();
         this.contents = dto.getContents();
         this.postStatus = PostStatus.Y; // 또는 dto에서 상태를 받아서 설정
-        this.city = dto.getCity();
-        this.district = dto.getDistrict();
+//        this.city = dto.getCity();
+//        this.district = dto.getDistrict();
+        List<String> questions = dto.getQuestion();
+        Gson gson = new Gson();
+        String jsonQuestions = gson.toJson(questions);
         this.headCount = dto.getHeadcount();
-        this.BCode = dto.getB_code();
-        this.location = dto.getLocation();
+        this.BCode = dto.getBcode();
+        this.location = dto.getDetail();
         this.latitude = dto.getLatitude();
         this.longitude = dto.getLongitude();
-        this.question = dto.getQuestion();
+        this.question = jsonQuestions;
         this.days = Days.valueOf(dto.getDays());
         this.times = Times.valueOf(dto.getTimes());
     }

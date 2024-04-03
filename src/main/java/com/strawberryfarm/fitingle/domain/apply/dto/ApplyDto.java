@@ -12,7 +12,11 @@ import lombok.experimental.SuperBuilder;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class ApplyDto extends BaseDto {
+	private Long applyId;
 	private String question;
 	private String contents;
 	private ApplyStatus status;
+	private String profileUrl;
+	private String nickName;
+	private String aboutMe;
 }

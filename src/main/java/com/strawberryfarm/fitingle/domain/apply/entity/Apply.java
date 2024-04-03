@@ -19,6 +19,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
 @Entity
@@ -26,6 +27,7 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "apply")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
+@ToString
 public class Apply extends BaseEntity {
 
     @Id
