@@ -17,28 +17,26 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/boards", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class WishController {
 
     private final WishService wishService;
 
-    @PostMapping("/wish")
+    @PostMapping("/boards/wish")
     public ResponseEntity<?> wishRegister(@RequestBody WishRegisterRequestDTO wishRegisterRequestDto,
                                           @AuthenticationPrincipal UserDetails userDetails) {
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(wishService.wishRegister(wishRegisterRequestDto, userId));
     }
 
-    @DeleteMapping("/wish/{wishId}")
+    @DeleteMapping("/boards/wish/{wishId}")
     public ResponseEntity<?> wishDelete(@PathVariable Long wishId,
                                         @AuthenticationPrincipal UserDetails userDetails){
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(wishService.wishDelete(wishId,userId));
     }
-
-    //todo 향후 위시리스트 보여줄 프론트 페이지 상의 후 반환 값 수정 필요! -> user 에서 처리하는건가?
-    @GetMapping("/wish")
+    @GetMapping("/user/wish")
     public ResponseEntity<?> wishGetList(@AuthenticationPrincipal UserDetails userDetails){
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(wishService.wishGetList(userId));
