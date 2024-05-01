@@ -46,6 +46,14 @@ public class BoardController {
     public ResponseEntity<?> boardRegister(@RequestParam(value = "images", required = false) List<MultipartFile> images,
                                            @RequestParam("data") String jsonData,
                                            @AuthenticationPrincipal UserDetails userDetails) {
+        if(images == null){
+            log.info("이미지가 없습니다.");
+        }else {
+            log.info("이미지가 있습니다");
+            log.info(images.toString());
+            log.info(images.get(0).getOriginalFilename());
+        }
+
         ObjectMapper mapper = new ObjectMapper();
         BoardRegisterRequestDTO boardRegisterRequestDto;
         try {
