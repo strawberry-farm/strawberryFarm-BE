@@ -1,5 +1,7 @@
 package com.strawberryfarm.fitingle.domain.board.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.service.BoardService;
@@ -32,13 +34,29 @@ public class BoardController {
 
     private final BoardService boardService;
 
+//    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<?> boardRegister(@RequestParam("images") List<MultipartFile> images,
+//                                           @ModelAttribute BoardRegisterRequestDTO boardRegisterRequestDto,
+//                                           @AuthenticationPrincipal UserDetails userDetails) {
+//          Long userId = Long.parseLong(userDetails.getUsername());
+//        return ResponseEntity.ok(boardService.boardRegister(boardRegisterRequestDto,images,userId));
+//    }
+
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> boardRegister(@RequestParam("images") List<MultipartFile> images,
-                                           @ModelAttribute BoardRegisterRequestDTO boardRegisterRequestDto,
+                                           @RequestParam("data") String jsonData,
                                            @AuthenticationPrincipal UserDetails userDetails) {
+        ObjectMapper mapper = new ObjectMapper();
+        BoardRegisterRequestDTO boardRegisterRequestDto;
+        try {
+            boardRegisterRequestDto = mapper.readValue(jsonData, BoardRegisterRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Invalid JSON data");
+        }
         Long userId = Long.parseLong(userDetails.getUsername());
         return ResponseEntity.ok(boardService.boardRegister(boardRegisterRequestDto,images,userId));
     }
+
     @PutMapping(value = "/{boardsId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
                                          @RequestParam("images") List<MultipartFile> images,
