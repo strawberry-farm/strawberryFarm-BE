@@ -42,8 +42,8 @@ public class BoardController {
 //        return ResponseEntity.ok(boardService.boardRegister(boardRegisterRequestDto,images,userId));
 //    }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> boardRegister(@RequestParam("images") List<MultipartFile> images,
+    @PostMapping
+    public ResponseEntity<?> boardRegister(@RequestParam(value = "images", required = false) List<MultipartFile> images,
                                            @RequestParam("data") String jsonData,
                                            @AuthenticationPrincipal UserDetails userDetails) {
         ObjectMapper mapper = new ObjectMapper();
