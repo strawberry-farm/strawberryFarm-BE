@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Slf4j
-@RequestMapping(value = "/boards", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/boards")
 @RequiredArgsConstructor
 @Tag(name = "Board", description = "Board API")
 public class BoardController {
