@@ -27,8 +27,6 @@ public class BoardUpdateRequestDTO {
     private String days; // 요일
     private String times; //시간
     private List<String> question; //신청서
-//    private String city; //도시
-//    private String district; //시
     private String bcode; // 지역코드 5자리
     private List<String> tags; // 태그 리스트
 }
