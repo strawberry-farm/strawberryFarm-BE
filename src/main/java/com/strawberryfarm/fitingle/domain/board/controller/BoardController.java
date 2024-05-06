@@ -43,16 +43,9 @@ public class BoardController {
 //    }
 
     @PostMapping
-    public ResponseEntity<?> boardRegister(@RequestParam(value = "images", required = false) List<MultipartFile> images,
+    public ResponseEntity<?> boardRegister(@RequestParam(value = "images") List<MultipartFile> images,
                                            @RequestParam("data") String jsonData,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-        if(images == null){
-            log.info("이미지가 없습니다.");
-        }else {
-            log.info("이미지가 있습니다");
-            log.info(images.toString());
-            log.info(images.get(0).getOriginalFilename());
-        }
 
         ObjectMapper mapper = new ObjectMapper();
         BoardRegisterRequestDTO boardRegisterRequestDto;
@@ -65,13 +58,32 @@ public class BoardController {
         return ResponseEntity.ok(boardService.boardRegister(boardRegisterRequestDto,images,userId));
     }
 
-    @PutMapping(value = "/{boardsId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    @PutMapping(value = "/{boardsId}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
+//                                         @RequestParam("images") List<MultipartFile> images,
+//                                         //이미지 url 또 따로 받음.
+//                                         @ModelAttribute BoardUpdateRequestDTO boardUpdateRequestDTO){
+//
+//        return ResponseEntity.ok(boardService.boardUpdate(boardsId, boardUpdateRequestDTO, images));
+//    }
+
+    @PutMapping(value = "/{boardsId}")
     public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
                                          @RequestParam("images") List<MultipartFile> images,
-                                         //이미지 url 또 따로 받음.
-                                         @ModelAttribute BoardUpdateRequestDTO boardUpdateRequestDTO){
-        return ResponseEntity.ok(boardService.boardUpdate(boardsId, boardUpdateRequestDTO, images));
+                                         @RequestParam("data") String jsonData,
+                                         @AuthenticationPrincipal UserDetails userDetails){
+
+        ObjectMapper mapper = new ObjectMapper();
+        BoardUpdateRequestDTO boardUpdateRequestDTO;
+        try {
+            boardUpdateRequestDTO = mapper.readValue(jsonData, BoardUpdateRequestDTO.class);
+        } catch (JsonProcessingException e) {
+            return ResponseEntity.badRequest().body("Invalid JSON data");
+        }
+        Long userId = Long.parseLong(userDetails.getUsername());
+        return ResponseEntity.ok(boardService.boardUpdate(boardsId, boardUpdateRequestDTO, images,userId));
     }
+
     @GetMapping("/{boardsId}")
     public ResponseEntity<?> boardDetail(@AuthenticationPrincipal UserDetails userDetails,@PathVariable Long boardsId){
 
