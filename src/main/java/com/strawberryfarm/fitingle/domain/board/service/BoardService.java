@@ -165,7 +165,19 @@ public class BoardService {
     @Transactional
     public ResultDto<BoardUpdateResponseDTO> boardUpdate(Long boardsId,
                                                          BoardUpdateRequestDTO boardUpdateRequestDTO,
-                                                         List<MultipartFile> updatedImages) {
+                                                         List<MultipartFile> updatedImages,
+                                                         Long userId) {
+
+        //기존 회원 엔티티 찾기
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+
         // 기존 Board 엔티티 찾기
         Optional<Board> boardOptional = boardRepository.findById(boardsId);
         if (!boardOptional.isPresent()) {
