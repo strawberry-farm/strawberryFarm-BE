@@ -2,6 +2,8 @@ package com.strawberryfarm.fitingle.domain.board.controller;
 
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
+import com.strawberryfarm.fitingle.domain.board.entity.Days;
+import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.board.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -60,25 +62,27 @@ public class BoardController {
 
     @GetMapping("/search")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
-    public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam("keyword") String keyword, @RequestParam("page") int page,
-        @RequestParam("size") int size) {
-//        StopWatch stopWatch = new StopWatch();
-//        stopWatch.start();
+//    public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
+    public ResponseEntity<?> boardSearch(
+        @RequestParam("keyword") String keyword,
+        @RequestParam(value = "days", required = false) Days days,
+        @RequestParam(value = "times", required = false) Times times,
+        @RequestParam("page") int page, @RequestParam("size") int size) {
 
-        Long userId = Long.parseLong(userDetails.getUsername());
+//        Long userId = Long.parseLong(userDetails.getUsername());
+        Long userId = 1L;
 
-//        stopWatch.stop();
-//        System.out.println(stopWatch.prettyPrint());
-
-        return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
+        return ResponseEntity.ok(
+            boardService.boardSearch(userId, keyword, days, times, page, size));
     }
 
     @GetMapping("/search/non-user")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
     public ResponseEntity<?> boardSearchNonUser(@RequestParam("keyword") String keyword,
+        @RequestParam(value = "days", required = false) Days days,
+        @RequestParam(value = "times", required = false) Times times,
         @RequestParam("page") int page, @RequestParam("size") int size) {
-        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, page, size));
+        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, days, times, page, size));
     }
 
     @PostMapping("/test")

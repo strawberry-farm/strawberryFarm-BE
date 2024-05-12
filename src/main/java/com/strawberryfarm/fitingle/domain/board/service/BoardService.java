@@ -6,10 +6,8 @@ import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchDTO;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchKeywordDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserResponseDto;
-import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchResponseDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateResponseDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.CommentDTO;
@@ -41,8 +39,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -384,17 +380,13 @@ public class BoardService {
 //                .build();
 //    }
 
-    public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
+    public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, Days days,
+        Times times, int page, int size) {
+        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, days,
+            times, page, size);
+        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, days, times);
 
-        long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
-        List<BoardSearchKeywordDto> boards = boardRepositoryCustom.boardSearchKeyword(userId, keyword, page, size);
-
-//        List<BoardSearchDTO> boards = boardRepository.boardSearch(userId, keyword, pageable);
-//        long totalCount = boardRepository.boardSearchTotalCount(userId, keyword);
-
-
-        BoardSearchResponseDto result = BoardSearchResponseDto.builder()
+        BoardSearchNonUserResponseDto result = BoardSearchNonUserResponseDto.builder()
             .totalCount(totalCount)
             .boards(boards)
             .build();
@@ -407,10 +399,12 @@ public class BoardService {
         return response;
     }
 
-    public ResultDto<List<BoardSearchNonUserResponseDto>> boardSearchNonUser(String keyword, int page, int size) {
+    public ResultDto<List<BoardSearchNonUserResponseDto>> boardSearchNonUser(String keyword,
+        Days days, Times times, int page, int size) {
 
-        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, page, size);
-        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword);
+        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, days,
+            times, page, size);
+        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, days, times);
 
         BoardSearchNonUserResponseDto result = BoardSearchNonUserResponseDto.builder()
             .totalCount(totalCount)
