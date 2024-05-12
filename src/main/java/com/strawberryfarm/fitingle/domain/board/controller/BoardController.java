@@ -13,12 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -100,15 +98,13 @@ public class BoardController {
 
     @GetMapping("/search")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
-//    public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
-    public ResponseEntity<?> boardSearch(
+    public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
         @RequestParam("keyword") String keyword,
         @RequestParam(value = "days", required = false) Days days,
         @RequestParam(value = "times", required = false) Times times,
         @RequestParam("page") int page, @RequestParam("size") int size) {
 
-//        Long userId = Long.parseLong(userDetails.getUsername());
-        Long userId = 1L;
+        Long userId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
             boardService.boardSearch(userId, keyword, days, times, page, size));
