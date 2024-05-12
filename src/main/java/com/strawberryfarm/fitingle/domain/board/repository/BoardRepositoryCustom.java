@@ -3,12 +3,15 @@ package com.strawberryfarm.fitingle.domain.board.repository;
 import static com.strawberryfarm.fitingle.domain.board.entity.QBoard.board;
 import static com.strawberryfarm.fitingle.domain.field.entity.QField.field;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchKeywordDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserDto;
 import com.strawberryfarm.fitingle.domain.board.dto.QBoardSearchNonUserDto;
+import com.strawberryfarm.fitingle.domain.board.entity.Days;
+import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -44,10 +47,19 @@ public class BoardRepositoryCustom {
             .fetch();
     }
 
-    public List<BoardSearchNonUserDto> boardSearchNonUser(String keyword, int page, int size) {
-
-        BooleanExpression keywordCondition = board.title.likeIgnoreCase("%" + keyword + "%")
-            .or(board.location.likeIgnoreCase("%" + keyword + "%"));
+    public List<BoardSearchNonUserDto> boardSearchNonUser(String keyword, Days days, Times times,
+        int page, int size) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (keyword != null && !keyword.equals("")) {
+            builder.and(board.title.likeIgnoreCase("%" + keyword + "%")
+                .or(board.location.likeIgnoreCase("%" + keyword + "%")));
+        }
+        if (days != null && !days.equals("")) {
+            builder.and(board.days.eq(days));
+        }
+        if (times != null && !times.equals("")) {
+            builder.and(board.times.eq(times));
+        }
 
         return queryFactory
             .select(new QBoardSearchNonUserDto(
@@ -61,22 +73,30 @@ public class BoardRepositoryCustom {
                 board.postStatus
             ))
             .from(board)
-            .where(keywordCondition)
+            .where(builder)
             .orderBy(board.id.desc())
             .offset(page - 1)
             .limit(size)
             .fetch();
     }
 
-    public long boardSearchNonUserTotalCount(String keyword) {
-
-        BooleanExpression keywordCondition = board.title.likeIgnoreCase("%" + keyword + "%")
-            .or(board.location.likeIgnoreCase("%" + keyword + "%"));
+    public long boardSearchNonUserTotalCount(String keyword, Days days, Times times) {
+        BooleanBuilder builder = new BooleanBuilder();
+        if (keyword != null && !keyword.equals("")) {
+            builder.and(board.title.likeIgnoreCase("%" + keyword + "%")
+                .or(board.location.likeIgnoreCase("%" + keyword + "%")));
+        }
+        if (days != null && !days.equals("")) {
+            builder.and(board.days.eq(days));
+        }
+        if (times != null && !times.equals("")) {
+            builder.and(board.times.eq(times));
+        }
 
         return queryFactory
             .select(board)
             .from(board)
-            .where(keywordCondition)
+            .where(builder)
             .fetchCount();
     }
 
