@@ -61,4 +61,12 @@ public class Groups extends BaseEntity {
             board.getGroups().add(this);
         }
     }
+
+    public void changeStatusToWait(){
+       this.status = GroupsStatus.WAIT;
+    }
+    public void changeStatusToGuest(){
+        this.status = GroupsStatus.GUEST;
+    }
+
 }
