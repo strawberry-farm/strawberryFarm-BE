@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardRegisterRequestDTO;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardUpdateRequestDTO;
+import com.strawberryfarm.fitingle.domain.board.entity.Days;
+import com.strawberryfarm.fitingle.domain.board.entity.Times;
 import com.strawberryfarm.fitingle.domain.board.service.BoardService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,12 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -99,24 +99,24 @@ public class BoardController {
     @GetMapping("/search")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
     public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
-        @RequestParam("keyword") String keyword, @RequestParam("page") int page,
-        @RequestParam("size") int size) {
-//        StopWatch stopWatch = new StopWatch();
-//        stopWatch.start();
+        @RequestParam("keyword") String keyword,
+        @RequestParam(value = "days", required = false) Days days,
+        @RequestParam(value = "times", required = false) Times times,
+        @RequestParam("page") int page, @RequestParam("size") int size) {
 
         Long userId = Long.parseLong(userDetails.getUsername());
 
-//        stopWatch.stop();
-//        System.out.println(stopWatch.prettyPrint());
-
-        return ResponseEntity.ok(boardService.boardSearch(userId, keyword, page, size));
+        return ResponseEntity.ok(
+            boardService.boardSearch(userId, keyword, days, times, page, size));
     }
 
     @GetMapping("/search/non-user")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
     public ResponseEntity<?> boardSearchNonUser(@RequestParam("keyword") String keyword,
+        @RequestParam(value = "days", required = false) Days days,
+        @RequestParam(value = "times", required = false) Times times,
         @RequestParam("page") int page, @RequestParam("size") int size) {
-        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, page, size));
+        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, days, times, page, size));
     }
 
     @PostMapping("/test")
