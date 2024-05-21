@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.board.service;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
@@ -63,6 +64,8 @@ public class BoardService {
 
     private final GroupsService groupsService;
 
+    private final Gson gson = new Gson();
+
 
     //BOARDS 등록
     @Transactional
@@ -81,8 +84,14 @@ public class BoardService {
         }
 
         List<String> questions = boardRegisterRequestDTO.getQuestion();
-        Gson gson = new Gson();
+
         String jsonQuestions = gson.toJson(questions);
+
+        // bcode 처리: 입력받은 bcode가 5자리보다 길 경우, 앞에서 5자리만 사용
+        String bcode = boardRegisterRequestDTO.getBcode();
+        if (bcode != null && bcode.length() > 5) {
+            bcode = bcode.substring(0, 5);
+        }
 
         Board board = Board.builder()
                 .user(userOptional.get())
@@ -90,7 +99,7 @@ public class BoardService {
                 .postStatus(PostStatus.Y)
                 .contents(boardRegisterRequestDTO.getContents())
                 .headCount(boardRegisterRequestDTO.getHeadcount())
-                .BCode(boardRegisterRequestDTO.getBcode())
+                .BCode(bcode)
                 .location(boardRegisterRequestDTO.getDetail())
                 .latitude(boardRegisterRequestDTO.getLatitude())
                 .longitude(boardRegisterRequestDTO.getLongitude())
@@ -283,6 +292,10 @@ public class BoardService {
                 .map(qna -> convertToQnaDto(qna, userId, isOwner))
                 .collect(Collectors.toList());
 
+        // JSON 문자열에서 List<String>으로 변환
+        List<String> questions = gson.fromJson(board.getQuestion(), new TypeToken<List<String>>(){}.getType());
+
+
         BoardDetailResponseDTO boardDetailResponseDTO = BoardDetailResponseDTO.builder()
                 .boardId(board.getId())
                 .nickname(nickname)
@@ -290,15 +303,14 @@ public class BoardService {
                 .contents(board.getContents())
                 .headcount(board.getHeadCount())
                 .title(board.getTitle())
-//                .city(board.getCity())
-//                .district(board.getDistrict())
-                .b_code(board.getBCode())
-                .location(board.getLocation())
+                .bcode(board.getBCode())
+                .detail(board.getLocation())
                 .latitude(board.getLatitude())
                 .longitude(board.getLongitude())
-                .question(board.getQuestion())
+                .question(questions)
                 .days(board.getDays().toString())
                 .times(board.getTimes().toString())
+                .profile(board.getUser().getProfileImageUrl())
                 .isOwner(isOwner)
                 .wishState(wishState)
                 .wishId(wishId)

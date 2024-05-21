@@ -40,7 +40,6 @@ public class ApplyService {
 
 	private final GroupsRepository groupsRepository;
 
-
 	@Transactional
 	public ResultDto<?> apply(ApplyRequestDto applyRequestDto, Long boardId, Long userId) {
 		Optional<Users> findUsers = usersRepository.findUsersById(userId);
@@ -128,6 +127,38 @@ public class ApplyService {
 	}
 
 
+	public ResultDto<?> getApplyList(Long userId) {
+		//1.유저확인
+		boolean existUsers = usersRepository.existsById(userId);
+		if (!existUsers) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+				.build();
+		}
+		List<ApplyDto> result = new ArrayList<>();
+
+		//2.보드 id null -> 전체 조회
+		List<Board> ownedBoards = boardRepository.findByUserId(userId); // 사용자가 소유한 모든 게시판 조회
+		for (Board board : ownedBoards) {
+			List<Apply> applyList = applyRepository.findByBoardId(board.getId());
+			applyListToApplyDtoList(board, applyList, result);
+		}
+
+		//4.값이 비어있을때.
+		if(result.isEmpty()){
+			return ResultDto.builder()
+				.message(ErrorCode.SUCCESS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.SUCCESS.getCode())
+				.build();
+		}
+		return ApplyListResponseDto.builder()
+			.applyList(result)
+			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+	}
+
 
 	public ResultDto<?> getApplyList(Long boardId,Long userId) {
 
@@ -142,27 +173,19 @@ public class ApplyService {
 		}
 		List<ApplyDto> result = new ArrayList<>();
 
-		//2.보드 id null -> 전체 조회
-		if (boardId == null) {
-			List<Board> ownedBoards = boardRepository.findByUserId(userId); // 사용자가 소유한 모든 게시판 조회
-			for (Board board : ownedBoards) {
-				List<Apply> applyList = applyRepository.findByBoardId(board.getId());
-				applyListToApplyDtoList(board, applyList, result);
-			}
-
 		//3.보드 아이디가 있을때.
-		}else{
-			Optional<Board> findBoard = boardRepository.findByIdAndUserId(boardId,userId);;
-			if (!findBoard.isPresent()) {
-				return ResultDto.builder()
-						.message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
-						.data(null)
-						.errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
-						.build();
-			}
-			List<Apply> applyList = applyRepository.findByBoardId(boardId);
-			applyListToApplyDtoList(findBoard.get(), applyList, result);
+		Optional<Board> findBoard = boardRepository.findByIdAndUserId(boardId, userId);
+
+		if (!findBoard.isPresent()) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
+				.build();
 		}
+		List<Apply> applyList = applyRepository.findByBoardId(boardId);
+		applyListToApplyDtoList(findBoard.get(), applyList, result);
+
 		//4.값이 비어있을때.
 		if(result.isEmpty()){
 			return ResultDto.builder()
@@ -201,6 +224,39 @@ public class ApplyService {
 				.question(apply.getBoard().getQuestion())
 				.build();
 	}
+
+	public ResultDto<?> getMyApply(Long userId) {
+		// 1.사용자 존재 여부 확인
+		if (!usersRepository.existsById(userId)) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_USERS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+				.build();
+		}
+
+		List<ApplyDto> result = new ArrayList<>();
+
+		// 2.boardId가 null인 경우: 사용자가 신청한 모든 게시물 조회
+		List<Apply> applyList = applyRepository.findByUserId(userId);
+		for (Apply apply : applyList) {
+			// 각 Apply에 대응하는 Board 정보를 함수에 전달
+			applyListToApplyDtoList(apply.getBoard(), Collections.singletonList(apply), result);
+		}
+
+		//4.결과 비어있는경우
+		if (result.isEmpty()) {
+			return ResultDto.builder()
+				.message(ErrorCode.SUCCESS.getMessage())
+				.data("null")
+				.errorCode(ErrorCode.SUCCESS.getCode())
+				.build();
+		}
+		return ApplyListResponseDto.builder()
+			.applyList(result)
+			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
+	}
+
 	public ResultDto<?> getMyApply(Long boardId, Long userId) {
 		// 1.사용자 존재 여부 확인
 		if (!usersRepository.existsById(userId)) {
@@ -213,35 +269,27 @@ public class ApplyService {
 
 		List<ApplyDto> result = new ArrayList<>();
 
-		// 2.boardId가 null인 경우: 사용자가 신청한 모든 게시물 조회
-		if (boardId == null) {
-			List<Apply> applyList = applyRepository.findByUserId(userId);
-			for (Apply apply : applyList) {
-				// 각 Apply에 대응하는 Board 정보를 함수에 전달
-				applyListToApplyDtoList(apply.getBoard(), Collections.singletonList(apply), result);
-			}
-		} else {
-			// 3.boardId가 제공된 경우
-			Optional<Board> boardOptional = boardRepository.findById(boardId);
-			if (!boardOptional.isPresent()) {
-				return ResultDto.builder()
-						.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
-						.data(null)
-						.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
-						.build();
-			}
-			Board board = boardOptional.get();
-			Optional<Apply> applyOptional = applyRepository.findByUserIdAndBoardId(userId, boardId);
-			if (!applyOptional.isPresent()) {
-				return ResultDto.builder()
-						.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
-						.data(null)
-						.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
-						.build();
-			}
-			List<Apply> applyList = Collections.singletonList(applyOptional.get());
-			applyListToApplyDtoList(board, applyList, result);
+		// 3.boardId가 제공된 경우
+		Optional<Board> boardOptional = boardRepository.findById(boardId);
+		if (!boardOptional.isPresent()) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+				.build();
 		}
+		Board board = boardOptional.get();
+		Optional<Apply> applyOptional = applyRepository.findByUserIdAndBoardId(userId, boardId);
+		if (!applyOptional.isPresent()) {
+			return ResultDto.builder()
+				.message(ErrorCode.NOT_EXIST_APPLY.getMessage())
+				.data(null)
+				.errorCode(ErrorCode.NOT_EXIST_APPLY.getCode())
+				.build();
+		}
+		List<Apply> applyList = Collections.singletonList(applyOptional.get());
+		applyListToApplyDtoList(board, applyList, result);
+
 		//4.결과 비어있는경우
 		if (result.isEmpty()) {
 			return ResultDto.builder()
@@ -358,25 +406,27 @@ public class ApplyService {
 		}
 
 		Long boardId = apply.getBoard().getId();
-		Optional<Groups> groupOptional = groupsRepository.findByUserIdAndBoardId(userId, boardId);
 
-		if (!groupOptional.isPresent()) {
-			return ResultDto.builder()
-					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
-					.data(null)
-					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode()) // 적절한 에러 코드 사용
-					.build();
-		}
-
-		Groups group = groupOptional.get();
-
-		if (group.getStatus() == GroupsStatus.GUEST) {
-			return ResultDto.builder()
-					.message(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getMessage())
-					.data(null)
-					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
-					.build();
-		}
+		// 현재 신청이 수락되지 않은 것을 취소하는 거임, 즉 아직 group이 만들어지지 않음
+		// grup을 채크할 필요가 없음
+//		Optional<Groups> groupOptional = groupsRepository.findByUserIdAndBoardId(userId, boardId);
+//		if (!groupOptional.isPresent()) {
+//			return ResultDto.builder()
+//					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
+//					.data(null)
+//					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode()) // 적절한 에러 코드 사용
+//					.build();
+//		}
+//
+//		Groups group = groupOptional.get();
+//
+//		if (group.getStatus() == GroupsStatus.GUEST) {
+//			return ResultDto.builder()
+//					.message(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getMessage())
+//					.data(null)
+//					.errorCode(ErrorCode.CANNOT_CANCEL_APPROVED_APPLY.getCode())
+//					.build();
+//		}
 		apply.modifyStatus(ApplyStatus.C);
 		//applyRepository.delete(apply);
 
