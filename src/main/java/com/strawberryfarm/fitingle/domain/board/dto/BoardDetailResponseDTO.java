@@ -25,22 +25,30 @@ import lombok.ToString;
 @Setter
 public class BoardDetailResponseDTO extends BaseDto {
 
+//    private String detail; //상세 장소
+//    private List<String> question; // 신청서 질문 리스트
+//    //private String question; //신청서
+
     //board 정보
     private Long boardId;
     private String title;
     private String status;
     private String contents;
     private Long headcount;
-    private String city;
-    private String district;
-    private String b_code;
-    private String location;
+
+//    private String city;
+//    private String district;
+    private String bcode;
+    private String detail;
     private String latitude;
     private String longitude;
-    private String question;
+    //question = 배열로
+    private List<String> question;
     private String days;
     private String times;
     private boolean isOwner;
+
+    private String profile;
 
     //=======추가 데이터=======
     //user 정보
