@@ -373,6 +373,45 @@ public class BoardService {
                 .contents(canViewComment ? comment.getContents() : "비공개 글 입니다.")
                 .build();
     }
+    @Transactional
+    public ResultDto<?> boardDelete(Long boardId, Long userId) {
+
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<BoardRegisterResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+
+        Optional<Board> boardOptional = boardRepository.findById(boardId);
+        if (!boardOptional.isPresent()) {
+            return ResultDto.builder()
+                    .message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+                    .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+                    .build();
+        }
+
+        Board board = boardOptional.get();
+        // 게시글의 주인이 맞는지 확인
+        if (!board.getUser().getId().equals(userId)) {
+            return ResultDto.builder()
+                    .message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
+                    .errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
+                    .build();
+        }
+
+        // 게시글 삭제
+        boardRepository.delete(board);
+        return ResultDto.builder()
+                .message("success")
+                .data(null)
+                .errorCode("1111")
+                .build();
+    }
+
+
 
 //    //qna & comment 해당 데이터 없어서 db로 더미 넣어서 확인함.(수정건)
 //    private QnaDTO convertToQnaDto(Qna qna, Long userId, boolean isOwner) {
@@ -492,6 +531,8 @@ public class BoardService {
 
         return response;
     }
+
+
 }
 
 
