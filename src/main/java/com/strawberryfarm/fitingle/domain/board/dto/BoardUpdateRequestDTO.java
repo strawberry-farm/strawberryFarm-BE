@@ -29,4 +29,5 @@ public class BoardUpdateRequestDTO {
     private List<String> question; //신청서
     private String bcode; // 지역코드 5자리
     private List<String> tags; // 태그 리스트
+    private String addr;
 }
