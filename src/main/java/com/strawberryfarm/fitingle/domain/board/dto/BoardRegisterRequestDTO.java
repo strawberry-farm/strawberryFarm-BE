@@ -28,6 +28,7 @@ public class BoardRegisterRequestDTO {
     private String times; //시간
     private List<String> question; // 신청서 질문 리스트
     //private String question; //신청서
+    private String addr;
     private String bcode;
     private List<String> tags; // 태그 리스트
     private String city;

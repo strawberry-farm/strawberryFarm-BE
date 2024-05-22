@@ -105,6 +105,8 @@ public class Board extends BaseEntity {
 
     private String location;
 
+    private String addr;
+
     @Column(nullable = false)
     private String latitude;
 
@@ -138,13 +140,12 @@ public class Board extends BaseEntity {
         this.title = dto.getTitle();
         this.contents = dto.getContents();
         this.postStatus = PostStatus.Y; // 또는 dto에서 상태를 받아서 설정
-//        this.city = dto.getCity();
-//        this.district = dto.getDistrict();
         List<String> questions = dto.getQuestion();
         Gson gson = new Gson();
         String jsonQuestions = gson.toJson(questions);
         this.headCount = dto.getHeadcount();
         this.BCode = dto.getBcode();
+        this.addr = dto.getAddr();
         this.location = dto.getDetail();
         this.latitude = dto.getLatitude();
         this.longitude = dto.getLongitude();

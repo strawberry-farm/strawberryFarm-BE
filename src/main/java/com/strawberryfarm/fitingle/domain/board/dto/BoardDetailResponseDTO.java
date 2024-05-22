@@ -48,6 +48,8 @@ public class BoardDetailResponseDTO extends BaseDto {
     private String times;
     private boolean isOwner;
 
+    private String addr;
+
     private String profile;
 
     //=======추가 데이터=======
