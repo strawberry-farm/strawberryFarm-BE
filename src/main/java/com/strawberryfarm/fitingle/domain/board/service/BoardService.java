@@ -37,6 +37,7 @@ import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import com.strawberryfarm.fitingle.domain.wish.repository.WishRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.utils.S3Manager;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -168,7 +169,7 @@ public class BoardService {
     }
 
     //BOARDS 업데이트
-    @Transactional
+   /* @Transactional
     public ResultDto<BoardUpdateResponseDTO> boardUpdate(Long boardsId,
                                                          BoardUpdateRequestDTO boardUpdateRequestDTO,
                                                          List<MultipartFile> updatedImages,
@@ -248,11 +249,108 @@ public class BoardService {
                 .data(responseDTO)
                 .errorCode(ErrorCode.SUCCESS.getCode())
                 .build();
+    }*/
+    @Transactional
+    public ResultDto<BoardUpdateResponseDTO> boardUpdate(Long boardsId,
+                                                         BoardUpdateRequestDTO boardUpdateRequestDTO,
+                                                         List<MultipartFile> updatedImages,
+                                                         Long userId) {
+
+        //기존 회원 엔티티 찾기
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+
+        // 기존 Board 엔티티 찾기
+        Optional<Board> boardOptional = boardRepository.findById(boardsId);
+        if (!boardOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+                    .build();
+        }
+
+        //Board 엔티티의 필드 업데이트 (연관관계 엔티티 제외)
+        boardOptional.get().updateBoard(boardUpdateRequestDTO);
+
+        // 필드 찾기&업데이트
+        Optional<Field> fieldOptional = fieldRepository.findById(boardUpdateRequestDTO.getFieldId());
+        if (!fieldOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_FIELD.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_FIELD.getCode())
+                    .build();
+        }
+
+        boardOptional.get().addField(fieldOptional.get());
+
+        // 기존 태그 제거 및 새 태그 추가
+        boardOptional.get().clearTags(); // 기존 태그 제거
+        boardUpdateRequestDTO.getTags().forEach(tagName -> {
+            Tag tag = Tag.builder()
+                    .contents(tagName)
+                    .build();
+            boardOptional.get().addTag(tag);
+        });
+
+        List<String> urlsToKeep = Optional.ofNullable(boardUpdateRequestDTO.getImg()).orElse(Collections.emptyList());
+        // S3에서 불필요한 이미지 파일 삭제
+        boardOptional.get().getImages().forEach(image -> {
+           // System.out.println("Checking image URL for deletion: " + image.getImageUrl());
+            if (!urlsToKeep.contains(image.getImageUrl())) {
+                s3Manager.deleteFileFromS3(image.getImageUrl());
+            }
+        });
+
+        // 이미지 처리: 기존 이미지 중 DTO에서 제공된 리스트에 없는 이미지만 삭제
+        boardOptional.get().getImages().removeIf(image -> !urlsToKeep.contains(image.getImageUrl()));
+
+
+
+
+        // 새 이미지 업로드 및 이미지 추가
+        if (updatedImages != null && !updatedImages.isEmpty()) { // 새 이미지가 제공되었는지 확인
+            updatedImages.forEach(file -> {
+                String uploadedUrl = s3Manager.uploadFileToS3(file, "boards/");
+                if (!urlsToKeep.contains(uploadedUrl)) {
+                    Image newImage = Image.builder()
+                            .imageUrl(uploadedUrl)
+                            .build();
+                    boardOptional.get().addImage(newImage);
+                }
+            });
+        }
+
+        // 게시물 저장
+        Board savedBoard = boardRepository.save(boardOptional.get());
+
+        // 응답 DTO 생성 및 반환
+        BoardUpdateResponseDTO responseDTO = BoardUpdateResponseDTO.builder()
+                .boardsId(savedBoard.getId())
+                .title(savedBoard.getTitle())
+                .createdDate(savedBoard.getCreatedDate())
+                .updateDate(savedBoard.getUpdateDate())
+                .build();
+
+        return ResultDto.<BoardUpdateResponseDTO>builder()
+                .message(ErrorCode.SUCCESS.getMessage())
+                .data(responseDTO)
+                .errorCode(ErrorCode.SUCCESS.getCode())
+                .build();
     }
+
 
     //Boards 상세보기
     @Transactional(readOnly = true)
     public ResultDto<BoardDetailResponseDTO> boardDetail(Long boardsId, Long userId) {
+
         Optional<Board> boardOptional = boardRepository.findById(boardsId);
         if (!boardOptional.isPresent()) {
             return ResultDto.<BoardDetailResponseDTO>builder()
@@ -261,6 +359,7 @@ public class BoardService {
                     .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
                     .build();
         }
+
 
         Board board = boardOptional.get();
         boolean isOwner = (userId != null && board.getUser() != null && userId.equals(board.getUser().getId()));

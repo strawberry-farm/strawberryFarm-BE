@@ -70,7 +70,7 @@ public class BoardController {
 
     @PutMapping(value = "/{boardsId}")
     public ResponseEntity<?> boardUpdate(@PathVariable Long boardsId,
-                                         @RequestParam("images") List<MultipartFile> images,
+                                         @RequestParam(value = "images", required = false) List<MultipartFile> images, // 이미지가 선택적
                                          @RequestParam("data") String jsonData,
                                          @AuthenticationPrincipal UserDetails userDetails){
 
