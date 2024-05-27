@@ -99,6 +99,7 @@ public class BoardController {
     @GetMapping("/search")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
     public ResponseEntity<?> boardSearch(@AuthenticationPrincipal UserDetails userDetails,
+        @RequestParam("BCode") String BCode,
         @RequestParam("keyword") String keyword,
         @RequestParam(value = "days", required = false) Days days,
         @RequestParam(value = "times", required = false) Times times,
@@ -107,16 +108,17 @@ public class BoardController {
         Long userId = Long.parseLong(userDetails.getUsername());
 
         return ResponseEntity.ok(
-            boardService.boardSearch(userId, keyword, days, times, page, size));
+            boardService.boardSearch(userId, keyword, BCode, days, times, page, size));
     }
 
     @GetMapping("/search/non-user")
     @Operation(summary = "게시물 검색", description = "게시물 검색 api")
     public ResponseEntity<?> boardSearchNonUser(@RequestParam("keyword") String keyword,
+        @RequestParam("BCode") String BCode,
         @RequestParam(value = "days", required = false) Days days,
         @RequestParam(value = "times", required = false) Times times,
         @RequestParam("page") int page, @RequestParam("size") int size) {
-        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, days, times, page, size));
+        return ResponseEntity.ok(boardService.boardSearchNonUser(keyword, BCode, days, times, page, size));
     }
 
     @PostMapping("/test")

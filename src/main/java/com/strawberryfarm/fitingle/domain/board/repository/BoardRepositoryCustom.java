@@ -47,8 +47,8 @@ public class BoardRepositoryCustom {
             .fetch();
     }
 
-    public List<BoardSearchNonUserDto> boardSearchNonUser(String keyword, Days days, Times times,
-        int page, int size) {
+    public List<BoardSearchNonUserDto> boardSearchNonUser(String keyword, String BCode, Days days,
+        Times times, int page, int size) {
         BooleanBuilder builder = new BooleanBuilder();
         if (keyword != null && !keyword.equals("")) {
             builder.and(board.title.likeIgnoreCase("%" + keyword + "%")
@@ -59,6 +59,9 @@ public class BoardRepositoryCustom {
         }
         if (times != null && !times.equals("")) {
             builder.and(board.times.eq(times));
+        }
+        if (BCode != null && !BCode.equals("")) {
+            builder.and(board.BCode.eq(BCode));
         }
 
         return queryFactory
@@ -80,7 +83,7 @@ public class BoardRepositoryCustom {
             .fetch();
     }
 
-    public long boardSearchNonUserTotalCount(String keyword, Days days, Times times) {
+    public long boardSearchNonUserTotalCount(String keyword, String BCode, Days days, Times times) {
         BooleanBuilder builder = new BooleanBuilder();
         if (keyword != null && !keyword.equals("")) {
             builder.and(board.title.likeIgnoreCase("%" + keyword + "%")
@@ -91,6 +94,9 @@ public class BoardRepositoryCustom {
         }
         if (times != null && !times.equals("")) {
             builder.and(board.times.eq(times));
+        }
+        if (BCode != null && !BCode.equals("")) {
+            builder.and(board.BCode.eq(BCode));
         }
 
         return queryFactory
