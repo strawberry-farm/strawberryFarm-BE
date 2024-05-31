@@ -68,17 +68,23 @@ public class S3Manager {
 
     //S3에서 해당 URL 맞는 객체 삭제
     public void deleteFileFromS3(String fileUrl) {
+        //System.out.println("Attempting to delete file from S3: " + fileUrl);
         try {
             String fileName = fileUrl.substring(s3BaseUrl.length());
+           // System.out.println("Resolved file name: " + fileName);
+
             DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fileName)
                     .build();
             s3Client.deleteObject(deleteObjectRequest);
+            //System.out.println("File deleted successfully");
         } catch (Exception e) {
+            //System.err.println("Error deleting file from S3: " + e.getMessage());
             throw new RuntimeException("S3 파일 삭제 실패", e);
         }
     }
+
 
     //URL을 생성 메소드
     public String getFileUrl(String fileName) {

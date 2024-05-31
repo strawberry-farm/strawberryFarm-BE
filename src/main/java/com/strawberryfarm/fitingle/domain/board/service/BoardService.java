@@ -1,6 +1,7 @@
 package com.strawberryfarm.fitingle.domain.board.service;
 
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.strawberryfarm.fitingle.annotation.Trace;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardDetailResponseDTO;
@@ -36,6 +37,7 @@ import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
 import com.strawberryfarm.fitingle.domain.wish.repository.WishRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import com.strawberryfarm.fitingle.utils.S3Manager;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -63,6 +65,8 @@ public class BoardService {
 
     private final GroupsService groupsService;
 
+    private final Gson gson = new Gson();
+
 
     //BOARDS 등록
     @Transactional
@@ -81,8 +85,14 @@ public class BoardService {
         }
 
         List<String> questions = boardRegisterRequestDTO.getQuestion();
-        Gson gson = new Gson();
+
         String jsonQuestions = gson.toJson(questions);
+
+        // bcode 처리: 입력받은 bcode가 5자리보다 길 경우, 앞에서 5자리만 사용
+        String bcode = boardRegisterRequestDTO.getBcode();
+        if (bcode != null && bcode.length() > 5) {
+            bcode = bcode.substring(0, 5);
+        }
 
         Board board = Board.builder()
                 .user(userOptional.get())
@@ -90,7 +100,8 @@ public class BoardService {
                 .postStatus(PostStatus.Y)
                 .contents(boardRegisterRequestDTO.getContents())
                 .headCount(boardRegisterRequestDTO.getHeadcount())
-                .BCode(boardRegisterRequestDTO.getBcode())
+                .BCode(bcode)
+                .addr(boardRegisterRequestDTO.getAddr())
                 .location(boardRegisterRequestDTO.getDetail())
                 .latitude(boardRegisterRequestDTO.getLatitude())
                 .longitude(boardRegisterRequestDTO.getLongitude())
@@ -158,7 +169,7 @@ public class BoardService {
     }
 
     //BOARDS 업데이트
-    @Transactional
+   /* @Transactional
     public ResultDto<BoardUpdateResponseDTO> boardUpdate(Long boardsId,
                                                          BoardUpdateRequestDTO boardUpdateRequestDTO,
                                                          List<MultipartFile> updatedImages,
@@ -238,11 +249,108 @@ public class BoardService {
                 .data(responseDTO)
                 .errorCode(ErrorCode.SUCCESS.getCode())
                 .build();
+    }*/
+    @Transactional
+    public ResultDto<BoardUpdateResponseDTO> boardUpdate(Long boardsId,
+                                                         BoardUpdateRequestDTO boardUpdateRequestDTO,
+                                                         List<MultipartFile> updatedImages,
+                                                         Long userId) {
+
+        //기존 회원 엔티티 찾기
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+
+        // 기존 Board 엔티티 찾기
+        Optional<Board> boardOptional = boardRepository.findById(boardsId);
+        if (!boardOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+                    .build();
+        }
+
+        //Board 엔티티의 필드 업데이트 (연관관계 엔티티 제외)
+        boardOptional.get().updateBoard(boardUpdateRequestDTO);
+
+        // 필드 찾기&업데이트
+        Optional<Field> fieldOptional = fieldRepository.findById(boardUpdateRequestDTO.getFieldId());
+        if (!fieldOptional.isPresent()) {
+            return ResultDto.<BoardUpdateResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_FIELD.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_FIELD.getCode())
+                    .build();
+        }
+
+        boardOptional.get().addField(fieldOptional.get());
+
+        // 기존 태그 제거 및 새 태그 추가
+        boardOptional.get().clearTags(); // 기존 태그 제거
+        boardUpdateRequestDTO.getTags().forEach(tagName -> {
+            Tag tag = Tag.builder()
+                    .contents(tagName)
+                    .build();
+            boardOptional.get().addTag(tag);
+        });
+
+        List<String> urlsToKeep = Optional.ofNullable(boardUpdateRequestDTO.getImg()).orElse(Collections.emptyList());
+        // S3에서 불필요한 이미지 파일 삭제
+        boardOptional.get().getImages().forEach(image -> {
+           // System.out.println("Checking image URL for deletion: " + image.getImageUrl());
+            if (!urlsToKeep.contains(image.getImageUrl())) {
+                s3Manager.deleteFileFromS3(image.getImageUrl());
+            }
+        });
+
+        // 이미지 처리: 기존 이미지 중 DTO에서 제공된 리스트에 없는 이미지만 삭제
+        boardOptional.get().getImages().removeIf(image -> !urlsToKeep.contains(image.getImageUrl()));
+
+
+
+
+        // 새 이미지 업로드 및 이미지 추가
+        if (updatedImages != null && !updatedImages.isEmpty()) { // 새 이미지가 제공되었는지 확인
+            updatedImages.forEach(file -> {
+                String uploadedUrl = s3Manager.uploadFileToS3(file, "boards/");
+                if (!urlsToKeep.contains(uploadedUrl)) {
+                    Image newImage = Image.builder()
+                            .imageUrl(uploadedUrl)
+                            .build();
+                    boardOptional.get().addImage(newImage);
+                }
+            });
+        }
+
+        // 게시물 저장
+        Board savedBoard = boardRepository.save(boardOptional.get());
+
+        // 응답 DTO 생성 및 반환
+        BoardUpdateResponseDTO responseDTO = BoardUpdateResponseDTO.builder()
+                .boardsId(savedBoard.getId())
+                .title(savedBoard.getTitle())
+                .createdDate(savedBoard.getCreatedDate())
+                .updateDate(savedBoard.getUpdateDate())
+                .build();
+
+        return ResultDto.<BoardUpdateResponseDTO>builder()
+                .message(ErrorCode.SUCCESS.getMessage())
+                .data(responseDTO)
+                .errorCode(ErrorCode.SUCCESS.getCode())
+                .build();
     }
+
 
     //Boards 상세보기
     @Transactional(readOnly = true)
     public ResultDto<BoardDetailResponseDTO> boardDetail(Long boardsId, Long userId) {
+
         Optional<Board> boardOptional = boardRepository.findById(boardsId);
         if (!boardOptional.isPresent()) {
             return ResultDto.<BoardDetailResponseDTO>builder()
@@ -251,6 +359,7 @@ public class BoardService {
                     .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
                     .build();
         }
+
 
         Board board = boardOptional.get();
         boolean isOwner = (userId != null && board.getUser() != null && userId.equals(board.getUser().getId()));
@@ -283,6 +392,10 @@ public class BoardService {
                 .map(qna -> convertToQnaDto(qna, userId, isOwner))
                 .collect(Collectors.toList());
 
+        // JSON 문자열에서 List<String>으로 변환
+        List<String> questions = gson.fromJson(board.getQuestion(), new TypeToken<List<String>>(){}.getType());
+
+
         BoardDetailResponseDTO boardDetailResponseDTO = BoardDetailResponseDTO.builder()
                 .boardId(board.getId())
                 .nickname(nickname)
@@ -290,16 +403,16 @@ public class BoardService {
                 .contents(board.getContents())
                 .headcount(board.getHeadCount())
                 .title(board.getTitle())
-//                .city(board.getCity())
-//                .district(board.getDistrict())
-                .b_code(board.getBCode())
-                .location(board.getLocation())
+                .bcode(board.getBCode())
+                .detail(board.getLocation())
                 .latitude(board.getLatitude())
                 .longitude(board.getLongitude())
-                .question(board.getQuestion())
+                .question(questions)
                 .days(board.getDays().toString())
                 .times(board.getTimes().toString())
+                .profile(board.getUser().getProfileImageUrl())
                 .isOwner(isOwner)
+                .addr(board.getAddr())
                 .wishState(wishState)
                 .wishId(wishId)
                 .images(imageUrls)
@@ -361,6 +474,45 @@ public class BoardService {
                 .contents(canViewComment ? comment.getContents() : "비공개 글 입니다.")
                 .build();
     }
+    @Transactional
+    public ResultDto<?> boardDelete(Long boardId, Long userId) {
+
+        Optional<Users> userOptional = usersRepository.findById(userId);
+        if (!userOptional.isPresent()) {
+            return ResultDto.<BoardRegisterResponseDTO>builder()
+                    .message(ErrorCode.NOT_EXIST_USERS.getMessage())
+                    .data(null)
+                    .errorCode(ErrorCode.NOT_EXIST_USERS.getCode())
+                    .build();
+        }
+
+        Optional<Board> boardOptional = boardRepository.findById(boardId);
+        if (!boardOptional.isPresent()) {
+            return ResultDto.builder()
+                    .message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+                    .errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+                    .build();
+        }
+
+        Board board = boardOptional.get();
+        // 게시글의 주인이 맞는지 확인
+        if (!board.getUser().getId().equals(userId)) {
+            return ResultDto.builder()
+                    .message(ErrorCode.NOT_OWNER_BOARDS.getMessage())
+                    .errorCode(ErrorCode.NOT_OWNER_BOARDS.getCode())
+                    .build();
+        }
+
+        // 게시글 삭제
+        boardRepository.delete(board);
+        return ResultDto.builder()
+                .message("success")
+                .data(null)
+                .errorCode("1111")
+                .build();
+    }
+
+
 
 //    //qna & comment 해당 데이터 없어서 db로 더미 넣어서 확인함.(수정건)
 //    private QnaDTO convertToQnaDto(Qna qna, Long userId, boolean isOwner) {
@@ -482,6 +634,8 @@ public class BoardService {
 
         return response;
     }
+
+
 }
 
 
