@@ -1,12 +1,16 @@
 package com.strawberryfarm.fitingle.domain.board.repository;
 
+import static com.strawberryfarm.fitingle.domain.apply.entity.QApply.apply;
 import static com.strawberryfarm.fitingle.domain.board.entity.QBoard.board;
 import static com.strawberryfarm.fitingle.domain.field.entity.QField.field;
+import static com.strawberryfarm.fitingle.domain.image.entity.QImage.image;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.strawberryfarm.fitingle.domain.apply.entity.ApplyStatus;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchKeywordDto;
 import com.strawberryfarm.fitingle.domain.board.dto.BoardSearchNonUserDto;
 import com.strawberryfarm.fitingle.domain.board.dto.QBoardSearchNonUserDto;
@@ -69,13 +73,23 @@ public class BoardRepositoryCustom {
                 board.id,
                 board.title,
                 board.location,
-                field.name.as("fieldName"),
+                board.field.name,
                 board.days,
                 board.times,
                 board.headCount,
-                board.postStatus
+                JPAExpressions.select(apply.count())
+                    .from(apply)
+                    .where(apply.board.id.eq(board.id)
+                        .and(apply.status.eq(ApplyStatus.I)
+                            .or(apply.status.eq(ApplyStatus.Y)))),
+                board.postStatus,
+                image.imageUrl
             ))
             .from(board)
+            .leftJoin(image)
+            .on(board.id.eq(image.board.id).and(image.id.eq(
+                JPAExpressions.select(image.id.min()).from(image)
+                    .where(image.board.id.eq(board.id)))))
             .where(builder)
             .orderBy(board.id.desc())
             .offset(page - 1)
