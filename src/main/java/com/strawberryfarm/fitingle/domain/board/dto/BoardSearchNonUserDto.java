@@ -32,17 +32,20 @@ public class BoardSearchNonUserDto {
     private Times times;
 
     @Schema(description = "모집인원", example = "5")
-    private Long headCount;
+    private long headCount;
 
     @Schema(description = "신청자 수", example = "1")
-    private long applyCount = 1;
+    private long applyCount;
 
     @Schema(description = "모집상태", example = "Y")
     private PostStatus postStatus;
 
+    @Schema(description = "이미지 url", example = "")
+    private String imageUrl;
+
     @QueryProjection
     public BoardSearchNonUserDto(long boardId, String title, String location, String fieldName, Days days,
-        Times times, Long headCount, PostStatus postStatus) {
+        Times times, long headCount, long applyCount, PostStatus postStatus, String imageUrl) {
         this.boardId = boardId;
         this.title = title;
         this.location = location;
@@ -50,6 +53,8 @@ public class BoardSearchNonUserDto {
         this.days = days;
         this.times = times;
         this.headCount = headCount;
+        this.applyCount = applyCount;
         this.postStatus = postStatus;
+        this.imageUrl = imageUrl;
     }
 }
