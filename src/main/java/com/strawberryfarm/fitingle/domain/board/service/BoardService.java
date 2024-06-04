@@ -547,11 +547,12 @@ public class BoardService {
 //                .build();
 //    }
 
-    public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, Days days,
-        Times times, int page, int size) {
-        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, days,
-            times, page, size);
-        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, days, times);
+    public ResultDto<List<BoardSearchDTO>> boardSearch(Long userId, String keyword, String BCode,
+        Days days, Times times, int page, int size) {
+        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword,
+            BCode, days, times, page, size);
+        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, BCode, days,
+            times);
 
         BoardSearchNonUserResponseDto result = BoardSearchNonUserResponseDto.builder()
             .totalCount(totalCount)
@@ -567,11 +568,12 @@ public class BoardService {
     }
 
     public ResultDto<List<BoardSearchNonUserResponseDto>> boardSearchNonUser(String keyword,
-        Days days, Times times, int page, int size) {
+        String BCode, Days days, Times times, int page, int size) {
 
-        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword, days,
-            times, page, size);
-        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, days, times);
+        List<BoardSearchNonUserDto> boards = boardRepositoryCustom.boardSearchNonUser(keyword,
+            BCode, days, times, page, size);
+        long totalCount = boardRepositoryCustom.boardSearchNonUserTotalCount(keyword, BCode, days,
+            times);
 
         BoardSearchNonUserResponseDto result = BoardSearchNonUserResponseDto.builder()
             .totalCount(totalCount)
