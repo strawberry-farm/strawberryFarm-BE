@@ -1,5 +1,7 @@
 package com.strawberryfarm.fitingle.domain.apply.service;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.strawberryfarm.fitingle.domain.ErrorCode;
 import com.strawberryfarm.fitingle.domain.apply.dto.ApplyChangeResponseDto;
 import com.strawberryfarm.fitingle.domain.apply.dto.ApplyDto;
@@ -39,6 +41,8 @@ public class ApplyService {
 	private final GroupsService groupsService;
 
 	private final GroupsRepository groupsRepository;
+
+	private final Gson gson = new Gson();
 
 	@Transactional
 	public ResultDto<?> apply(ApplyRequestDto applyRequestDto, Long boardId, Long userId) {
@@ -105,9 +109,14 @@ public class ApplyService {
 						.build();
 			}
 
+
+			List<String> questions = applyRequestDto.getContents();
+
+			String jsonQuestions = gson.toJson(questions);
+
 			// 신청이 존재하지 않는 경우, 새로운 신청 추가
 			Apply newApply = Apply.builder()
-					.contents(applyRequestDto.getContents())
+					.contents(jsonQuestions)
 					.status(ApplyStatus.I)
 					.user(findUser)
 					.board(findBoard)
@@ -199,31 +208,39 @@ public class ApplyService {
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 	}
 
+
 	private static void applyListToApplyDtoList(Board board, List<Apply> applyList, List<ApplyDto> result) {
+		Gson gson = new Gson();
 
 		for (Apply apply : applyList) {
-			Users user = apply.getUser(); // 가정: Apply 객체가 User 객체에 접근할 수 있음
+			Users user = apply.getUser();
+			List<String> parsedContents = gson.fromJson(apply.getContents(), new TypeToken<List<String>>(){}.getType());
+			List<String> parsedQuestion = gson.fromJson(board.getQuestion(), new TypeToken<List<String>>(){}.getType());
+
 			result.add(ApplyDto.builder()
 					.status(apply.getStatus())
 					.profileUrl(user.getNickname())
 					.nickName(user.getNickname())
 					.aboutMe(user.getAboutMe())
 					.applyId(apply.getId())
-					.contents(apply.getContents())
-					.question(board.getQuestion())
+					.contents(parsedContents)  // Set the parsed list of strings
+					.question(parsedQuestion)
+					.boardId(board.getId())
+					.boardTitle(board.getTitle())
 					.build());
 		}
 	}
 
-	private ApplyDto convertToApplyDto(Apply apply) {
-		// Apply 엔티티를 ApplyDto 객체로 변환하는 메서드
-		return ApplyDto.builder()
-				.status(apply.getStatus())
-				.applyId(apply.getId())
-				.contents(apply.getContents())
-				.question(apply.getBoard().getQuestion())
-				.build();
-	}
+
+//	private ApplyDto convertToApplyDto(Apply apply) {
+//		// Apply 엔티티를 ApplyDto 객체로 변환하는 메서드
+//		return ApplyDto.builder()
+//				.status(apply.getStatus())
+//				.applyId(apply.getId())
+//				.contents(apply.getContents())
+//				.question(apply.getBoard().getQuestion())
+//				.build();
+//	}
 
 	public ResultDto<?> getMyApply(Long userId) {
 		// 1.사용자 존재 여부 확인
@@ -348,22 +365,30 @@ public class ApplyService {
 					.errorCode(ErrorCode.ALREADY_FULLED.getCode())
 					.build();
 		}
+		// 신청 취소 상태인 경우 에러 반환
+		if (apply.getStatus() == ApplyStatus.C) {
+			return ResultDto.builder()
+					.message(ErrorCode.ALREADY_CANCELED.getMessage())
+					.data(null)
+					.errorCode(ErrorCode.ALREADY_CANCELED.getCode())
+					.build();
+		}
 
 		//상태 Y로 변경
 		apply.modifyStatus(ApplyStatus.Y);
 
-		//모임에 상태값을 guest로 바꿈
-		Optional<Groups> groupsOptional = groupsRepository.findByUserIdAndBoardId(apply.getBoard().getId(),userId);
-		if (!groupsOptional.isPresent()) {
-			return  ResultDto.builder()
-					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
-					.data(null)
-					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode())
-					.build();
-		}
+//		//모임에 상태값을 guest로 바꿈
+//		Optional<Groups> groupsOptional = groupsRepository.findByUserIdAndBoardId(apply.getBoard().getId(),userId);
+//		if (!groupsOptional.isPresent()) {
+//			return  ResultDto.builder()
+//					.message(ErrorCode.NOT_EXIST_GROUP.getMessage())
+//					.data(null)
+//					.errorCode(ErrorCode.NOT_EXIST_GROUP.getCode())
+//					.build();
+//		}
 
 		// 상태값을 GUEST로 변경
-		groupsService.groupsCreate(existUsers.get(), findBoard, GroupsStatus.GUEST);
+		groupsService.groupsCreate(apply.getUser(), findBoard, GroupsStatus.GUEST);
 
 
 		return ApplyChangeResponseDto.builder()
