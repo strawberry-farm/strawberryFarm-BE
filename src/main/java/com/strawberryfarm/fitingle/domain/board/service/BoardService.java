@@ -461,6 +461,7 @@ public class BoardService {
                 .contents(canViewComment ? qna.getContents() : "비공개 글 입니다.")
                 .status(qna.isStatus())
                 .comment(commentDto)
+                .owner(isAuthor)
                 .build();
     }
 

@@ -56,6 +56,7 @@ public enum ErrorCode {
 
     ALREADY_FULLED(200,"AP004","Can't Apply , Group Is Fulled"),
 
+    ALREADY_CANCELED(200,"AP005","Can't approve , Apply Is Canceled"),
 
     //Qna
     NOT_EXIST_QNA(400,"QN000","Not Exist Qna"),
