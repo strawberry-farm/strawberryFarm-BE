@@ -34,12 +34,11 @@ public class ApplyController {
 		return ResponseEntity.ok(applyService.apply(applyRequestDto,boardId,userId));
 	}
 
-	@GetMapping("/user/groups/applyList")
+	@GetMapping("/user/groups/applyList/{boardId}")
 	public ResponseEntity<?> getApplyList(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam(required = false )Long boardId) {
+		@PathVariable Long boardId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
-
 		return ResponseEntity.ok(applyService.getApplyList(boardId,userId));
 	}
 
@@ -47,27 +46,24 @@ public class ApplyController {
 	public ResponseEntity<?> getApplyList(
 		@AuthenticationPrincipal UserDetails userDetails) {
 		Long userId = Long.parseLong(userDetails.getUsername());
-
 		return ResponseEntity.ok(applyService.getApplyList(userId));
 	}
 
-	@GetMapping("/user/groups/apply")
+	@GetMapping("/user/groups/apply/{boardId}")
 	public ResponseEntity<?> getMyApply(
 		@AuthenticationPrincipal UserDetails userDetails,
-		@RequestParam(required = false )Long boardId) {
+		@PathVariable Long boardId) {
 		Long userId = Long.parseLong(userDetails.getUsername());
-
 		return ResponseEntity.ok(applyService.getMyApply(boardId, userId));
 	}
 
 	@GetMapping("/user/groups/apply/all")
 	public ResponseEntity<?> getMyApply(@AuthenticationPrincipal UserDetails userDetails) {
 		Long userId = Long.parseLong(userDetails.getUsername());
-
 		return ResponseEntity.ok(applyService.getMyApply(userId));
 	}
 
-	@PatchMapping("/user/groups/apply/{applyId}")
+	@DeleteMapping("/user/groups/apply/{applyId}")
 	public ResponseEntity<?> cancelApply(
 		@AuthenticationPrincipal UserDetails userDetails,
 		@PathVariable Long applyId) {

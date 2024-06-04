@@ -18,4 +18,5 @@ public class QnaDTO {
     private String contents;
     private boolean status;
     private CommentDTO comment;
+    private boolean owner;
 }
