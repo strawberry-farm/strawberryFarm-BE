@@ -23,9 +23,9 @@ import com.strawberryfarm.fitingle.domain.board.repository.BoardRepositoryCustom
 import com.strawberryfarm.fitingle.domain.comment.entity.Comment;
 import com.strawberryfarm.fitingle.domain.field.entity.Field;
 import com.strawberryfarm.fitingle.domain.field.repository.FieldRepository;
+import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
 import com.strawberryfarm.fitingle.domain.groups.repository.GroupsRepository;
-import com.strawberryfarm.fitingle.domain.groups.service.GroupsService;
 import com.strawberryfarm.fitingle.domain.image.entity.Image;
 import com.strawberryfarm.fitingle.domain.qna.entity.Qna;
 import com.strawberryfarm.fitingle.domain.tag.entity.Tag;
@@ -62,8 +62,6 @@ public class BoardService {
     private final GroupsRepository groupsRepository;
 
     private final UsersRepository usersRepository;
-
-    private final GroupsService groupsService;
 
     private final Gson gson = new Gson();
 
@@ -148,7 +146,7 @@ public class BoardService {
         Board savedBoard = boardRepository.save(board);
 
         // 1.Groups 생성 및 저장
-        groupsService.groupsCreate(userOptional.get(), savedBoard, GroupsStatus.HOST);
+        groupsCreate(userOptional.get(), savedBoard, GroupsStatus.HOST);
 
         // 2.여기에 채팅 필요
 
@@ -634,6 +632,19 @@ public class BoardService {
             .build();
 
         return response;
+    }
+    public void groupsCreate(Users user, Board board, GroupsStatus groupsStatus) {
+        Groups groups = Groups.builder()
+                .user(user)
+                .board(board)
+                .status(groupsStatus)
+                .build();
+
+        // 연관관계 편의 메서드 호출
+        user.addGroup(groups); // Users 엔티티에 Groups 인스턴스를 추가
+        board.addGroup(groups); // Board 엔티티에 Groups 인스턴스를 추가
+
+        groupsRepository.save(groups);
     }
 
 

@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.Query;
 public interface GroupsRepository extends JpaRepository<Groups, Long> {
     int countByBoardId(Long boardId);
 
-    @Query("select count(g) from Groups g where g.board.id = :boardId and g.status != 'WAIT'")
-    int getParticipantCount(Long boardId);
+//    @Query("select count(g) from Groups g where g.board.id = :boardId and g.status != 'WAIT'")
+//    int getParticipantCount(Long boardId);
 
     List<Groups> findGroupsByStatus(GroupsStatus status);
 

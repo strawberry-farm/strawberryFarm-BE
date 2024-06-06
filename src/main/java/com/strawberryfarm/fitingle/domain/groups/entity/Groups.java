@@ -62,11 +62,11 @@ public class Groups extends BaseEntity {
         }
     }
 
-    public void changeStatusToWait(){
-       this.status = GroupsStatus.WAIT;
-    }
-    public void changeStatusToGuest(){
-        this.status = GroupsStatus.GUEST;
-    }
+//    public void changeStatusToWait(){
+//       this.status = GroupsStatus.WAIT;
+//    }
+//    public void changeStatusToGuest(){
+//        this.status = GroupsStatus.GUEST;
+//    }
 
 }

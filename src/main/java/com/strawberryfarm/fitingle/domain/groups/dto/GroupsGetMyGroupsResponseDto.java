@@ -12,5 +12,5 @@ import lombok.experimental.SuperBuilder;
 @RequiredArgsConstructor
 @Getter
 public class GroupsGetMyGroupsResponseDto extends BaseDto {
-	private List<PostDetailDto> posts;
+	private List<PostDetailDto> boards;
 }

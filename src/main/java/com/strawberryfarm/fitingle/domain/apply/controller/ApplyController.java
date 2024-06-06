@@ -2,7 +2,9 @@ package com.strawberryfarm.fitingle.domain.apply.controller;
 
 import com.strawberryfarm.fitingle.domain.apply.dto.ApplyRequestDto;
 import com.strawberryfarm.fitingle.domain.apply.service.ApplyService;
+import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@Slf4j
 @RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 @RequiredArgsConstructor
 public class ApplyController {
@@ -89,4 +92,12 @@ public class ApplyController {
 
 		return ResponseEntity.ok(applyService.rejectApply(applyId,userId));
 	}
+
+//	@GetMapping("/user/groups")
+//	public ResponseEntity<?> mygroups(
+//			@AuthenticationPrincipal UserDetails userDetails,@RequestParam GroupsStatus status) {
+//		Long userId = Long.parseLong(userDetails.getUsername());
+//		return ResponseEntity.ok(applyService.myBoardList(status,userId));
+//	}
+
  }
