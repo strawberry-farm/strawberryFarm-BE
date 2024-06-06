@@ -13,18 +13,22 @@ import com.strawberryfarm.fitingle.domain.apply.entity.ApplyStatus;
 import com.strawberryfarm.fitingle.domain.apply.repository.ApplyRepository;
 import com.strawberryfarm.fitingle.domain.board.entity.Board;
 import com.strawberryfarm.fitingle.domain.board.repository.BoardRepository;
+import com.strawberryfarm.fitingle.domain.groups.dto.GroupsGetMyGroupsResponseDto;
+import com.strawberryfarm.fitingle.domain.groups.dto.PostDetailDto;
 import com.strawberryfarm.fitingle.domain.groups.entity.Groups;
 import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
 import com.strawberryfarm.fitingle.domain.groups.repository.GroupsRepository;
-import com.strawberryfarm.fitingle.domain.groups.service.GroupsService;
+import com.strawberryfarm.fitingle.domain.image.entity.Image;
 import com.strawberryfarm.fitingle.domain.users.entity.Users;
 import com.strawberryfarm.fitingle.domain.users.repository.UsersRepository;
+import com.strawberryfarm.fitingle.domain.wish.entity.Wish;
+import com.strawberryfarm.fitingle.domain.wish.repository.WishRepository;
 import com.strawberryfarm.fitingle.dto.ResultDto;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,11 +42,11 @@ public class ApplyService {
 	private final BoardRepository boardRepository;
 	private final UsersRepository usersRepository;
 
-	private final GroupsService groupsService;
-
 	private final GroupsRepository groupsRepository;
 
 	private final Gson gson = new Gson();
+
+	private final WishRepository wishRepository;
 
 	@Transactional
 	public ResultDto<?> apply(ApplyRequestDto applyRequestDto, Long boardId, Long userId) {
@@ -388,7 +392,7 @@ public class ApplyService {
 //		}
 
 		// 상태값을 GUEST로 변경
-		groupsService.groupsCreate(apply.getUser(), findBoard, GroupsStatus.GUEST);
+		groupsCreate(apply.getUser(), findBoard, GroupsStatus.GUEST);
 
 
 		return ApplyChangeResponseDto.builder()
@@ -499,4 +503,42 @@ public class ApplyService {
 			.curStatus(ApplyStatus.N)
 			.build().doResultDto(ErrorCode.SUCCESS.getMessage(), ErrorCode.SUCCESS.getCode());
 	}
+
+//	public ResultDto<?>  myBoardList(GroupsStatus status, Long userId) {
+//		boolean existUsers = usersRepository.existsById(userId);
+//
+//		if (!existUsers) {
+//			return ResultDto.builder()
+//					.message(ErrorCode.NOT_EXIST_BOARDS.getMessage())
+//					.data(null)
+//					.errorCode(ErrorCode.NOT_EXIST_BOARDS.getCode())
+//					.build();
+//		}
+//		if(status == GroupsStatus.GUEST){
+//			List<Board> applyedBoard = applyRepository.findByUserId(userId).stream()
+//					.map(Apply::getBoard)
+//					.distinct()
+//					.collect(Collectors.toList());
+//
+//			return
+//
+//
+//		}
+//
+//
+//	}
+	public void groupsCreate(Users user, Board board, GroupsStatus groupsStatus) {
+		Groups groups = Groups.builder()
+				.user(user)
+				.board(board)
+				.status(groupsStatus)
+				.build();
+
+		// 연관관계 편의 메서드 호출
+		user.addGroup(groups); // Users 엔티티에 Groups 인스턴스를 추가
+		board.addGroup(groups); // Board 엔티티에 Groups 인스턴스를 추가
+
+		groupsRepository.save(groups);
+	}
+
 }

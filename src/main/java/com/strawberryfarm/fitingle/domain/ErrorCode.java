@@ -73,6 +73,7 @@ public enum ErrorCode {
 
     //Group
     NOT_EXIST_GROUP(400,"GO000","Not Exist Group"),
+    NOT_EXIST_OPTION(400,"GO001","Not Exist Group Option"),
 
 
 

@@ -14,13 +14,15 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder
 @RequiredArgsConstructor
 public class PostDetailDto extends BaseDto {
-	private Long postId;
+	private Long boardId;
 	private String title;
+	private boolean wish;
 	private String location;
 	private Times times;
 	private Days days;
-	private int headCount;
+	private Long headCount;
 	private int participantCount;
 	private GroupsStatus status;
+	private String fieldName;
 	private List<String> imagesUrl;
 }

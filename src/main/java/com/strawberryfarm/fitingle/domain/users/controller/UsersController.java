@@ -1,5 +1,7 @@
 package com.strawberryfarm.fitingle.domain.users.controller;
 
+import com.strawberryfarm.fitingle.domain.groups.entity.GroupsStatus;
+import com.strawberryfarm.fitingle.domain.groups.service.GroupService;
 import com.strawberryfarm.fitingle.domain.users.dto.interestArea.InterestAreaRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.keyword.KeywordRegisterRequestDto;
 import com.strawberryfarm.fitingle.domain.users.dto.usersDto.UsersDetailUpdateRequestDto;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "Users", description = "Users API")
 public class UsersController {
     private final UsersService usersService;
+
     @GetMapping
     @Operation(summary = "유저 상세 정보 가져오기")
     public ResponseEntity<?> getUsersDetail(@AuthenticationPrincipal UserDetails userDetails) {
@@ -81,4 +84,5 @@ public class UsersController {
     public ResponseEntity<?> getUsersList() {
         return ResponseEntity.ok(usersService.getUsersList());
     }
+
 }
